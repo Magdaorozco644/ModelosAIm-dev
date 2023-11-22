@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+
+  pre_build:
+    commands:
+      - echo "Installing dependencies, if any"
+
+  build:
+    commands:
+      - echo "Building and running Glue jobs"
+      # Execute the modified Bash script to create and run Glue jobs
+      - chmod +x create_and_run_jobs.sh
+      - ./create_and_run_jobs.sh
+
