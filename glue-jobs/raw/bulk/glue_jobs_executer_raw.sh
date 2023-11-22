@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Archivo JSON con la configuración de los trabajos
-JOBS_FILE="glue-jobs\raw\bulk\jobs-config\jobs.json"
+JOBS_FILE="glue-jobs/raw/bulk/jobs-config/jobs.json"
 
 # Leer cada trabajo del archivo JSON y crearlo
 cat "$JOBS_FILE" | python -c '
