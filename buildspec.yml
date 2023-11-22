@@ -13,6 +13,6 @@ phases:
     commands:
       - echo "Building and running Glue jobs"
       # Execute the modified Bash script to create and run Glue jobs
-      - chmod +x glue_jobs_executer_raw.sh
+      - chmod +x /glue-jobs/raw/bulk/glue_jobs_executer_raw.sh
       - ./glue-jobs/raw/bulk/glue_jobs_executer_raw.sh
 
