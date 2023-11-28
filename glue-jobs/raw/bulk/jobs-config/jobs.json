@@ -10,6 +10,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_catalog_vcw_deliverytime_contract_provider_glue_script.py"
@@ -27,6 +30,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -46,6 +52,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_fraud_ml_fraud_score_glue_script.py"
@@ -63,6 +72,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -82,6 +94,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_loyalty_accounting_journal_glue_script.py"
@@ -99,6 +114,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -118,6 +136,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_loyalty_customers_customer_glue_script.py"
@@ -135,6 +156,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -154,6 +178,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_crm_bank_cost_glue_script.py"
@@ -171,6 +198,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -190,6 +220,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_agent_glue_script.py"
@@ -207,6 +240,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -226,6 +262,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_banco_glue_script.py"
@@ -243,6 +282,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -262,6 +304,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_agent_glue_script.py"
@@ -279,6 +324,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -298,6 +346,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_owner_change_glue_script.py"
@@ -315,6 +366,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -334,6 +388,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_relations_glue_script.py"
@@ -351,6 +408,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -370,6 +430,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_chain_glue_script.py"
@@ -387,6 +450,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -406,6 +472,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_comision_glue_script.py"
@@ -423,6 +492,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -442,6 +514,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_comision_delivery_glue_script.py"
@@ -459,6 +534,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -478,6 +556,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_country_glue_script.py"
@@ -495,6 +576,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -514,6 +598,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_currency_purchase_glue_script.py"
@@ -531,6 +618,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -550,6 +640,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_flag_receiver_glue_script.py"
@@ -567,6 +660,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -586,6 +682,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_group_branch_glue_script.py"
@@ -603,6 +702,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -622,6 +724,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_history_inventory_market_glue_script.py"
@@ -639,6 +744,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -658,6 +766,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_modo_pago_glue_script.py"
@@ -675,6 +786,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -694,6 +808,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_rate_group_state_delivery_glue_script.py"
@@ -711,6 +828,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -730,6 +850,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_receiver_glue_script.py"
@@ -747,6 +870,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -766,6 +892,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_receiver_source_glue_script.py"
@@ -783,6 +912,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -802,6 +934,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_sf_safes_branches_glue_script.py"
@@ -819,6 +954,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -838,6 +976,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_state_glue_script.py"
@@ -855,6 +996,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -874,6 +1018,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_tipo_transmision_agencia_glue_script.py"
@@ -891,6 +1038,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -910,6 +1060,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_trader_group_glue_script.py"
@@ -927,6 +1080,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -946,6 +1102,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_transaccion_diaria_payee_glue_script.py"
@@ -963,6 +1122,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -982,6 +1144,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_biller_glue_script.py"
@@ -999,6 +1164,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1018,6 +1186,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_billpayment_viaone_sales_glue_script.py"
@@ -1035,6 +1206,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1054,6 +1228,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_carriers_by_providers_glue_script.py"
@@ -1071,6 +1248,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1090,6 +1270,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_cost_gateway_glue_script.py"
@@ -1107,6 +1290,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1126,6 +1312,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_delivery_time_glue_script.py"
@@ -1143,6 +1332,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1162,6 +1354,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_employees_by_branch_glue_script.py"
@@ -1179,6 +1374,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1198,6 +1396,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_moneyorders_sales_glue_script.py"
@@ -1215,6 +1416,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1234,6 +1438,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_price_standard_glue_script.py"
@@ -1251,6 +1458,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1270,6 +1480,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_product_type_glue_script.py"
@@ -1287,6 +1500,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1306,6 +1522,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_sales_products_glue_script.py"
@@ -1323,6 +1542,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1342,6 +1564,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_standard_pricing_glue_script.py"
@@ -1359,6 +1584,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1378,6 +1606,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_von_dba_cashier_glue_script.py"
@@ -1395,6 +1626,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1414,6 +1648,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_checkverification_glue_script.py"
@@ -1431,6 +1668,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1450,6 +1690,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_checksontemporaryaccounts_glue_script.py"
@@ -1467,6 +1710,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1486,6 +1732,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_onholdcategories_glue_script.py"
@@ -1503,6 +1752,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1522,6 +1774,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_rulesgroup_glue_script.py"
@@ -1539,6 +1794,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1558,6 +1816,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_viacheckfeaturemodules_glue_script.py"
@@ -1575,6 +1836,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1594,6 +1858,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_voidsubtypereason_glue_script.py"
@@ -1611,6 +1878,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1630,6 +1900,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_checkreader_score_glue_script.py"
@@ -1647,6 +1920,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1666,6 +1942,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_tvcp_param_agencias_glue_script.py"
@@ -1683,6 +1962,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1702,6 +1984,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_checkstatustable_glue_script.py"
@@ -1719,6 +2004,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
@@ -1738,6 +2026,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_customer_location_glue_script.py"
@@ -1756,6 +2047,9 @@
         "Tags": {
             "map-migrated": "mig42454"
         },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+        },
         "Command": {
             "Name": "glueetl",
             "ScriptLocation": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_returnchecks_glue_script.py"
@@ -1773,6 +2067,9 @@
         },
         "Tags": {
             "map-migrated": "mig42454"
+        },
+        "DefaultArguments": {
+            "--TempDir": "s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
         },
         "Command": {
             "Name": "glueetl",
