@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [MIN_AMOUNT] ,[ID_PRODUCT] ,[PRODUCT_NAME_SERVICE] ,[CURRENT_ROUTE] ,[ID_COST_GATEWAY] ,[ID_PROVIDER] ,[FEE] ,[CATEGORY] ,[PROMOTION] ,[MAX_AMOUNT] ,[FIX] ,[INSTRUCTION] ,[ID_PRODUCT_TYPE] ,[CARRIER_NAME_SERVICE] ,[DISCOUNT] ,[CURRENCY_CODE] ,[ID_CARRIER_SERVICE] ,[EXCHANGE_RATE] ,[IS_SALES_TAX_CHARGED] ,[BONUS_AMOUNT] ,[DESCRIPTION] ,[ID_CARRIERS_BY_PROVIDERS] ,[ID_SKU_SERVICE] ,[DENOMINATION] ,[PRODUCT_CODE] FROM envio.dba.vcw_cost_gateway) x"
+qryStr = f"(SELECT [PRODUCT_CODE] ,[FEE] ,[ID_CARRIERS_BY_PROVIDERS] ,[ID_PRODUCT_TYPE] ,[ID_SKU_SERVICE] ,[INSTRUCTION] ,[PRODUCT_NAME_SERVICE] ,[ID_PRODUCT] ,[DENOMINATION] ,[PROMOTION] ,[EXCHANGE_RATE] ,[MIN_AMOUNT] ,[CURRENCY_CODE] ,[ID_COST_GATEWAY] ,[DISCOUNT] ,[FIX] ,[ID_CARRIER_SERVICE] ,[CARRIER_NAME_SERVICE] ,[DESCRIPTION] ,[CURRENT_ROUTE] ,[ID_PROVIDER] ,[MAX_AMOUNT] ,[IS_SALES_TAX_CHARGED] ,[CATEGORY] ,[BONUS_AMOUNT] FROM envio.dba.vcw_cost_gateway) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

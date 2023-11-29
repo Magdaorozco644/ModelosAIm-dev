@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ID_BRANCH] ,[DATE_CREATED] ,[ID_VAULT] ,[wirelessId] ,[USER_CREATED] ,[MachineId] ,[ID_SAFE_BRANCH] ,[ID_ARMORED_CAR] ,[ID_PROVIDER] FROM envio.dba.sf_safes_branches) x"
+qryStr = f"(SELECT [DATE_CREATED] ,[wirelessId] ,[USER_CREATED] ,[MachineId] ,[ID_SAFE_BRANCH] ,[ID_ARMORED_CAR] ,[ID_BRANCH] ,[ID_VAULT] ,[ID_PROVIDER] FROM envio.dba.sf_safes_branches) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

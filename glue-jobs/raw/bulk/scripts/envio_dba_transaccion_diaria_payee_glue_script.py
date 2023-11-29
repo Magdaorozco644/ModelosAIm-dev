@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [DATE_TRANS_DIARIA] ,[DESC_TRANS_DIARIA1] ,[CONS_TRANS_REVERSAL] ,[BALANCE_TRANS_DIARIA] ,[DEBIT_TRANS_DIARIA] ,[CONS_TRANS_DIARIA] ,[DESCRIPCION_SUSPENSE] ,[LINK_REFERENCE] ,[NUM_WIRETRANSFER] ,[HOUR_TRANS_DIARIA] ,[TOTAL_AMOUNT] ,[WIRE_AMT_REFERENCED] ,[ID_GROUP_TRANS_DIARIA] ,[DATE_SYSTEM] ,[ID_CONCEPTO_CONTABLE] ,[CREDIT_TRANS_DIARIA] ,[BNKID] ,[FLAG_RECONCILIATION] ,[DES_TRANS_DIARIA] ,[ID_CASHIER] FROM envio.dba.transaccion_diaria_payee) x"
+qryStr = f"(SELECT [BNKID] ,[DES_TRANS_DIARIA] ,[WIRE_AMT_REFERENCED] ,[CONS_TRANS_REVERSAL] ,[ID_GROUP_TRANS_DIARIA] ,[HOUR_TRANS_DIARIA] ,[TOTAL_AMOUNT] ,[ID_CONCEPTO_CONTABLE] ,[DATE_SYSTEM] ,[DATE_TRANS_DIARIA] ,[BALANCE_TRANS_DIARIA] ,[ID_CASHIER] ,[CREDIT_TRANS_DIARIA] ,[FLAG_RECONCILIATION] ,[CONS_TRANS_DIARIA] ,[DESCRIPCION_SUSPENSE] ,[LINK_REFERENCE] ,[DESC_TRANS_DIARIA1] ,[NUM_WIRETRANSFER] ,[DEBIT_TRANS_DIARIA] FROM envio.dba.transaccion_diaria_payee) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

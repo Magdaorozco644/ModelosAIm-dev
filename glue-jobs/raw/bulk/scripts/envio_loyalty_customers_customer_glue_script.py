@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [total_points] ,[id] ,[initial_remittances_per_quarter] ,[initial_top_ups_per_quarter] ,[balance] ,[initial_last_quarter_bill_pay] ,[initial_bill_pay_per_quarter] ,[date_of_first_transaction] ,[points_to_expire] ,[product_id] ,[date_to_be_expired] ,[enrollment_date] ,[status_points] ,[initial_last_quarter_top_ups] ,[initial_last_quarter_remittances] ,[teller_id] FROM envio.loyalty.customers_customer) x"
+qryStr = f"(SELECT [initial_bill_pay_per_quarter] ,[initial_last_quarter_remittances] ,[id] ,[status_points] ,[date_of_first_transaction] ,[initial_last_quarter_top_ups] ,[balance] ,[product_id] ,[initial_remittances_per_quarter] ,[teller_id] ,[points_to_expire] ,[total_points] ,[enrollment_date] ,[date_to_be_expired] ,[initial_top_ups_per_quarter] ,[initial_last_quarter_bill_pay] FROM envio.loyalty.customers_customer) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

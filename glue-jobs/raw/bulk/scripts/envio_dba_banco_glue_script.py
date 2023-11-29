@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [COST_X_100_CARROARMADO] ,[IS_ACH_MAIL_NOT] ,[FLAG_BANCO] ,[NAME_BANCO] ,[CHECKBOOKID] ,[FEE_PER_MONTH] ,[TREASURY_DB_NAME] ,[COST_TRX_QBD] ,[ACH_BANCO] ,[ACH_MAIL_NOT] ,[COST_TRX_PICKUP] ,[COST_X_100_ACH] ,[COST_TRX_VAULT] ,[COST_X_100_VAULT] ,[CASH_VAULT_FEES] ,[CURRENT_ACH_LOG] ,[COST_X_100_DEPOSIT] ,[COST_X_100_ATM] ,[COST_X_100_QBD] ,[COST_TRX_CARROARMADO] ,[YEARMONTH] ,[COST_TRX_VIACHECK] ,[SHORTNAME_BANCO] ,[COST_TRX_ACH] ,[ADDRESS_BANCO] ,[COST_TRX_DEPOSIT] ,[DEP_BANCO] ,[USES_TREASURY] ,[ID_BANCO] ,[CASH_HANDLING_FEES] ,[COST_TRX_ATM] FROM envio.dba.banco) x"
+qryStr = f"(SELECT [CASH_HANDLING_FEES] ,[COST_TRX_ACH] ,[YEARMONTH] ,[COST_X_100_QBD] ,[COST_X_100_CARROARMADO] ,[COST_TRX_CARROARMADO] ,[ID_BANCO] ,[FLAG_BANCO] ,[COST_TRX_VAULT] ,[TREASURY_DB_NAME] ,[COST_X_100_ACH] ,[COST_TRX_ATM] ,[COST_TRX_PICKUP] ,[CHECKBOOKID] ,[DEP_BANCO] ,[FEE_PER_MONTH] ,[ADDRESS_BANCO] ,[COST_X_100_VAULT] ,[CURRENT_ACH_LOG] ,[USES_TREASURY] ,[SHORTNAME_BANCO] ,[ACH_BANCO] ,[ACH_MAIL_NOT] ,[COST_TRX_DEPOSIT] ,[COST_TRX_QBD] ,[NAME_BANCO] ,[COST_X_100_ATM] ,[IS_ACH_MAIL_NOT] ,[COST_TRX_VIACHECK] ,[COST_X_100_DEPOSIT] ,[CASH_VAULT_FEES] FROM envio.dba.banco) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

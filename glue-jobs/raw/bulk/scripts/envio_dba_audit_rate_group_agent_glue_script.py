@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ID_COUNTRY_RATE] ,[TEMP_RATE_MOD] ,[ID_RATE_TYPE] ,[LIMIT_SEND_RATE] ,[USER_MODIFY] ,[ID_COUNTRY] ,[ID_CURRENCY_SOURCE] ,[LIMIT_INF_RATE] ,[PROCESS] ,[LIMIT_SUP_RATE] ,[ID_MAIN_BRANCH] ,[ID_BRANCH] ,[ID_CURRENY] ,[TEMP_RATE_VALID_THRU] ,[RATE] ,[ID_STATE] ,[ID_MODO_PAGO] ,[DATE_PROCESS] ,[DATE_UPGRADE] ,[ID] FROM envio.dba.audit_rate_group_agent) x"
+qryStr = f"(SELECT [ID_MAIN_BRANCH] ,[RATE] ,[ID_MODO_PAGO] ,[ID_COUNTRY] ,[DATE_UPGRADE] ,[TEMP_RATE_VALID_THRU] ,[LIMIT_SEND_RATE] ,[LIMIT_INF_RATE] ,[USER_MODIFY] ,[ID_RATE_TYPE] ,[TEMP_RATE_MOD] ,[DATE_PROCESS] ,[LIMIT_SUP_RATE] ,[ID_BRANCH] ,[ID] ,[ID_CURRENCY_SOURCE] ,[ID_CURRENY] ,[PROCESS] ,[ID_COUNTRY_RATE] ,[ID_STATE] FROM envio.dba.audit_rate_group_agent) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

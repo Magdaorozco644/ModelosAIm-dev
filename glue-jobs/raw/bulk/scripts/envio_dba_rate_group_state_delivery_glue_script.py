@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [LIMIT_SUP_RATE] ,[ID_CURRENY] ,[LIMIT_INF_RATE] ,[ID_COUNTRY_RATE] ,[RATE] ,[ID_STATE] ,[ID_RATE_TYPE] ,[LIMIT_SEND_RATE] ,[ID_MODO_PAGO] ,[ID_MAIN_BRANCH] ,[ID_COUNTRY] ,[ID_CURRENCY_SOURCE] FROM envio.dba.rate_group_state_delivery) x"
+qryStr = f"(SELECT [ID_CURRENCY_SOURCE] ,[ID_MAIN_BRANCH] ,[LIMIT_SEND_RATE] ,[RATE] ,[ID_CURRENY] ,[ID_MODO_PAGO] ,[LIMIT_SUP_RATE] ,[LIMIT_INF_RATE] ,[ID_COUNTRY] ,[ID_RATE_TYPE] ,[ID_COUNTRY_RATE] ,[ID_STATE] FROM envio.dba.rate_group_state_delivery) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

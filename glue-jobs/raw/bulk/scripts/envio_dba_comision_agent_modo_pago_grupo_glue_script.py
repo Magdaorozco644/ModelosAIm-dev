@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ID_BRANCH] ,[PORCENT_COMISION_COMP] ,[RANGE_BEGIN_COMISION_PAY] ,[FEET_CUSTOMER_COMM_B] ,[PORCENT_COMISION_AGENTE] ,[RANGE_END_COMISION_PAY] ,[FEET_COMISION_COMP] ,[MOD_PAY_CURRENCY] ,[PORCENT_CUSTOMER_COMM_B] ,[FEET_COMISION_AGENTE] ,[ID_COUNTRY_SOURCE] ,[ID_MODO_PAGO] ,[ID_MAIN_BRANCH] ,[ID_COUNTRY] ,[ID_CURRENCY_SOURCE] ,[PORCENT_COMPANY_COMM_B] ,[FEET_COMPANY_COMM_B] FROM envio.dba.comision_agent_modo_pago_grupo) x"
+qryStr = f"(SELECT [FEET_COMPANY_COMM_B] ,[ID_CURRENCY_SOURCE] ,[ID_MAIN_BRANCH] ,[PORCENT_COMPANY_COMM_B] ,[PORCENT_COMISION_COMP] ,[PORCENT_CUSTOMER_COMM_B] ,[ID_MODO_PAGO] ,[PORCENT_COMISION_AGENTE] ,[FEET_COMISION_COMP] ,[MOD_PAY_CURRENCY] ,[ID_COUNTRY_SOURCE] ,[RANGE_END_COMISION_PAY] ,[ID_BRANCH] ,[FEET_CUSTOMER_COMM_B] ,[RANGE_BEGIN_COMISION_PAY] ,[FEET_COMISION_AGENTE] ,[ID_COUNTRY] FROM envio.dba.comision_agent_modo_pago_grupo) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

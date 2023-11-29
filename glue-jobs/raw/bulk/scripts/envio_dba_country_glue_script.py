@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [PHONE_LENGHT] ,[ISO_C3] ,[FLAG_VIACASH] ,[REQUESTROUTING] ,[ID_COUNTRY] ,[IS_ORIGINATOR] ,[REGION] ,[IS_SPECIAL_OFFER] ,[IS_HIGHRISK] ,[LONG_DISTANCE_CODE] ,[RECEIVER_PHONE_REQUIRED] ,[ISO_N] ,[LANG] ,[NAME_COUNTRY] ,[NEW_RATE] ,[ISO_C2] ,[IS_ISOCOUNTRY] ,[DEFAULT_CURRENCY] ,[DENY_DOLLAR_PAYMENT] ,[COD_MERCHANTRADE] ,[FLAG_COUNTRY] ,[FLAG_SEND_MONEY] ,[ISO_NAME] FROM envio.dba.country) x"
+qryStr = f"(SELECT [RECEIVER_PHONE_REQUIRED] ,[IS_HIGHRISK] ,[PHONE_LENGHT] ,[DEFAULT_CURRENCY] ,[LONG_DISTANCE_CODE] ,[NAME_COUNTRY] ,[REGION] ,[ISO_N] ,[DENY_DOLLAR_PAYMENT] ,[IS_ISOCOUNTRY] ,[ISO_NAME] ,[LANG] ,[FLAG_SEND_MONEY] ,[FLAG_COUNTRY] ,[NEW_RATE] ,[ISO_C2] ,[FLAG_VIACASH] ,[COD_MERCHANTRADE] ,[REQUESTROUTING] ,[IS_SPECIAL_OFFER] ,[IS_ORIGINATOR] ,[ISO_C3] ,[ID_COUNTRY] FROM envio.dba.country) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

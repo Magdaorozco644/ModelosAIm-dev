@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [DATE_VIAKOM] ,[TYPE] ,[ACTIVE_DEBIT_CARD] ,[ACTIVE_VIACHECK] ,[ACTIVE_VIATAB] ,[DATE_RP] ,[ACTIVE_MONEYORDER] ,[ACTIVE_VIAKOM] ,[NOW_INSTALLATION_DATE] ,[DATE_PC] ,[ID_MAIN_BRANCH] ,[ID_BRANCH] ,[DATE_VIATAB] ,[ACTIVE_PC] ,[DATE_VIACHECK] ,[ID_LOCATION] ,[DATE_DEBIT_CARD] ,[DATE_CENTRAL] ,[DATE_VIASAFE] ,[ACTIVE_TOPUPS] ,[ACTIVE_BILLPAYMENT] ,[ACTIVE_RP2_0] ,[FIRST_INSTALLATION_DATE] ,[DATE_RP2_0] ,[DATE_TOPUPS] ,[ACTIVE_DATE_RP] ,[DATE_BILLPAYMENT] ,[ACTIVE_CENTRAL] ,[ACTIVE_VIASAFE] ,[DATE_MONEYORDER] FROM envio.dba.branch_installation) x"
+qryStr = f"(SELECT [ID_MAIN_BRANCH] ,[ACTIVE_VIAKOM] ,[ACTIVE_CENTRAL] ,[NOW_INSTALLATION_DATE] ,[DATE_BILLPAYMENT] ,[DATE_DEBIT_CARD] ,[DATE_TOPUPS] ,[ACTIVE_RP2_0] ,[FIRST_INSTALLATION_DATE] ,[ACTIVE_PC] ,[ACTIVE_BILLPAYMENT] ,[DATE_VIAKOM] ,[DATE_VIASAFE] ,[ACTIVE_DEBIT_CARD] ,[TYPE] ,[ACTIVE_DATE_RP] ,[ACTIVE_VIATAB] ,[DATE_RP] ,[ID_BRANCH] ,[ID_LOCATION] ,[ACTIVE_VIASAFE] ,[ACTIVE_MONEYORDER] ,[DATE_VIACHECK] ,[ACTIVE_TOPUPS] ,[DATE_VIATAB] ,[DATE_PC] ,[DATE_CENTRAL] ,[ACTIVE_VIACHECK] ,[DATE_MONEYORDER] ,[DATE_RP2_0] FROM envio.dba.branch_installation) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

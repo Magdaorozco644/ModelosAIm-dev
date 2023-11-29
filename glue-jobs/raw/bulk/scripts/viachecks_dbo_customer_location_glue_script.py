@@ -10,6 +10,8 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -42,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [cid] ,[decMaximoporDia] ,[Endosar] ,[id] ,[fecha_endoso] ,[WSImageNet] ,[name] ,[envio_cartucho] ,[fecha_fin_cartucho] ,[status] ,[Mensaje_endoso] ,[endoso_validado] ,[mensaje_endoso_vc2] ,[representment] ,[decMaximoporCheque] FROM viachecks.dbo.customer_location) x"
+qryStr = f"(SELECT [Mensaje_endoso] ,[envio_cartucho] ,[decMaximoporCheque] ,[fecha_endoso] ,[decMaximoporDia] ,[WSImageNet] ,[id] ,[representment] ,[fecha_fin_cartucho] ,[mensaje_endoso_vc2] ,[name] ,[status] ,[Endosar] ,[cid] ,[endoso_validado] FROM viachecks.dbo.customer_location) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\
