@@ -1,10 +1,11 @@
-
 import boto3, json
 from awsglue.context import GlueContext
+from concurrent.futures import ThreadPoolExecutor
+from botocore.exceptions import ClientError
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, current_date
+from pyspark.sql.functions import col, current_date, date_format
 
 # Contexto
 sc = SparkContext()
@@ -16,7 +17,30 @@ glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athe
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
-spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite", "CORRECTED")
+spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite",
+                "CORRECTED")
+def thread_function(args):
+    query, secret, jdbc_viamericas, date = args
+    print(f"INFO --- reading data for date: {date}")
+    # Reading data from the database
+    jdbcDF = spark.read.format('jdbc')\
+        .option('url', jdbc_viamericas)\
+        .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\
+        .option('dbtable', query )\
+        .option("user", secret['username'])\
+        .option("password", secret['password'])\
+        .option("numPartitions", 10)\
+        .option("fetchsize", 1000)\
+        .load()
+    print(f"INFO --- number of rows for date: {date}: {jdbcDF.count()} ")
+    jdbcDF = jdbcDF.withColumn('day', date_format('MODIFICATION_DATE', 'yyyy-MM-dd'))
+    print(f"INFO --- variable 'day' for date: {date} obtained")
+    # Definir la ruta de salida en S3
+    s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_submittransaction/"
+    print(f"INFO --- writing into s3 bucket: {s3_output_path} data for date: {date}")
+    # Escribir el DataFrame en formato Parquet en S3
+    jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
+    print(f"INFO --- data for date: {date} written successfully")
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -44,21 +68,25 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [id] ,[modification_date] ,[creation_date] ,[is_cancelled] FROM envio.loyalty.accounting_submittransaction) x"
 
-jdbcDF = spark.read.format('jdbc')\
-        .option('url', jdbc_viamericas)\
-        .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\
-        .option('dbtable', qryStr )\
-        .option("user", secret['username'])\
-        .option("password", secret['password'])\
-        .option("numPartitions", 10)\
-        .option("fetchsize", 1000)\
-        .load()
+def main(dates):
+    # creating pool threads
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
+        for date in dates:
+            qryStr = f"(SELECT [id] ,[modification_date] ,[creation_date] ,[is_cancelled] FROM envio.loyalty.accounting_submittransaction) x"
+            # create arguments
+            args = (qryStr, secret, jdbc_viamericas, date)
+            # create threads
+            future = executor.submit(thread_function, args)
+            # append thread to the list of threads
+            futures.append(future)
+        for i in len(futures):
+            print(f"INFO --- running thread number: {i + 1}")
+            # execute threads
+            futures[i].result()
+if __name__ == "__main__":
+    dates = ['2023', '2022', '2021', '2020']
 
-# Definir la ruta de salida en S3
-s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_submittransaction/"
 
-# Escribir el DataFrame en formato Parquet en S3
-jdbcDF.write.parquet(s3_output_path, mode="overwrite")
     
