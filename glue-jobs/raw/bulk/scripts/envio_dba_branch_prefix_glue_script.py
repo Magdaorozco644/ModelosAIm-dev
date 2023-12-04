@@ -43,7 +43,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [DSMENSAJEMOSTRARLEUSUARIO] ,[SNPREGUNTA] ,[ALERTTEMPLATE] ,[returnID] ,[returnReasonX9standar] ,[SNMARKDEFINITIVE] ,[SNBLACKLIST] ,[DefaultNotify] ,[DSMENSAJE] ,[SNBLOQUEA] ,[returnedCode] ,[detailedReason] FROM viachecks.dbo.returncodes) x"
+qryStr = f"(SELECT [ID_COUNTRY] ,[ID_PREFIX] ,[PREFIX] FROM envio.dba.BRANCH_PREFIX) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\
@@ -56,7 +56,7 @@ jdbcDF = spark.read.format('jdbc')\
         .load()
 
 # Definir la ruta de salida en S3
-s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/returncodes/"
+s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/dba/"
 
 # Escribir el DataFrame en formato Parquet en S3
 jdbcDF.write.parquet(s3_output_path, mode="overwrite")
