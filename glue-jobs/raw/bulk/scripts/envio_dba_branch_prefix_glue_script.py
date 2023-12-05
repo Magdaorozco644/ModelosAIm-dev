@@ -56,7 +56,7 @@ jdbcDF = spark.read.format('jdbc')\
         .load()
 
 # Definir la ruta de salida en S3
-s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/dba/"
+s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_prefix/"
 
 # Escribir el DataFrame en formato Parquet en S3
 jdbcDF.write.parquet(s3_output_path, mode="overwrite")
