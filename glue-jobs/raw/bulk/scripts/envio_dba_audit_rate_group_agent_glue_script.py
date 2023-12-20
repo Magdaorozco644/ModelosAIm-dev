@@ -71,19 +71,26 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [ID_MAIN_BRANCH] ,[RATE] ,[ID_MODO_PAGO] ,[ID_COUNTRY] ,[DATE_UPGRADE] ,[TEMP_RATE_VALID_THRU] ,[LIMIT_SEND_RATE] ,[LIMIT_INF_RATE] ,[USER_MODIFY] ,[ID_RATE_TYPE] ,[TEMP_RATE_MOD] ,[DATE_PROCESS] ,[LIMIT_SUP_RATE] ,[ID_BRANCH] ,[ID] ,[ID_CURRENCY_SOURCE] ,[ID_CURRENY] ,[PROCESS] ,[ID_COUNTRY_RATE] ,[ID_STATE] FROM envio.dba.audit_rate_group_agent) x"
+            qryStr = f"(SELECT [ID_MAIN_BRANCH] ,[RATE] ,[ID_MODO_PAGO] ,[ID_COUNTRY] ,[DATE_UPGRADE] ,[TEMP_RATE_VALID_THRU] ,[LIMIT_SEND_RATE] ,[LIMIT_INF_RATE] ,[USER_MODIFY] ,[ID_RATE_TYPE] ,[TEMP_RATE_MOD] ,[DATE_PROCESS] ,[LIMIT_SUP_RATE] ,[ID_BRANCH] ,[ID] ,[ID_CURRENCY_SOURCE] ,[ID_CURRENY] ,[PROCESS] ,[ID_COUNTRY_RATE] ,[ID_STATE] FROM envio.dba.audit_rate_group_agent WHERE DATE_PROCESS >= '{date}-01-01 00:00:00.000' AND DATE_PROCESS <= '{date}-12-31 23:59:59.000') x"
            # create arguments
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
             # append thread to the list of threads
             futures.append(future)
-        for i in len(futures):
+            
+        for i in range(len(futures)):
             print(f"INFO --- running thread number: {i + 1}")
             # execute threads
             futures[i].result()
 if __name__ == "__main__":
-    dates = ['2023', '2022', '2021', '2020']
-# Definir la ruta de salida en S3
+    dates = [
+        '2023', '2022', '2021', '2020', '2019', '2018', 
+        '2017', '2016', '2015', '2014', '2013', '2012', 
+        '2011', '2010', '2009', '2008', '2007', '2006',
+        '2005'
+    ]
+    
+    main(dates)
 
     

@@ -72,17 +72,24 @@ def main(dates):
         futures = []
         for date in dates:
 
-            qryStr = f"(SELECT [BNKID] ,[DES_TRANS_DIARIA] ,[WIRE_AMT_REFERENCED] ,[CONS_TRANS_REVERSAL] ,[ID_GROUP_TRANS_DIARIA] ,[HOUR_TRANS_DIARIA] ,[TOTAL_AMOUNT] ,[ID_CONCEPTO_CONTABLE] ,[DATE_SYSTEM] ,[DATE_TRANS_DIARIA] ,[BALANCE_TRANS_DIARIA] ,[ID_CASHIER] ,[CREDIT_TRANS_DIARIA] ,[FLAG_RECONCILIATION] ,[CONS_TRANS_DIARIA] ,[DESCRIPCION_SUSPENSE] ,[LINK_REFERENCE] ,[DESC_TRANS_DIARIA1] ,[NUM_WIRETRANSFER] ,[DEBIT_TRANS_DIARIA] FROM envio.dba.transaccion_diaria_payee) x"
+            qryStr = f"(SELECT [BNKID] ,[DES_TRANS_DIARIA] ,[WIRE_AMT_REFERENCED] ,[CONS_TRANS_REVERSAL] ,[ID_GROUP_TRANS_DIARIA] ,[HOUR_TRANS_DIARIA] ,[TOTAL_AMOUNT] ,[ID_CONCEPTO_CONTABLE] ,[DATE_SYSTEM] ,[DATE_TRANS_DIARIA] ,[BALANCE_TRANS_DIARIA] ,[ID_CASHIER] ,[CREDIT_TRANS_DIARIA] ,[FLAG_RECONCILIATION] ,[CONS_TRANS_DIARIA] ,[DESCRIPCION_SUSPENSE] ,[LINK_REFERENCE] ,[DESC_TRANS_DIARIA1] ,[NUM_WIRETRANSFER] ,[DEBIT_TRANS_DIARIA] FROM envio.dba.transaccion_diaria_payee WHERE DATE_TRANS_DIARIA >= '{date}-01-01 00:00:00.000' AND DATE_TRANS_DIARIA <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
             # append thread to the list of threads
             futures.append(future)
-        for i in len(futures):
+        for i in range(len(futures)):
             print(f"INFO --- running thread number: {i + 1}")
             # execute threads
             futures[i].result()
             
 if __name__ == "__main__":
-    dates = ['2023', '2022', '2021', '2020']
+    dates = [
+        '2023', '2022', '2021', '2020', '2019', '2018', 
+        '2017', '2016', '2015', '2014', '2013', '2012', 
+        '2011', '2010', '2009', '2008', '2007', '2006',
+        '2005'
+    ]
+    
+    main(dates)
     
