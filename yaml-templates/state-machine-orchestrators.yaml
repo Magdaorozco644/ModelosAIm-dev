@@ -1,0 +1,675 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ViaLambdaInputRolName:
+    Type: String
+    Default: lambda_rol_input_map
+  ViaLambdaInputName:
+    Type: String
+    Default: input_map_state_machine
+  VIARoleStateMachineOrchestratorName:
+    Type: String
+    Default: cf-aws-orchestrator-sf-run
+  VIAStateMachineNameBulkOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_orchestrator
+  VIAStateMachineNameHourlyOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_hourly_orchestrator
+  VIAStateMachineNameHalfHourOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_half_hour_orchestrator
+  VIAStateMachineNameSixHoursOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_six_hour_orchestrator
+  VIAStateMachineNameDailyOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_daily_orchestrator
+  VIAStateMachineType:
+    Type: String
+    Default: STANDARD
+  ViaEventBridgeRuleRoleName:
+    Type: String
+    Default: role_rule_hourly_sm_execution
+  ViaEventBridgeRuleHalfHourName:
+    Type: String
+    Default: rule_half_hour_sm_execution
+  ViaEventBridgeRuleHourlyName:
+    Type: String
+    Default: rule_hourly_sm_execution
+  ViaEventBridgeRuleSixHoursName:
+    Type: String
+    Default: rule_six_hours_sm_execution
+  ViaEventBridgeRuleDailyName:
+    Type: String
+    Default: rule_daily_sm_execution
+    
+Resources:
+  # Rol for lambda function
+  VIALambdaInputMapRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub sdlf_${ViaLambdaInputRolName}
+      Description: "IAM role for lambda"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                Resource:
+                  - "*"
+
+  # Lambda
+  ViaLambdaInputMap:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: "python3.11"
+      Role: !GetAtt VIALambdaInputMapRole.Arn
+      FunctionName: !Sub sldf_${ViaLambdaInputName}
+      Handler: index.lambda_handler
+      Code:
+        ZipFile: |
+          def lambda_handler(event, context):
+              ACCOUNT = "283731589572"
+              REGION = "us-east-1"
+
+              STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider, sdlf_sm_bulk_envio_fraud_fraud_vectors_v2_1, sdlf_sm_bulk_envio_loyalty_accounting_customerledger, sdlf_sm_bulk_envio_loyalty_accounting_journal, sdlf_sm_bulk_envio_loyalty_accounting_submittransaction, sdlf_sm_bulk_envio_loyalty_customers_customer, sdlf_sm_bulk_envio_sales_zone, sdlf_sm_bulk_envio_crm_bank_cost, sdlf_sm_bulk_envio_crm_receiver_gp_components, sdlf_sm_bulk_envio_dba_agent, sdlf_sm_bulk_envio_dba_banco, sdlf_sm_bulk_envio_dba_branch, sdlf_sm_bulk_envio_dba_branch_agent, sdlf_sm_bulk_envio_dba_branch_installation, sdlf_sm_bulk_envio_dba_branch_owner_change, sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_branch_prefix, sdlf_sm_bulk_envio_dba_branch_relations, sdlf_sm_bulk_envio_dba_cashier, sdlf_sm_bulk_envio_dba_chain, sdlf_sm_bulk_envio_dba_city, sdlf_sm_bulk_envio_dba_comision, sdlf_sm_bulk_envio_dba_comision_agent_modo_pago_grupo, sdlf_sm_bulk_envio_dba_comision_delivery, sdlf_sm_bulk_envio_dba_concepto_contable, sdlf_sm_bulk_envio_dba_country, sdlf_sm_bulk_envio_dba_currency, sdlf_sm_bulk_envio_dba_currency_purchase, sdlf_sm_bulk_envio_dba_deposit_codes, sdlf_sm_bulk_envio_dba_flag_receiver, sdlf_sm_bulk_envio_dba_forex_feed_market, sdlf_sm_bulk_envio_dba_group_branch, sdlf_sm_bulk_envio_dba_group_branch_phase, sdlf_sm_bulk_envio_dba_history_inventory_market, sdlf_sm_bulk_envio_dba_location, sdlf_sm_bulk_envio_dba_modo_pago, sdlf_sm_bulk_envio_dba_rate_group_agent, sdlf_sm_bulk_envio_dba_rate_group_state_delivery, sdlf_sm_bulk_envio_dba_rate_type, sdlf_sm_bulk_envio_dba_receiver_fraud, sdlf_sm_bulk_envio_dba_receiver_source, sdlf_sm_bulk_envio_dba_sender, sdlf_sm_bulk_envio_dba_sf_safes_branches, sdlf_sm_bulk_envio_dba_standar, sdlf_sm_bulk_envio_dba_state, sdlf_sm_bulk_envio_dba_tipo_transmision, sdlf_sm_bulk_envio_dba_tipo_transmision_agencia, sdlf_sm_bulk_envio_dba_trader, sdlf_sm_bulk_envio_dba_trader_group, sdlf_sm_bulk_envio_dba_transaccion_diaria_payee, sdlf_sm_bulk_envio_dba_vapp_application, sdlf_sm_bulk_envio_dba_vcw_biller, sdlf_sm_bulk_envio_dba_vcw_billpayment_viaone_sales, sdlf_sm_bulk_envio_dba_vcw_carriers, sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers, sdlf_sm_bulk_envio_dba_vcw_category, sdlf_sm_bulk_envio_dba_vcw_cost_gateway, sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider, sdlf_sm_bulk_envio_dba_vcw_delivery_time, sdlf_sm_bulk_envio_dba_vcw_employees, sdlf_sm_bulk_envio_dba_vcw_employees_by_branch, sdlf_sm_bulk_envio_dba_vcw_exclusion_pricing, sdlf_sm_bulk_envio_dba_vcw_moneyorders_sales, sdlf_sm_bulk_envio_dba_vcw_price_exclusion, sdlf_sm_bulk_envio_dba_vcw_price_standard, sdlf_sm_bulk_envio_dba_vcw_products, sdlf_sm_bulk_envio_dba_vcw_product_type, sdlf_sm_bulk_envio_dba_vcw_providers, sdlf_sm_bulk_envio_dba_vcw_sales_products, sdlf_sm_bulk_envio_dba_vcw_sales_status, sdlf_sm_bulk_envio_dba_vcw_standard_pricing, sdlf_sm_bulk_envio_dba_vcw_states_pricing, sdlf_sm_bulk_envio_von_dba_cashier, sdlf_sm_bulk_viachecks_viacheck_checkonholdreasons, sdlf_sm_bulk_viachecks_viacheck_checkverification, sdlf_sm_bulk_viachecks_viacheck_checkverify_servicescodes, sdlf_sm_bulk_viachecks_viacheck_checksontemporaryaccounts, sdlf_sm_bulk_viachecks_viacheck_historicalonholdrelease, sdlf_sm_bulk_viachecks_viacheck_onholdcategories, sdlf_sm_bulk_viachecks_viacheck_onholdcategoriesandgroups, sdlf_sm_bulk_viachecks_viacheck_rulesgroup, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemetrics, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemodules, sdlf_sm_bulk_viachecks_viacheck_voidreason, sdlf_sm_bulk_viachecks_viacheck_voidsubtypereason, sdlf_sm_bulk_viachecks_dbo_checkproperty, sdlf_sm_bulk_viachecks_dbo_checkreader_score, sdlf_sm_bulk_viachecks_dbo_reprocessed_checks, sdlf_sm_bulk_viachecks_dbo_tvcp_param_agencias, sdlf_sm_bulk_viachecks_dbo_batchtable, sdlf_sm_bulk_viachecks_dbo_checkstatustable, sdlf_sm_bulk_viachecks_dbo_checktable, sdlf_sm_bulk_viachecks_dbo_customer_location, sdlf_sm_bulk_viachecks_dbo_returnchecks, sdlf_sm_bulk_viachecks_dbo_returncodes"""
+              
+              HALF_HOUR_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_rate_type"""
+              
+              HOURLY_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider, sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_rate_type, sdlf_sm_bulk_envio_dba_vcw_sales_status"""
+              
+              SIX_HOURS_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider, sdlf_sm_bulk_envio_dba_comision, sdlf_sm_bulk_envio_dba_comision_delivery, sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers"""
+              
+              DAILY_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_dba_concepto_contable, sdlf_sm_bulk_envio_dba_receiver_source, sdlf_sm_bulk_envio_dba_vcw_employees, sdlf_sm_bulk_envio_dba_vcw_employees_by_branch, sdlf_sm_bulk_envio_dba_flag_receiver"""
+              
+              list_state_machines = STATE_MACHINE_NAMES.split(", ")
+              list_half_hour_state_machines = HALF_HOUR_STATE_MACHINE_NAMES.split(", ")
+              list_hourly_state_machines = HOURLY_STATE_MACHINE_NAMES.split(", ")
+              list_six_hours_state_machines = SIX_HOURS_STATE_MACHINE_NAMES.split(", ")
+              list_daily_state_machines = DAILY_STATE_MACHINE_NAMES.split(", ")    
+              
+              state_machine_arns = []
+              for state_machine in list_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                  
+                  state_machine_arns.append({
+                      "arn": state_machine_arn
+                  })
+              
+              half_hour_state_machine_arns = []
+              for state_machine in list_half_hour_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                            
+                  half_hour_state_machine_arns.append({
+                      "arn": state_machine_arn
+                  })
+                        
+              hourly_state_machine_arns = []
+              for state_machine in list_hourly_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                            
+                  hourly_state_machine_arns.append({
+                      "arn": state_machine_arn
+                  })
+
+              six_hours_state_machine_arns = []
+              for state_machine in list_six_hours_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                            
+                  six_hours_state_machine_arns.append({
+                      "arn": state_machine_arn
+                  })
+              
+              daily_state_machines_arns = []
+              for state_machine in list_daily_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                            
+                  daily_state_machines_arns.append({
+                      "arn": state_machine_arn
+                  })
+
+
+              return {
+                      "stateMachines": state_machine_arns,
+                      "halfHourStateMachines": half_hour_state_machine_arns,
+                      "hourlyStateMachines": hourly_state_machine_arns,
+                      "sixHoursStateMachines": six_hours_state_machine_arns,
+                      "dailyStateMachines": daily_state_machines_arns
+                  }
+      Description: List Amazon S3 buckets in us-east-1.
+      TracingConfig:
+        Mode: Active
+
+    # Role pipeline orchestrator
+  VIAStateMachinePipelineOrchestratorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref VIARoleStateMachineOrchestratorName
+      Description: "IAM role for step functions"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "states.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                  - "lambda:*"
+                  - "states:*"
+                  - "events:PutTargets"
+                  - "events:PutRule"
+                  - "events:DescribeRule"
+                Resource:
+                  - "*"
+
+  # Step function
+  VIAStateMachineBulkOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.stateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameBulkOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration    
+
+  # Step function
+  VIAStateMachineHalfHourOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.halfHourStateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameHalfHourOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration    
+  
+  # Step function
+  VIAStateMachineHourlyOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.hourlyStateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameHourlyOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration    
+
+
+  # Rol para event bridge rule
+    # Role pipeline orchestrator
+  VIAEventBridgeRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref ViaEventBridgeRuleRoleName
+      Description: "IAM role for event rule"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "states:StartExecution"
+                Resource:
+                  - "*"    
+  # Crea la regla de EventBridge
+  VIAEventRuleHourlyExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleHourlyName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(1 hour)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineHourlyOrchestrator
+          Id: VIAStateMachineHourlyOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
+  
+    # Crea la regla de EventBridge
+  VIAEventRuleHalfHourExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleHalfHourName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(30 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineHalfHourOrchestrator
+          Id: VIAStateMachineHalfHourOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
+  
+    # Step function
+  VIAStateMachineSixHoursOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.sixHoursStateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameSixHoursOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration    
+  # Crea la regla de EventBridge
+
+  VIAEventRuleSixHoursExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleSixHoursName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(6 hours)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineSixHoursOrchestrator
+          Id: VIAStateMachineSixHoursOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
+  
+      # Step function
+  VIAStateMachineDailyOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.dailyStateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameDailyOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration    
+  # Crea la regla de EventBridge
+
+  VIAEventRuleDailyExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleDailyName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(1 day)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineDailyOrchestrator
+          Id: VIAStateMachineDailyOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
