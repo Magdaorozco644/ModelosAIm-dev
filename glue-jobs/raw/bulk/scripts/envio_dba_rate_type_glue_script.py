@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ID_CURRENCY_SOURCE] ,[RATE] ,[RATE_CALC] ,[CALCULATED_SPREAD_PERCENTAGE] ,[ID_CURRENCY] ,[CONVERTER_ID_RATE_TYPE] ,[CALCULATED_FROM_ID_RATE_TYPE] ,[NAME_RATE_TYPE] ,[ID_COUNTRY_SOURCE] ,[CALCULATED_SPREAD] ,[ID_RATE_TYPE] ,[ID_COUNTRY] FROM envio.dba.rate_type) x"
+qryStr = f"(SELECT [CALCULATED_SPREAD] ,[ID_RATE_TYPE] ,[NAME_RATE_TYPE] ,[ID_COUNTRY] ,[ID_COUNTRY_SOURCE] ,[ID_CURRENCY] ,[RATE_CALC] ,[CONVERTER_ID_RATE_TYPE] ,[CALCULATED_FROM_ID_RATE_TYPE] ,[RATE] ,[ID_CURRENCY_SOURCE] FROM envio.dba.rate_type) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

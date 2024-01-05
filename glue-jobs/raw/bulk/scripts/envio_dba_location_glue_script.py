@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ZIP4CODE_LOCATION] ,[ID_TERRITORY] ,[PHONE_2] ,[LAST_STATUS_COMMENT] ,[ID_SALESFORCE] ,[MODEM_BRANCH] ,[ID_CITY] ,[DATE_CRE_BRANCH] ,[ID_STATUS_BRANCH] ,[ADDRESS] ,[ZIP_CODE] ,[CURRENCY_PAY_BRANCH] ,[FAX] ,[LONGITUD] ,[FLAG_VIACHECK] ,[LATITUD] ,[ZIP_CODE_V] ,[ID_CHAIN] ,[ID_FLAG_LOCATION] ,[ID_LOCATION] ,[GEO_PRECISION] ,[LOCATION_NOTES] ,[PHONE_1] ,[NAME_LOCATION] ,[BUSINESS_HOURS] ,[ID_COUNTRY] ,[ID_STATE] FROM envio.dba.location) x"
+qryStr = f"(SELECT [ID_COUNTRY] ,[ID_CHAIN] ,[ID_TERRITORY] ,[LATITUD] ,[LAST_STATUS_COMMENT] ,[ID_STATUS_BRANCH] ,[GEO_PRECISION] ,[LONGITUD] ,[ZIP_CODE_V] ,[MODEM_BRANCH] ,[BUSINESS_HOURS] ,[NAME_LOCATION] ,[ZIP4CODE_LOCATION] ,[PHONE_1] ,[FAX] ,[CURRENCY_PAY_BRANCH] ,[ID_LOCATION] ,[DATE_CRE_BRANCH] ,[ID_STATE] ,[LOCATION_NOTES] ,[ZIP_CODE] ,[ADDRESS] ,[ID_SALESFORCE] ,[PHONE_2] ,[FLAG_VIACHECK] ,[ID_CITY] ,[ID_FLAG_LOCATION] FROM envio.dba.location) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

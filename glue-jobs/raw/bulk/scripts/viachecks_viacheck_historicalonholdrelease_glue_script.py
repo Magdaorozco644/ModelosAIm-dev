@@ -1,3 +1,4 @@
+
 import boto3, json
 from awsglue.context import GlueContext
 from concurrent.futures import ThreadPoolExecutor
@@ -7,11 +8,10 @@ from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, current_date, date_format
 
-
 # Contexto
 sc = SparkContext()
 spark = SparkSession(sc)
-glueContext = GlueContext(spark)
+
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
@@ -35,11 +35,16 @@ def thread_function(args):
     jdbcDF = jdbcDF.withColumn('day', date_format('processeddate', 'yyyy-MM-dd'))
     print(f"INFO --- variable 'day' for date: {date} obtained")
     # Definir la ruta de salida en S3
+
     s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/historicalonholdrelease/"
+    
     print(f"INFO --- writing into s3 bucket: {s3_output_path} data for date: {date}")
+    
     # Escribir el DataFrame en formato Parquet en S3
     jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
+    
     print(f"INFO --- data for date: {date} written successfully")
+
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -56,6 +61,7 @@ def get_secret(secret_name, region_name):
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         raise e
+        
     # Decrypts secret using the associated KMS key.
     secret = get_secret_value_response['SecretString']
     secret_=json.loads(secret)
@@ -65,6 +71,7 @@ def get_secret(secret_name, region_name):
 secret_name = "SQLSERVER-CREDENTIALS"
 region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
+
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
 
 def main(dates):
@@ -72,14 +79,12 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [IdHoldGroup] ,[Review] ,[CheckId] ,[ProcessedUser] ,[CheckStatus] ,[ProcessedDate] ,[HistoricalId] ,[idVoidReason] ,[ReviewDate] ,[HoldDate] ,[idVoidSubReason] FROM viachecks.viacheck.historicalonholdrelease WHERE processeddate >= '{date}-01-01 00:00:00.000' AND processeddate <= '{date}-12-31 23:59:59.000') x"
-            # create arguments
+            qryStr = f"([CheckStatus] ,[ProcessedDate] ,[CheckId] ,[ProcessedUser] ,[HistoricalId] ,[idVoidReason] ,[IdHoldGroup] ,[ReviewDate] ,[idVoidSubReason] ,[Review] ,[HoldDate] FROM viachecks.viacheck.historicalonholdrelease WHERE processeddate >= '{date}-01-01 00:00:00.000' AND processeddate <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
             # append thread to the list of threads
             futures.append(future)
-            
         for i in range(len(futures)):
             print(f"INFO --- running thread number: {i + 1}")
             # execute threads
@@ -93,6 +98,5 @@ if __name__ == "__main__":
         '2005'
     ]
     
-    # Execute main function and pass dates
     main(dates)
     

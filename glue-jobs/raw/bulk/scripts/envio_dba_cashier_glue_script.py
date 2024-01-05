@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [AD_USER] ,[RED_PHONE_SKILL] ,[DATE_CREATE_CASHIER] ,[ADD_CASHIER] ,[DEPARTMENT] ,[ID_CASHIER] ,[ID_FLAG] ,[VIASAFE] ,[NAME_CASHIER] ,[CISCO_EXT] ,[IS_COLLECTOR] ,[ADMIN] ,[PASS_CASHIER] ,[LOCATION] FROM envio.dba.cashier) x"
+qryStr = f"(SELECT [ID_CASHIER] ,[PASS_CASHIER] ,[ADD_CASHIER] ,[IS_COLLECTOR] ,[NAME_CASHIER] ,[CISCO_EXT] ,[RED_PHONE_SKILL] ,[DEPARTMENT] ,[DATE_CREATE_CASHIER] ,[ID_FLAG] ,[LOCATION] ,[VIASAFE] ,[AD_USER] ,[ADMIN] FROM envio.dba.cashier) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

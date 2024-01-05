@@ -1,45 +1,22 @@
+
 import boto3, json
 from awsglue.context import GlueContext
-from concurrent.futures import ThreadPoolExecutor
-from botocore.exceptions import ClientError
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, current_date, date_format
+from pyspark.sql.functions import col, current_date
 
 # Contexto
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite", "CORRECTED")
-
-def thread_function(args):
-    query, secret, jdbc_viamericas, date = args
-    print(f"INFO --- reading data for date: {date}")
-    # Reading data from the database
-    jdbcDF = spark.read.format('jdbc')\
-        .option('url', jdbc_viamericas)\
-        .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\
-        .option('dbtable', query )\
-        .option("user", secret['username'])\
-        .option("password", secret['password'])\
-        .option("numPartitions", 10)\
-        .option("fetchsize", 1000)\
-        .load()
-    print(f"INFO --- number of rows for date: {date}: {jdbcDF.count()} ")
-    jdbcDF = jdbcDF.withColumn('day', date_format('DATE_RECEIVER', 'yyyy-MM-dd'))
-    print(f"INFO --- variable 'day' for date: {date} obtained")
-    # Definir la ruta de salida en S3
-    s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receiver/"
-    print(f"INFO --- writing into s3 bucket: {s3_output_path} data for date: {date}")
-    # Escribir el DataFrame en formato Parquet en S3
-    jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
-    print(f"INFO --- data for date: {date} written successfully")
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -67,28 +44,21 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
+qryStr = f"(SELECT [RECIPIENT_DATE_INSERTED] ,[SOURCE_TELEX_RECEIVER] ,[ID_CURRENCY_SOURCE] ,[ID_MODIFICATION_REASON] ,[REC_PAYMENTTYPE] ,[BRANCH_CASHIER] ,[ID_BRANCH] ,[TOLL_FREE] ,[_ID_COUNTRY_ORI] ,[REC_SENACCTYPE] ,[ID_CURRENY] ,[ID_FLAG_RECEIVER] ,[ID_RECEIVER] ,[TELEX_RECEIVER] ,[DATE_DEPOSIT] ,[DATE_RECEIVER] ,[SOURCE_TELEX_COMPANY] ,[ID_CASHIER] ,[ORIGINAL_FEE] ,[RATE_BASE_AT_INSERT] ,[FX_RECEIVER] ,[id_basis_rec] ,[SYNC_COMPASS] ,[EXCHANGE_RECEIVER] ,[HANDLING_RECEIVER] ,[STATE_TAX] ,[BANK_RECEIVER] ,[NUMID] ,[COMMISSION_PAYEE] ,[PORC_COMISION_RECEIVER] ,[ID_FUNDS_NAME] ,[TOTAL_DIFERENCE] ,[ACC_RECEIVER] ,[CLAVE_RECEIVER] ,[DATE_CANCELATION_REQ] ,[ID_STATE_RECEIVER] ,[FOREX_GAIN] ,[REF_RECEIVER] ,[ACCULINK_TRANID] ,[REC_ACCBANK] ,[rec_fname] ,[NET_AMOUNT_RECEIVER] ,[acc_typeid] ,[CLOSING_AGENT] ,[ID_PAYMENT] ,[FOREX_ESTIMATED] ,[TELEX_COMPANY] ,[TOTAL_MODO_PAGO_COMP] ,[REBATE_AMOUNT] ,[STATUS_PAGO_PAYEE] ,[DISCOUNT] ,[FUNDING_FEE] ,[REC_ACCNUMBER] ,[ORIGINAL_RATE] ,[SOURCE_EXCHANGE_COMPANY] ,[PAYMENT_DATE] ,[ID_MAIN_BRANCH_SENT] ,[BRANCH_NAME_CASHIER] ,[COMMISSION_PAYEE_PESOS] ,[SOURCE] ,[FX_RATE_ORIGINATOR] ,[RECEIVER_DATE_AVAILABLE] ,[ID_CANCELATION_REQ] ,[SOURCE_TAXES] ,[EXPIRED_RATE] ,[ID_FUNDS_OTHER_NAME] ,[PAYER_REFERENCENO] ,[rec_mname] ,[SOURCE_TOTAL_RECEIVER] ,[typed_date] ,[COUPON_CODE] ,[PIN_NUMBER] ,[TRANS_RECEIVER] ,[ID_MAIN_BRANCH_EXPIRED] ,[PHONE2_RECEIVER] ,[ID_RECIPIENT] ,[rec_slname] ,[AGENT_COMM_PROFIT] ,[NOTES_RECEIVER] ,[REFERAL_COMISSION_PERCENTAGE] ,[BRANCH_PAY_RECEIVER] ,[DATE_EXPIRED] ,[ADDRESS_RECEIVER] ,[FOREX_FIRST_ESTIMATED] ,[id_receiver_unique] ,[SOURCE_ORIGINAL_RATE] ,[FOREX_CALC] ,[TOTAL_MODO_PAGO] ,[TOTAL_RECEIVER] ,[SOURCE_EXCHANGE_RECEIVER] ,[DATE_CANCEL] ,[ORDER_EXPIRED] ,[PHONE1_RECEIVER] ,[STATUS_PAGO_AGENT] ,[MOD_PAY_CURRENCY] ,[FX_RATE_CUSTOMER] ,[ID_CITY_RECEIVER] ,[URGENCY_RECEIVER] ,[TYPEID] ,[ORIGINATOR_BUYING_RATE] ,[rec_synch] ,[RATE_AT_INSERT] ,[ID_FUND] ,[FOREX_FIRST_ESTIMATED_RATE] ,[RECOMEND_RECEIVER] ,[_ID_STATE_ORI] ,[APPS] ,[ZIP_RECEIVER] ,[SOURCE_FEE_RATE] ,[DATE_MODIFICATION_REQ] ,[ORIGINATOR_TRANSACTION_ID] ,[rec_createacc] ,[RATE_CHANGE_RECEIVER] ,[DATE_TRANS_PAYEE] ,[ID_MODIFICATION_REQ] ,[REC_ACCROUTING] ,[FOREX_GAIN_RATE] ,[SPECIAL_COMMENT] ,[ADDITIONAL_INFORMATION] ,[CLOSING_PAYEE] ,[SOURCE_CURRENCY_AMOUNT] ,[DEST_COUNTRY_TAX] ,[type_basis_rec] ,[NAME_RECEIVER] ,[MAINTENANCE_FEE] ,[_ID_CITY_ORI] ,[rec_lname] ,[FOREX_ESTIMATED_RATE] ,[DEBIT_CARD_NUMBER] ,[email_receiver] ,[LOYALTY_RATE_COST] ,[BRANCH_PAY_RECEIVER_ORIGINAL] ,[ID_COUNTRY_RECEIVER] ,[TOTAL_PAY_RECEIVER] ,[REFERAL_COMISSION_FIXED] ,[TIME_RECEIVER] ,[FLAG_TEMP] ,[ID_AD] ,[MODE_PAY_RECEIVER] ,[FEE_RATE] ,[ID_SENDER] ,[SOURCE_FEE_AMOUNT] ,[EXCHANGE_COMPANY] FROM envio.dba.receiver) x"
 
-def main(dates):
-    # creating pool threads
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = []
-        for date in dates:
-            qryStr = f"(SELECT [REBATE_AMOUNT] ,[ACCULINK_TRANID] ,[APPS] ,[ID_AD] ,[ID_MAIN_BRANCH_SENT] ,[ADDITIONAL_INFORMATION] ,[ID_MODIFICATION_REQ] ,[ID_RECEIVER] ,[acc_typeid] ,[FOREX_CALC] ,[DISCOUNT]  ,[ORIGINAL_RATE]  ,[TYPEID]  ,[ID_COUNTRY_RECEIVER] ,[EXPIRED_RATE] ,[FX_RECEIVER] ,[FOREX_ESTIMATED] ,[LOYALTY_RATE_COST] ,[ID_BRANCH] ,[SOURCE_TELEX_COMPANY]  ,[ID_MODIFICATION_REASON] ,[RATE_CHANGE_RECEIVER]  ,[MAINTENANCE_FEE] ,[ID_FUNDS_OTHER_NAME] ,[SOURCE] ,[ID_SENDER] ,[DATE_TRANS_PAYEE] ,[BRANCH_NAME_CASHIER] ,[ZIP_RECEIVER] ,[REC_SENACCTYPE] ,[AGENT_COMM_PROFIT] ,[FUNDING_FEE] ,[TOTAL_MODO_PAGO_COMP] ,[HANDLING_RECEIVER] ,[SOURCE_FEE_RATE] ,[BRANCH_CASHIER] ,[DEST_COUNTRY_TAX] ,[RECEIVER_DATE_AVAILABLE]  ,[FX_RATE_ORIGINATOR] ,[PAYER_REFERENCENO] ,[SPECIAL_COMMENT] ,[ID_MAIN_BRANCH_EXPIRED] ,[SOURCE_FEE_AMOUNT]  ,[BRANCH_PAY_RECEIVER_ORIGINAL] ,[ID_CASHIER] ,[RATE_AT_INSERT] ,[DATE_CANCEL] ,[ID_FLAG_RECEIVER] ,[ID_CURRENCY_SOURCE] ,[REF_RECEIVER] ,[FOREX_GAIN_RATE] ,[ID_RECIPIENT] ,[ORIGINATOR_BUYING_RATE] ,[MODE_PAY_RECEIVER] ,[SOURCE_TAXES] ,[TELEX_RECEIVER] ,[FOREX_FIRST_ESTIMATED] ,[RATE_BASE_AT_INSERT] ,[STATE_TAX]  ,[SOURCE_CURRENCY_AMOUNT]  ,[NET_AMOUNT_RECEIVER] ,[BRANCH_PAY_RECEIVER] ,[REFERAL_COMISSION_FIXED] ,[FEE_RATE] ,[TOTAL_PAY_RECEIVER] ,[SOURCE_ORIGINAL_RATE] ,[SOURCE_EXCHANGE_RECEIVER] ,[RECIPIENT_DATE_INSERTED]  ,[COUPON_CODE] ,[ID_FUNDS_NAME] ,[DATE_CANCELATION_REQ]  ,[TELEX_COMPANY] ,[TOTAL_MODO_PAGO] ,[EXCHANGE_RECEIVER] ,[DATE_EXPIRED] ,[ORIGINAL_FEE] ,[ORIGINATOR_TRANSACTION_ID] ,[EXCHANGE_COMPANY] ,[REFERAL_COMISSION_PERCENTAGE] ,[DEBIT_CARD_NUMBER]  ,[BANK_RECEIVER]  ,[PORC_COMISION_RECEIVER] ,[TOTAL_DIFERENCE] ,[FX_RATE_CUSTOMER] ,[SOURCE_TELEX_RECEIVER] ,[ID_STATE_RECEIVER] ,[ID_PAYMENT]  ,[FOREX_ESTIMATED_RATE] ,[MOD_PAY_CURRENCY] ,[SOURCE_EXCHANGE_COMPANY] ,[DATE_RECEIVER] ,[ID_CANCELATION_REQ] ,[FOREX_GAIN] ,[typed_date] ,[COMMISSION_PAYEE] ,[FOREX_FIRST_ESTIMATED_RATE]  ,[ORDER_EXPIRED] ,[DATE_MODIFICATION_REQ] ,[ID_FUND] ,[SOURCE_TOTAL_RECEIVER] ,[PAYMENT_DATE] ,[ID_CITY_RECEIVER] ,[ID_CURRENY] ,[TOTAL_RECEIVER] FROM envio.dba.receiver) x"
-           # create arguments
-            args = (qryStr, secret, jdbc_viamericas, date)
-            # create threads
-            future = executor.submit(thread_function, args)
-            # append thread to the list of threads
-            futures.append(future)
-        for i in len(futures):
-            print(f"INFO --- running thread number: {i + 1}")
-            # execute threads
-            futures[i].result()
-if __name__ == "__main__":
-    dates = ['2023', '2022', '2021', '2020']
-# Definir la ruta de salida en S3
+jdbcDF = spark.read.format('jdbc')\
+        .option('url', jdbc_viamericas)\
+        .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\
+        .option('dbtable', qryStr )\
+        .option("user", secret['username'])\
+        .option("password", secret['password'])\
+        .option("numPartitions", 10)\
+        .option("fetchsize", 1000)\
+        .load()
 
 # Definir la ruta de salida en S3
+s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receiver/"
 
 # Escribir el DataFrame en formato Parquet en S3
+jdbcDF.write.parquet(s3_output_path, mode="overwrite")
     

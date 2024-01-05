@@ -1,3 +1,4 @@
+
 import boto3, json
 from awsglue.context import GlueContext
 from concurrent.futures import ThreadPoolExecutor
@@ -34,11 +35,16 @@ def thread_function(args):
     jdbcDF = jdbcDF.withColumn('day', date_format('DATE_TRANS_DIARIA', 'yyyy-MM-dd'))
     print(f"INFO --- variable 'day' for date: {date} obtained")
     # Definir la ruta de salida en S3
+
     s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/transaccion_diaria_payee/"
+    
     print(f"INFO --- writing into s3 bucket: {s3_output_path} data for date: {date}")
+    
     # Escribir el DataFrame en formato Parquet en S3
     jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
+    
     print(f"INFO --- data for date: {date} written successfully")
+
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -55,6 +61,7 @@ def get_secret(secret_name, region_name):
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         raise e
+        
     # Decrypts secret using the associated KMS key.
     secret = get_secret_value_response['SecretString']
     secret_=json.loads(secret)
@@ -66,13 +73,13 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
+
 def main(dates):
     # creating pool threads
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-
-            qryStr = f"(SELECT [BNKID] ,[DES_TRANS_DIARIA] ,[WIRE_AMT_REFERENCED] ,[CONS_TRANS_REVERSAL] ,[ID_GROUP_TRANS_DIARIA] ,[HOUR_TRANS_DIARIA] ,[TOTAL_AMOUNT] ,[ID_CONCEPTO_CONTABLE] ,[DATE_SYSTEM] ,[DATE_TRANS_DIARIA] ,[BALANCE_TRANS_DIARIA] ,[ID_CASHIER] ,[CREDIT_TRANS_DIARIA] ,[FLAG_RECONCILIATION] ,[CONS_TRANS_DIARIA] ,[DESCRIPCION_SUSPENSE] ,[LINK_REFERENCE] ,[DESC_TRANS_DIARIA1] ,[NUM_WIRETRANSFER] ,[DEBIT_TRANS_DIARIA] FROM envio.dba.transaccion_diaria_payee WHERE DATE_TRANS_DIARIA >= '{date}-01-01 00:00:00.000' AND DATE_TRANS_DIARIA <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"([ID_GROUP_TRANS_DIARIA] ,[LINK_REFERENCE] ,[DEBIT_TRANS_DIARIA] ,[FLAG_RECONCILIATION] ,[DATE_TRANS_DIARIA] ,[CONS_TRANS_REVERSAL] ,[CREDIT_TRANS_DIARIA] ,[DESC_TRANS_DIARIA1] ,[TOTAL_AMOUNT] ,[CONS_TRANS_DIARIA] ,[ID_CONCEPTO_CONTABLE] ,[BALANCE_TRANS_DIARIA] ,[BNKID] ,[ID_CASHIER] ,[NUM_WIRETRANSFER] ,[DATE_SYSTEM] ,[DES_TRANS_DIARIA] ,[WIRE_AMT_REFERENCED] ,[HOUR_TRANS_DIARIA] ,[DESCRIPCION_SUSPENSE] FROM envio.dba.transaccion_diaria_payee WHERE DATE_TRANS_DIARIA >= '{date}-01-01 00:00:00.000' AND DATE_TRANS_DIARIA <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)

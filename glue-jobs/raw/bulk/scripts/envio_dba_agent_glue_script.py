@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [AD_USER] ,[COLLECTOR_ID] ,[SALES_REP_MNAME] ,[SPECIALIST] ,[DATE_BEGIN_AGENT] ,[EMAIL_AGENT] ,[ID_AGENT] ,[STATUS_AGENT] ,[BEEPER_AGENT] ,[ID_COMPANY] ,[SALES_REP_SLNAME] ,[SP_RID] ,[ID_MANAGER] ,[CEL_PHONE_AGENT] ,[SALES_REP_LNAME] ,[EMAIL_MOBILE_AGENT] ,[ADD_AGENT] ,[NAME_AGENT] ,[MANAGER] ,[INDEPENDENT_SALES_REP] ,[SYNC_ASSETS] ,[ID_AGENT_POSITION] ,[SALES_REP_FNAME] ,[PHONE_AGENT] FROM envio.dba.agent) x"
+qryStr = f"(SELECT [SYNC_ASSETS] ,[MANAGER] ,[STATUS_AGENT] ,[SALES_REP_SLNAME] ,[INDEPENDENT_SALES_REP] ,[SALES_REP_FNAME] ,[CEL_PHONE_AGENT] ,[DATE_BEGIN_AGENT] ,[COLLECTOR_ID] ,[EMAIL_AGENT] ,[SALES_REP_LNAME] ,[AD_USER] ,[EMAIL_MOBILE_AGENT] ,[ID_MANAGER] ,[ID_AGENT_POSITION] ,[SALES_REP_MNAME] ,[ID_AGENT] ,[ID_COMPANY] ,[ADD_AGENT] ,[NAME_AGENT] ,[SPECIALIST] ,[PHONE_AGENT] ,[BEEPER_AGENT] ,[SP_RID] FROM envio.dba.agent) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

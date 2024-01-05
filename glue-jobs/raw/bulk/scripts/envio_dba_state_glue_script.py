@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ID_DISCLAIMER] ,[PYR_160] ,[RECEIPT_DISCLAIMER] ,[IS_HIGHRISK] ,[IS_ISOSTATE] ,[FLAG_STATE] ,[PYR_49] ,[STATE_ISO_C3] ,[PYR_13] ,[PYR_75] ,[TIME_ZONE] ,[NAME_STATE] ,[ID_STATE] ,[PYR_37] ,[COMPANY_LICENSED] ,[ID_COUNTRY] ,[id_company] ,[UNQ_C3] FROM envio.dba.state) x"
+qryStr = f"(SELECT [PYR_13] ,[PYR_160] ,[id_company] ,[ID_COUNTRY] ,[RECEIPT_DISCLAIMER] ,[FLAG_STATE] ,[IS_HIGHRISK] ,[TIME_ZONE] ,[ID_DISCLAIMER] ,[UNQ_C3] ,[PYR_37] ,[NAME_STATE] ,[PYR_49] ,[ID_STATE] ,[PYR_75] ,[STATE_ISO_C3] ,[IS_ISOSTATE] ,[COMPANY_LICENSED] FROM envio.dba.state) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

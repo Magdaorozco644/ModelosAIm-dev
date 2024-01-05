@@ -1,3 +1,4 @@
+
 import boto3, json
 from awsglue.context import GlueContext
 from concurrent.futures import ThreadPoolExecutor
@@ -34,11 +35,16 @@ def thread_function(args):
     jdbcDF = jdbcDF.withColumn('day', date_format('DATE_PROCESS', 'yyyy-MM-dd'))
     print(f"INFO --- variable 'day' for date: {date} obtained")
     # Definir la ruta de salida en S3
+
     s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/audit_rate_group_agent/"
+    
     print(f"INFO --- writing into s3 bucket: {s3_output_path} data for date: {date}")
+    
     # Escribir el DataFrame en formato Parquet en S3
     jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
+    
     print(f"INFO --- data for date: {date} written successfully")
+
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -55,6 +61,7 @@ def get_secret(secret_name, region_name):
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         raise e
+        
     # Decrypts secret using the associated KMS key.
     secret = get_secret_value_response['SecretString']
     secret_=json.loads(secret)
@@ -66,23 +73,23 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
+
 def main(dates):
     # creating pool threads
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [ID_MAIN_BRANCH] ,[RATE] ,[ID_MODO_PAGO] ,[ID_COUNTRY] ,[DATE_UPGRADE] ,[TEMP_RATE_VALID_THRU] ,[LIMIT_SEND_RATE] ,[LIMIT_INF_RATE] ,[USER_MODIFY] ,[ID_RATE_TYPE] ,[TEMP_RATE_MOD] ,[DATE_PROCESS] ,[LIMIT_SUP_RATE] ,[ID_BRANCH] ,[ID] ,[ID_CURRENCY_SOURCE] ,[ID_CURRENY] ,[PROCESS] ,[ID_COUNTRY_RATE] ,[ID_STATE] FROM envio.dba.audit_rate_group_agent WHERE DATE_PROCESS >= '{date}-01-01 00:00:00.000' AND DATE_PROCESS <= '{date}-12-31 23:59:59.000') x"
-           # create arguments
+            qryStr = f"([ID_RATE_TYPE] ,[ID_COUNTRY] ,[LIMIT_SEND_RATE] ,[ID_CURRENCY_SOURCE] ,[TEMP_RATE_VALID_THRU] ,[TEMP_RATE_MOD] ,[ID_BRANCH] ,[ID_CURRENY] ,[DATE_PROCESS] ,[USER_MODIFY] ,[RATE] ,[PROCESS] ,[ID_STATE] ,[ID_MODO_PAGO] ,[DATE_UPGRADE] ,[ID] ,[LIMIT_SUP_RATE] ,[ID_MAIN_BRANCH] ,[ID_COUNTRY_RATE] ,[LIMIT_INF_RATE] FROM envio.dba.audit_rate_group_agent WHERE DATE_PROCESS >= '{date}-01-01 00:00:00.000' AND DATE_PROCESS <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
             # append thread to the list of threads
             futures.append(future)
-            
         for i in range(len(futures)):
             print(f"INFO --- running thread number: {i + 1}")
             # execute threads
             futures[i].result()
+            
 if __name__ == "__main__":
     dates = [
         '2023', '2022', '2021', '2020', '2019', '2018', 
@@ -92,5 +99,4 @@ if __name__ == "__main__":
     ]
     
     main(dates)
-
     

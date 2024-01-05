@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [TRANSACTION_DATE] ,[ID_FLAG_MODIFIED] ,[VIAMERICAS_FEE] ,[ID_BILLER] ,[PROVIDER] ,[MIN_AMOUNT] ,[ID_DELIVERY_TIME] ,[STATUS] ,[AGENCY_PERCENTAGE] ,[VOID_WINDOW] ,[IsFixedFee] ,[ID_DELIVERY_PROVIDER] ,[MsrpFee] ,[TYPE] ,[PROVIDER_BILLTYPE] ,[BILLER_NAME] ,[PROGRAM_HINT] ,[PROVIDER_FEE] ,[COUNTRY] ,[MAX_AMOUNT] ,[RECEIPT_TEXT] ,[ACCOUNTMASKED] ,[PROVIDER_INTERNAL_ID] ,[ID_CATEGORY] ,[CUSTOMER_FEE] ,[CATEGORY] FROM envio.dba.vcw_biller) x"
+qryStr = f"(SELECT [PROVIDER_FEE] ,[PROVIDER_BILLTYPE] ,[TYPE] ,[ID_DELIVERY_TIME] ,[RECEIPT_TEXT] ,[ID_DELIVERY_PROVIDER] ,[VIAMERICAS_FEE] ,[TRANSACTION_DATE] ,[CUSTOMER_FEE] ,[PROVIDER_INTERNAL_ID] ,[AGENCY_PERCENTAGE] ,[CATEGORY] ,[PROVIDER] ,[VOID_WINDOW] ,[ACCOUNTMASKED] ,[MsrpFee] ,[BILLER_NAME] ,[COUNTRY] ,[IsFixedFee] ,[PROGRAM_HINT] ,[MAX_AMOUNT] ,[STATUS] ,[ID_CATEGORY] ,[ID_FLAG_MODIFIED] ,[MIN_AMOUNT] ,[ID_BILLER] FROM envio.dba.vcw_biller) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

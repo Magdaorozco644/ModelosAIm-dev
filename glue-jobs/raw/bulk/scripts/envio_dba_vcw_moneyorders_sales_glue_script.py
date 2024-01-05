@@ -10,6 +10,7 @@ from pyspark.sql.functions import col, current_date
 sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
+glueContext.setTempDir("s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/")
 
 
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -43,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [TRANSACTION_DATE] ,[PROVIDER_TRANSACTION_ID] ,[AMOUNT] ,[FILE_USED] ,[VIAMERICAS_FEE] ,[ID_MONEYORDERS_SALES] ,[AGENCY_COMMISSION_BY_CHECK] ,[STATUS] ,[AGENCY_PERCENTAGE] ,[VOID_TRANSACTION_DATE] ,[RP_TRANSACTION_ID] ,[PROVIDER_TRANSACTION_DATE] ,[AGENCY_FEE] ,[CUSTOMER_DISCOUNT_AMOUNT] ,[PROVIDER_FEE] ,[ID_BRANCH] ,[ID_PROVIDER] ,[TOTAL] ,[VOID_OPER_ID] ,[OPER_ID] ,[C_TRANSACTION_DATE] ,[CUSTOMER_FEE] FROM envio.dba.vcw_moneyorders_sales) x"
+qryStr = f"(SELECT [PROVIDER_FEE] ,[TOTAL] ,[AGENCY_COMMISSION_BY_CHECK] ,[VOID_TRANSACTION_DATE] ,[VIAMERICAS_FEE] ,[ID_MONEYORDERS_SALES] ,[CUSTOMER_FEE] ,[ID_BRANCH] ,[RP_TRANSACTION_ID] ,[TRANSACTION_DATE] ,[AMOUNT] ,[AGENCY_PERCENTAGE] ,[ID_PROVIDER] ,[C_TRANSACTION_DATE] ,[OPER_ID] ,[PROVIDER_TRANSACTION_ID] ,[PROVIDER_TRANSACTION_DATE] ,[CUSTOMER_DISCOUNT_AMOUNT] ,[VOID_OPER_ID] ,[STATUS] ,[FILE_USED] ,[AGENCY_FEE] FROM envio.dba.vcw_moneyorders_sales) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

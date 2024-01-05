@@ -1,3 +1,4 @@
+
 import boto3, json
 from awsglue.context import GlueContext
 from concurrent.futures import ThreadPoolExecutor
@@ -34,11 +35,16 @@ def thread_function(args):
     jdbcDF = jdbcDF.withColumn('day', date_format('DATE_CREATED', 'yyyy-MM-dd'))
     print(f"INFO --- variable 'day' for date: {date} obtained")
     # Definir la ruta de salida en S3
+
     s3_output_path = f"s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/fraud/ml_fraud_score/"
+    
     print(f"INFO --- writing into s3 bucket: {s3_output_path} data for date: {date}")
+    
     # Escribir el DataFrame en formato Parquet en S3
     jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
+    
     print(f"INFO --- data for date: {date} written successfully")
+
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -55,6 +61,7 @@ def get_secret(secret_name, region_name):
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         raise e
+        
     # Decrypts secret using the associated KMS key.
     secret = get_secret_value_response['SecretString']
     secret_=json.loads(secret)
@@ -66,22 +73,23 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
+
 def main(dates):
     # creating pool threads
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [DATE_CREATED] ,[DATE_PROCESSED] ,[MATRIX_CATEGORY] ,[ID_RECEIVER] ,[SCORE_1] ,[SCORE_2] ,[IS_PROCESSING] ,[SCORE_OLD] ,[WAS_FRAUD] ,[WAS_FRAUD_OLD] ,[IS_PROCESSED] ,[DATE_RECEIVER] ,[IS_AT_VECTOR] ,[ID_BRANCH] ,[SCORE] ,[ID] FROM envio.fraud.ml_fraud_score WHERE DATE_CREATED >= '{date}-01-01 00:00:00.000' AND DATE_CREATED <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"([ID_BRANCH] ,[IS_PROCESSED] ,[ID] ,[SCORE_1] ,[DATE_PROCESSED] ,[WAS_FRAUD] ,[WAS_FRAUD_OLD] ,[MATRIX_CATEGORY] ,[ID_RECEIVER] ,[DATE_CREATED] ,[IS_AT_VECTOR] ,[DATE_RECEIVER] ,[SCORE_2] ,[SCORE] ,[IS_PROCESSING] ,[SCORE_OLD] FROM envio.fraud.ml_fraud_score WHERE DATE_CREATED >= '{date}-01-01 00:00:00.000' AND DATE_CREATED <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
             # append thread to the list of threads
             futures.append(future)
-            
         for i in range(len(futures)):
             print(f"INFO --- running thread number: {i + 1}")
             # execute threads
             futures[i].result()
+            
 if __name__ == "__main__":
     dates = [
         '2023', '2022', '2021', '2020', '2019', '2018', 
@@ -91,3 +99,4 @@ if __name__ == "__main__":
     ]
     
     main(dates)
+    
