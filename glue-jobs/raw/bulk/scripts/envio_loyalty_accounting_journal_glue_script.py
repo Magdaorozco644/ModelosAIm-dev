@@ -44,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [exchange_rate] ,[product_id] ,[search_field] ,[agency_status] ,[payer] ,[spend_customer_transaction_id] ,[destination_country] ,[submit_transaction_id] ,[teller_id] ,[points_to_spend] ,[branch_id] ,[fee] ,[status_points] ,[date_of_first_transaction] ,[type] ,[product_type] ,[rule_id] ,[initial_last_quarter_bill_pay] ,[chain_id] ,[initial_last_quarter_remittances] ,[pay_method] ,[creation_date] ,[initial_last_quarter_top_ups] ,[amount] ,[status_points_only] ,[customer_id] ,[id] FROM envio.loyalty.accounting_journal) x"
+qryStr = f"(SELECT [initial_last_quarter_remittances] ,[search_field] ,[pay_method] ,[payer] ,[type] ,[agency_status] ,[product_id] ,[creation_date] ,[product_type] ,[spend_customer_transaction_id] ,[id] ,[initial_last_quarter_top_ups] ,[status_points] ,[rule_id] ,[exchange_rate] ,[initial_last_quarter_bill_pay] ,[submit_transaction_id] ,[customer_id] ,[branch_id] ,[fee] ,[destination_country] ,[points_to_spend] ,[chain_id] ,[status_points_only] ,[amount] ,[date_of_first_transaction] ,[teller_id] FROM envio.loyalty.accounting_journal) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

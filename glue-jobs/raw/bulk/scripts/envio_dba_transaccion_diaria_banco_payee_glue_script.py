@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"([ISUSEDFORSTOCK] ,[ISVALIDATEDWITHBANKS] ,[DEPOSIT_CODE] ,[RECONCILIATIONDATE] ,[ID_CURRENCY] ,[CONS_TRANS_DIARIA] ,[DATE_TRANS_DIARIA] ,[ID_PURCHASE] ,[ID_BANCO] ,[EXCHANGE_RATE] ,[ISVALIDATEDWITHPAYER] ,[ID_CUENTA_BANCO] FROM envio.dba.transaccion_diaria_banco_payee WHERE DATE_TRANS_DIARIA >= '{date}-01-01 00:00:00.000' AND DATE_TRANS_DIARIA <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [DATE_TRANS_DIARIA] ,[ISVALIDATEDWITHPAYER] ,[DEPOSIT_CODE] ,[ID_CUENTA_BANCO] ,[ID_PURCHASE] ,[RECONCILIATIONDATE] ,[ID_BANCO] ,[ISUSEDFORSTOCK] ,[EXCHANGE_RATE] ,[ISVALIDATEDWITHBANKS] ,[CONS_TRANS_DIARIA] ,[ID_CURRENCY] FROM envio.dba.transaccion_diaria_banco_payee WHERE DATE_TRANS_DIARIA >= '{date}-01-01 00:00:00.000' AND DATE_TRANS_DIARIA <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)

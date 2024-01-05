@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"([VIADEAL_ESTIMATED] ,[ID_BRANCH] ,[ID_RECEIVER] ,[DATE_RECEIVER] ,[VIADEAL_REAL] FROM envio.crm.receiver_gp_components WHERE DATE_RECEIVER >= '{date}-01-01 00:00:00.000' AND DATE_RECEIVER <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [VIADEAL_REAL] ,[DATE_RECEIVER] ,[ID_BRANCH] ,[VIADEAL_ESTIMATED] ,[ID_RECEIVER] FROM envio.crm.receiver_gp_components WHERE DATE_RECEIVER >= '{date}-01-01 00:00:00.000' AND DATE_RECEIVER <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)

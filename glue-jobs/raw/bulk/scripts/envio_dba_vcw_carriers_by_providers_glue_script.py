@@ -44,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [ID_CARRIER] ,[ID_PRODUCT_TYPE] ,[BILL_TYPE] ,[ID_COUNTRY] ,[NEED_INDICATIVE] ,[STATUS] ,[ID_PROVIDER] ,[PRECASH_PROGID] ,[ID_CARRIER_SERVICE] ,[DATE_INSERTED] ,[DISCLAIMER] ,[ID_CARRIERS_BY_PROVIDERS] FROM envio.dba.vcw_carriers_by_providers) x"
+qryStr = f"(SELECT [ID_PROVIDER] ,[BILL_TYPE] ,[NEED_INDICATIVE] ,[PRECASH_PROGID] ,[ID_CARRIER] ,[ID_CARRIER_SERVICE] ,[ID_CARRIERS_BY_PROVIDERS] ,[DATE_INSERTED] ,[STATUS] ,[ID_COUNTRY] ,[ID_PRODUCT_TYPE] ,[DISCLAIMER] FROM envio.dba.vcw_carriers_by_providers) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

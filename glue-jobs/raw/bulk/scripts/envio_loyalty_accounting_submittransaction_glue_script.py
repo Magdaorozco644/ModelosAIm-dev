@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"([is_cancelled] ,[modification_date] ,[id] ,[creation_date] FROM envio.loyalty.accounting_submittransaction WHERE MODIFICATION_DATE >= '{date}-01-01 00:00:00.000' AND MODIFICATION_DATE <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [is_cancelled] ,[id] ,[modification_date] ,[creation_date] FROM envio.loyalty.accounting_submittransaction WHERE MODIFICATION_DATE >= '{date}-01-01 00:00:00.000' AND MODIFICATION_DATE <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)

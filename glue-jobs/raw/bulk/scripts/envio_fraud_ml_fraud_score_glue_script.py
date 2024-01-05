@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"([ID_BRANCH] ,[IS_PROCESSED] ,[ID] ,[SCORE_1] ,[DATE_PROCESSED] ,[WAS_FRAUD] ,[WAS_FRAUD_OLD] ,[MATRIX_CATEGORY] ,[ID_RECEIVER] ,[DATE_CREATED] ,[IS_AT_VECTOR] ,[DATE_RECEIVER] ,[SCORE_2] ,[SCORE] ,[IS_PROCESSING] ,[SCORE_OLD] FROM envio.fraud.ml_fraud_score WHERE DATE_CREATED >= '{date}-01-01 00:00:00.000' AND DATE_CREATED <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [SCORE],[IS_PROCESSING],[SCORE_1],[MATRIX_CATEGORY],[DATE_CREATED],[DATE_RECEIVER],[IS_AT_VECTOR],[IS_PROCESSED],[DATE_PROCESSED],[SCORE_2],[WAS_FRAUD],[ID],[ID_BRANCH],[ID_RECEIVER] FROM envio.fraud.ml_fraud_score WHERE DATE_CREATED >= '{date}-01-01 00:00:00.000' AND DATE_CREATED <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
