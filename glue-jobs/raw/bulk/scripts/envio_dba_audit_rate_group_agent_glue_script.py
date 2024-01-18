@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [ID] ,[USER_MODIFY] ,[DATE_UPGRADE] ,[LIMIT_SUP_RATE] ,[PROCESS] ,[ID_COUNTRY_RATE] ,[DATE_PROCESS] ,[ID_STATE] ,[RATE] ,[LIMIT_INF_RATE] ,[ID_RATE_TYPE] ,[TEMP_RATE_VALID_THRU] ,[TEMP_RATE_MOD] ,[ID_COUNTRY] ,[ID_MODO_PAGO] ,[ID_BRANCH] ,[ID_CURRENCY_SOURCE] ,[LIMIT_SEND_RATE] ,[ID_MAIN_BRANCH] ,[ID_CURRENY] FROM envio.dba.audit_rate_group_agent WHERE DATE_PROCESS >= '{date}-01-01 00:00:00.000' AND DATE_PROCESS <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [ID_RATE_TYPE] ,[LIMIT_INF_RATE] ,[USER_MODIFY] ,[TEMP_RATE_MOD] ,[ID_STATE] ,[LIMIT_SEND_RATE] ,[ID_CURRENY] ,[PROCESS] ,[ID_COUNTRY] ,[ID] ,[ID_BRANCH] ,[ID_MODO_PAGO] ,[DATE_PROCESS] ,[ID_COUNTRY_RATE] ,[DATE_UPGRADE] ,[ID_CURRENCY_SOURCE] ,[LIMIT_SUP_RATE] ,[TEMP_RATE_VALID_THRU] ,[ID_MAIN_BRANCH] ,[RATE] FROM envio.dba.audit_rate_group_agent WHERE DATE_PROCESS >= '{date}-01-01 00:00:00.000' AND DATE_PROCESS <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)

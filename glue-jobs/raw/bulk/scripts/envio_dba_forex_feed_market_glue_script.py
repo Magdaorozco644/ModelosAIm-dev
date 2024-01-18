@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [SYMBOL] ,[FEED_BID] ,[FEED_DATE] ,[FEED_REMAINING] ,[FEED_PRICE] ,[FEED_ID] ,[FEED_SOURCE] ,[FEED_ASK] ,[FEED_TIME] FROM envio.dba.forex_feed_market WHERE FEED_DATE >= '{date}-01-01 00:00:00.000' AND FEED_DATE <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [FEED_SOURCE] ,[FEED_ID] ,[FEED_ASK] ,[FEED_BID] ,[SYMBOL] ,[FEED_PRICE] ,[FEED_REMAINING] ,[FEED_TIME] ,[FEED_DATE] FROM envio.dba.forex_feed_market WHERE FEED_DATE >= '{date}-01-01 00:00:00.000' AND FEED_DATE <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)

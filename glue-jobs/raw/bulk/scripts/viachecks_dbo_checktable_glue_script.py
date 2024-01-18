@@ -44,7 +44,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT [credited] ,[Fee] ,[UuidSender] ,[SERIAL] ,[ncheck] ,[RemmitIRN] ,[checkStatus] ,[ValueFee] ,[SNREENVIADO] ,[naccount] ,[checkID] ,[CDID_CLIENTE] ,[IsMobile] ,[CT] ,[viaproduct] ,[IdAws] ,[Source] ,[CHECK_] ,[AMOUNT] ,[ACCOUNT] ,[MICRLine] ,[Reprocesar] ,[TC] ,[CC] ,[IRN] ,[EPC] ,[Reprocesado] ,[Black_List_Id] ,[credit_type] ,[feeValue] ,[CheckTRN] ,[CDBANK] ,[checkDate_real] ,[TRANSIT] ,[CDCHECK_PLUS] ,[checkIdPadre] ,[inserted] ,[OthersFee] ,[nrouting] ,[batchID] ,[CASHLETTERID] ,[APROBADO_MB] ,[BANK] ,[CheckBranch] ,[ScanOrder] ,[CheckDate] ,[returned] FROM viachecks.dbo.checktable) x"
+qryStr = f"(SELECT [CASHLETTERID] ,[CheckDate] ,[checkID] ,[Reprocesar] ,[CDBANK] ,[CheckTRN] ,[Fee] ,[Reprocesado] ,[EPC] ,[OthersFee] ,[ScanOrder] ,[ncheck] ,[checkStatus] ,[CDCHECK_PLUS] ,[ValueFee] ,[naccount] ,[nrouting] ,[batchID] ,[viaproduct] ,[CheckBranch] ,[checkIdPadre] ,[IRN] ,[UuidSender] ,[SERIAL] ,[TRANSIT] ,[SNREENVIADO] ,[CDID_CLIENTE] ,[returned] ,[IsMobile] ,[RemmitIRN] ,[ACCOUNT] ,[checkDate_real] ,[feeValue] ,[CT] ,[inserted] ,[CC] ,[Black_List_Id] ,[MICRLine] ,[Source] ,[AMOUNT] ,[TC] ,[IdAws] ,[credit_type] ,[BANK] ,[CHECK_] ,[credited] ,[APROBADO_MB] FROM viachecks.dbo.checktable) x"
 
 jdbcDF = spark.read.format('jdbc')\
         .option('url', jdbc_viamericas)\

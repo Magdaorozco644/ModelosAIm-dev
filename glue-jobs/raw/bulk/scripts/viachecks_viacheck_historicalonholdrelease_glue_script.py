@@ -79,7 +79,7 @@ def main(dates):
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = []
         for date in dates:
-            qryStr = f"(SELECT [idVoidSubReason] ,[ReviewDate] ,[CheckStatus] ,[Review] ,[HistoricalId] ,[HoldDate] ,[IdHoldGroup] ,[ProcessedUser] ,[CheckId] ,[idVoidReason] ,[ProcessedDate] FROM viachecks.viacheck.historicalonholdrelease WHERE processeddate >= '{date}-01-01 00:00:00.000' AND processeddate <= '{date}-12-31 23:59:59.000') x"
+            qryStr = f"(SELECT [ProcessedUser] ,[CheckStatus] ,[idVoidSubReason] ,[IdHoldGroup] ,[ProcessedDate] ,[idVoidReason] ,[HoldDate] ,[HistoricalId] ,[ReviewDate] ,[CheckId] ,[Review] FROM viachecks.viacheck.historicalonholdrelease WHERE processeddate >= '{date}-01-01 00:00:00.000' AND processeddate <= '{date}-12-31 23:59:59.000') x"
             args = (qryStr, secret, jdbc_viamericas, date)
             # create threads
             future = executor.submit(thread_function, args)
