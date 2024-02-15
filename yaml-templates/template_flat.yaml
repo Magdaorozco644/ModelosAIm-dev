@@ -1,0 +1,511 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: "AWS::LanguageExtensions"
+
+Mappings:
+  CrawlerMetadata:
+    ManagerBsr:
+      CrawlerName: "crw_flat_kpr_manager_bsr"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/flat/ETL/IN/KPR/manager_bsr/"
+    TargetBde1:
+      CrawlerName: "crw_flat_kpr_target_bde_1"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/flat/ETL/IN/KPR/target_bde_1/"
+    DailyTargetTemplate1:
+      CrawlerName: "crw_flat_kpr_dailytargettemplate_1"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/flat/ETL/IN/KPR/dailytargettemplate_1/"
+
+
+Parameters:
+  ViaLambdaFlatRoleName:
+    Type: String
+    Default: lambda_role_flat_pipeline
+  ViaLambdaFlatPipelineName:
+    Type: String
+    Default: flat_files_pipeline
+  VIACrawlerRolArn:
+    Type: String
+    Default: arn:aws:iam::283731589572:role/sdlf-lakeformation-admin
+  VIADatabaseName:
+    Type: String
+    Default: viamericas
+  VIAConnectionName:
+    Type: String
+    Default: via-database-connection
+  VIACrawlersCollectionNames:
+    Type: CommaDelimitedList
+    Default: "ManagerBsr, TargetBde1, DailyTargetTemplate1"
+  SourceBucketArn:
+    Type: String
+    Default: arn:aws:s3:::viamericas-datalake-dev-us-east-1-283731589572-sftp/home/ftpdev-usr/ETL/IN/KPR/
+     
+Resources:
+  # Rol for lambda function
+  VIALambdaFlatPipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ViaLambdaFlatRoleName}
+      Description: "IAM role for lambda"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "cloudwatch:*"
+                  - "logs:*"
+                  - "glue:*"
+                  - "s3:*"
+                Resource:
+                  - "*"
+  # Lambda
+  ViaLambdaFlatPipeline:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: "python3.11"
+      Role: !GetAtt VIALambdaFlatPipelineRole.Arn
+      FunctionName: !Sub ${ViaLambdaFlatPipelineName}
+      Handler: index.lambda_handler
+      Timeout: 300
+      Layers:
+        - arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python311:4
+      EphemeralStorage:
+           Size: 1000
+      MemorySize: 1000
+      Tags:
+           - Key: "map-migrated"
+             Value: "mig42454"
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import urllib.parse
+          import datetime
+          import awswrangler as wr
+          import pytz
+          import pandas as pd
+          import numpy as np
+
+          # raw bucket
+          RAW_BUCKET = 'viamericas-datalake-dev-us-east-1-283731589572-raw'
+          MAIN_PREFIX = 'flat'
+
+
+          def get_current_datetime_by_zone(zone: str):
+              # Import lib for handling timezones
+              import pytz
+
+              # Getting zone's timezone
+              country_timezone = pytz.timezone(zone)
+
+              # Actual datetime in UTC
+              actual_datetime = datetime.datetime.now(pytz.utc)
+
+              current_datetime_with_timezone = actual_datetime.astimezone(
+                  country_timezone)
+
+              # Getting date and time separately
+              actual_date = current_datetime_with_timezone.strftime("%Y%m%d")
+              actual_time = current_datetime_with_timezone.strftime("%H:%M:%S")
+              actual_time_formatted = current_datetime_with_timezone.strftime("%H%M%S")
+
+              # return the hour of that zone
+              return {
+                  'date': actual_date,
+                  'time': actual_time,
+                  'formatted_time': actual_time_formatted
+              }
+
+
+          def write_df_to_s3_parquet(df: pd.DataFrame, path: str, is_dataset: bool):
+              try:
+                  wr.s3.to_parquet(
+                      df=df,
+                      path=path,
+                      dataset=is_dataset
+                  )
+              except Exception as e:
+                  print(f"Something went wrong: {e}")
+
+
+          def process_daily_target(key: str, bucket: str):
+
+              try:
+
+                  # File name
+                  daily_target_name = 'DailyTargetTemplate 1.xlsx'
+
+                  # This file contains multiple sheets
+                  sheets = ['Sheet1', 'Daily Share', 'Locations to include', 'Exceptions',
+                            'Rebates', 'News Quote', 'State Share ', 'State Share Last Month', 'Sheet2']
+                  
+                  schemas = {
+                      'Sheet1': {
+                          'Date': 'datetime64[ns]',
+                          'Budget Orders': float,
+                          'Avg. Volume': int,
+                          'Target GP / Trx': float,
+                          'Budget Existing': float,
+                          'Avg. Volume Existing': float,
+                          'Target GP / Trx Existing': float,
+                          'Budget New': float,
+                          'Avg. Volume New': float,
+                          'Target GP / Trx New': float,
+                          'Day Cumm Weight': float,
+                          'Day Weight': float
+                      },
+                      'Daily Share': {
+                          'Hour': int,
+                          'Sunday': float,
+                          'Monday': float,
+                          'Tuesday': float,
+                          'Wednesday': float,
+                          'Thursday': float,
+                          'Friday': float,
+                          'Saturday': float,
+                          'Zone': str
+                      },
+                      'Locations to include': {
+                          'Location': str,
+                          'Type': str,
+                          'Include on Budget': float,
+                          'KPR': str
+                      },
+                      'Exceptions': {
+                          'USER': str,
+                          'Budget GP Exception': int,
+                          'Budget Orders Exception': int,
+                          'Budget GP Exception2': int,
+                          'Budget Orders Exception3': int
+                      },
+                      'Rebates': {
+                          'ID_PAYER': str,
+                          'ID_LOCATION': str,
+                          'MONTH': int,
+                          'YEAR': int,
+                          'VALUE': str
+                      },
+                      'News Quote': {
+                          'USER': str,
+                          'Monthly Installs': int
+                      },
+                      'State Share ': {
+                          'STATE': str,
+                          'TXS TOTAL': float,
+                          'MGP TOTAL': float,
+                          'TOTAL GP': float,
+                          'TXS EXISTING': float,
+                          'MGP EXISTING': float,
+                          'EXISTING GP': float,
+                          'TXS NEW': int,
+                          'MGP NEW': float,
+                          'GP NEW': float
+                      },
+                      'State Share Last Month': {
+                          'STATE': str,
+                          'TXS TOTAL': float,
+                          'MGP TOTAL': float,
+                          'TOTAL GP': float,
+                          'TXS EXISTING': float,
+                          'MGP EXISTING': float,
+                          'EXISTING GP': float,
+                          'TXS NEW': int,
+                          'MGP NEW': float,
+                          'GP NEW': float
+                      },
+                      'Sheet2': {
+                          'REGION/STATE': str,
+                          'TXS': int,
+                          'GP': int,
+                          'GMPT': float,
+                          'TXSvsBDGT': float,
+                          'GPvsBDGT': float,
+                          'Unnamed: 6': float,
+                          'Unnamed: 7': float,
+                          'Unnamed: 8': float,
+                          'Txs Updated': float,
+                          'GMPT.1': float,
+                          'GP.1': float
+                      }
+                  }
+
+                  # We'll load one dataframe for each sheet
+                  dataframes = {}
+
+                  prefix, main_file_name = get_prefix_and_file_name_from_key(
+                      key).values()
+
+                  if main_file_name != daily_target_name:
+                      # If not equals call the other function
+                      process_target_bde(key, bucket)
+                      return
+
+                  actual_date, actual_time, actual_time_formatted = get_current_datetime_by_zone(
+                      'America/New_York').values()
+
+                  # This loop is for reading each sheet into the excel file
+                  for sheet in sheets:
+
+                      print(f'Prefix where the file was added: {prefix}')
+                      print(f'Key of the file: {key}')
+
+                      # Reading file specifying sheet's name
+                      df = wr.s3.read_excel(f's3://{bucket}/{key}', sheet_name=sheet, dtype=schemas[sheet])
+
+                      print(f"File's metadata:\n")
+                      print(df.info())
+
+                      print(
+                          f'Saving dataframe corresponding to sheet: {sheet} into the dictionary')
+                      
+                      dataframes[sheet] = df
+                  
+                  print(f'All datasets saved: {len(dataframes.keys())}')
+                  
+                  # Adding the columns for identifying file's versions.
+                  for sheet_name in dataframes.keys():
+                      print('enter to the second for loop')
+                      # Add actual date to identify diferent versions of the files
+                      dataframes[sheet_name]['update_time'] = actual_time
+
+                      print(f"File's metadata after modification:\n")
+                      print(dataframes[sheet_name].info())
+
+                      # Show brief output of how data looks like
+                      print(dataframes[sheet_name].head())
+
+                      # Get sheet name modified
+                      table_name = sheet_name.lower().strip().replace(' ', '_')
+                      sheet_name_modified = f'{table_name}_{actual_time_formatted}.parquet'
+
+                      # Name of the file to save
+                      print(f'Name of the file to save: {sheet_name_modified}')
+
+                      # Build path
+                      path = f's3://{RAW_BUCKET}/{MAIN_PREFIX}/{prefix}/{main_file_name.lower().replace(" ", "_").split(".")[0]}/'
+                      path += f'{table_name}/day={actual_date}/{sheet_name_modified}'
+                      
+                      print(f'Path were the file was saved: {path}')
+                      
+                      # Write df into s3
+                      wr.s3.to_parquet(
+                          df=dataframes[sheet_name],
+                          path=path,
+                          dataset=False
+                      )
+
+                  # Execute crawler
+                  table_name = daily_target_name.lower().replace(' ', '_').split('.')[0]
+                  run_crawler(table_name)
+
+              except Exception as e:
+                  print(f'Something went wrong: {e}')
+
+
+          def process_target_bde(key, bucket):
+              target_bde_name = 'Target_Bde 1.xlsx'
+
+              prefix, file_name = get_prefix_and_file_name_from_key(key).values()
+
+              if file_name == target_bde_name:
+                  # Getting hour from UTC with Miami's timezone.
+                  actual_date, actual_time, actual_time_formatted = get_current_datetime_by_zone(
+                      'America/New_York').values()
+
+                  # Get file name without .xlsx
+                  file_name = file_name.split('.')[0]
+
+                  # replacing spaces and casting name to lower case
+                  table_name = file_name.lower().replace(' ', '_')
+                  file_name = f'{file_name}_{actual_time_formatted}.parquet'
+
+                  print(f'Prefix where the file was added: {prefix}')
+                  print(f'Name of the file: {file_name}')
+
+                  # Reading file
+                  df = wr.s3.read_excel(f's3://{bucket}/{key}')
+
+                  print(f"File's metadata:\n")
+                  print(df.info())
+
+                  # Add actual date to identify diferent versions of the files
+                  df['update_time'] = actual_time
+
+                  print(f"File's metadata after modification:\n")
+                  print(df.info())
+
+                  # Show brief output of how data looks like
+                  print(df.head())
+
+                  # Save file into raw
+                  print(f"Saving file to raw: {key}")
+
+                  # Build path
+                  path = f's3://{RAW_BUCKET}/{MAIN_PREFIX}/{prefix}/{table_name}/day={actual_date}/{file_name}'
+
+                  # Write df into s3
+                  wr.s3.to_parquet(
+                      df=df,
+                      path=path,
+                      dataset=False
+                  )
+
+                  print(f'File: {path} saved')
+
+                  # Running
+                  run_crawler(table_name)
+              else:
+                  process_manager_bsr(key, bucket)
+
+
+          def process_manager_bsr(key, bucket):
+              manager_bsr_name = 'Manager_Bsr.xlsx'
+
+              prefix, file_name = get_prefix_and_file_name_from_key(key).values()
+
+              if file_name == manager_bsr_name:
+
+                  # Getting hour from UTC with Miami's timezone.
+                  actual_date, actual_time, actual_time_formatted = get_current_datetime_by_zone(
+                      'America/New_York').values()
+
+                  # Get file name without .xlsx
+                  file_name = file_name.split('.')[0]
+
+                  # replacing spaces and casting name to lower case
+                  table_name = file_name.lower().replace(' ', '_')
+                  file_name = f'{file_name}_{actual_time_formatted}.parquet'
+
+                  print(f'Prefix where the file was added: {prefix}')
+                  print(f'Name of the file: {file_name}')
+
+                  # Reading file
+                  df = wr.s3.read_excel(f's3://{bucket}/{key}')
+
+                  print(f"File's metadata:\n")
+                  print(df.info())
+
+                  # Add actual date to identify diferent versions of the files
+                  df['update_time'] = actual_time
+
+                  print(f"File's metadata after modification:\n")
+                  print(df.info())
+
+                  # Show brief output of how data looks like
+                  print(df.head())
+
+                  # Save file into raw
+                  print(f"Saving file to raw: {key}")
+
+                  # Build path
+                  path = f's3://{RAW_BUCKET}/{MAIN_PREFIX}/{prefix}/{table_name}/day={actual_date}/{file_name}'
+
+                  # Write df into s3
+                  wr.s3.to_parquet(
+                      df=df,
+                      path=path,
+                      dataset=False
+                  )
+
+                  print(f'File: {path} saved')
+
+                  # Running
+                  run_crawler(table_name)
+              else:
+                  raise Exception(f"No method available to process that file: {key}")
+
+
+          def get_prefix_and_file_name_from_key(key: str):
+              prefix = "/".join(key.split('/')[2:-1])
+              file_name = key.split('/')[-1]
+
+              return {
+                  'prefix': prefix,
+                  file_name: file_name
+              }
+
+
+          def run_crawler(table_name):
+              try:
+                  # Glue client
+                  glue_client = boto3.client('glue', region_name='us-east-1')
+
+                  # Start crawler
+                  crawler_name = f'crw_flat_kpr_{table_name}'
+
+                  print(f'Start execution of the crawler: {crawler_name}')
+
+                  glue_client.start_crawler(Name=crawler_name)
+
+                  print(f'Crawler {crawler_name} executed successfully')
+              except Exception as e:
+                  print(f"Something went wrong: {e}")
+
+
+          def lambda_handler(event, context):
+              # Get the object from the event and show its content type
+              bucket = event['Records'][0]['s3']['bucket']['name']
+              key = urllib.parse.unquote_plus(
+                  event['Records'][0]['s3']['object']['key'], encoding='utf-8')
+
+              # We're applying some kind of implementation of chain of resposabily design pattern
+              # first we call process_target_bde function and if it is not capable of processing the file
+              # then we call process_manager_bsr
+              process_daily_target(key, bucket)
+
+              # TODO implement
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps('Hello from Lambda!')
+              }
+
+      Description: List Amazon S3 buckets in us-east-1.
+      TracingConfig:
+        Mode: Active
+  
+  ViaFlatLambdaTrigger:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ViaLambdaFlatPipeline
+      Principal: s3.amazonaws.com
+      SourceArn: !Ref SourceBucketArn
+
+  
+  # Create crawlers that create the schema in the database
+  Fn::ForEach::GlueCrawlers:
+    - GlueCrawlerItem
+    - !Ref VIACrawlersCollectionNames
+    - Crawler${GlueCrawlerItem}:
+        Type: AWS::Glue::Crawler
+        Properties:
+          Name:
+            Fn::FindInMap: ["CrawlerMetadata", !Ref GlueCrawlerItem, "CrawlerName"]
+          Role: !Ref VIACrawlerRolArn
+          #Classifiers: none, use the default classifier
+          Description: "AWS Glue crawler to crawl viamericas data"
+          #Schedule: none, use default run-on-demand
+          DatabaseName: !Ref VIADatabaseName
+          Targets:
+            S3Targets:
+              # Private S3 path with the viamericas data
+              - Path:
+                  Fn::FindInMap: ["CrawlerMetadata", !Ref GlueCrawlerItem, "Path"]
+              - ConnectionName: !Ref VIAConnectionName
+          Tags:
+            "map-migrated": "mig42454"
+          TablePrefix: "kpr_"
+          RecrawlPolicy:
+            RecrawlBehavior: "CRAWL_EVERYTHING"
+          SchemaChangePolicy:
+            UpdateBehavior: "UPDATE_IN_DATABASE"
+            DeleteBehavior: "DEPRECATE_IN_DATABASE"
+          Configuration: '{"Version":1.0,"CreatePartitionIndex":true}'
