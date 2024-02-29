@@ -1,0 +1,203 @@
+{
+  "metadata": {
+    "version": 1,
+    "disable_limits": false,
+    "instance_type": "ml.m5.4xlarge",
+    "disable_validation": true
+  },
+  "parameters": [],
+  "nodes": [
+    {
+      "node_id": "c44692bd-8369-422f-b5b1-9f46612181dc",
+      "type": "SOURCE",
+      "operator": "sagemaker.athena_source_0.1",
+      "parameters": {
+        "dataset_definition": {
+          "datasetSourceType": "Athena",
+          "name": "df_vectores",
+          "catalogName": "AwsDataCatalog",
+          "databaseName": "viamericas",
+          "queryString": "/** * Write a SQL query and choose Run to show the first 100 rows of the query results. * If your table, schema or catalog name has a special character, such as a hyphen, surround the table name with double quotes. * For example: select * from \"catalog-name\".\"schema-name\".\"example-table-name\" */ select * from viamericas.fraud_vectors_v2_1",
+          "s3OutputLocation": "s3://sagemaker-us-east-1-283731589572/athena/athena/",
+          "outputFormat": "parquet",
+          "workgroup": "primary",
+          "workgroupOutputLocation": "",
+          "enforceWorkgroupConfiguration": false
+        },
+        "dataSource": {
+          "sourceType": "Amazon Athena"
+        }
+      },
+      "trained_parameters": {
+        "query_execution_id": "6122f664-474d-42e6-97f8-d1fe441694de",
+        "unload_table_name": "0b5bc8d1049140d38464f4ae686fea21",
+        "unload_s3_output_location": "s3://sagemaker-us-east-1-283731589572/athena/athena/0b5bc8d1049140d38464f4ae686fea21/data/"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "default",
+          "sampling": {
+            "sampling_method": "sample_by_limit",
+            "limit_rows": 50000
+          }
+        }
+      ]
+    },
+    {
+      "node_id": "5545d1e0-6871-49a8-a9ca-dc50e7e2f015",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.infer_and_cast_type_0.1",
+      "parameters": {},
+      "trained_parameters": {
+        "schema": {
+          "mode_pay_receiver": "string",
+          "id_sales_representative": "string",
+          "transaction_unique": "string",
+          "id_branch": "string",
+          "id_country_receiver": "string",
+          "day": "date",
+          "weekday_6.0": "bool",
+          "idpayer_fraud": "float",
+          "payout_t": "long",
+          "address_receiver_transaction_count": "long",
+          "payout_n": "long",
+          "payout_o": "long",
+          "payout_s": "long",
+          "hour_sender": "long",
+          "sender_minutes_since_last_transaction": "float",
+          "weekday_3.0": "long",
+          "net_amount_receiver": "float",
+          "receiver_transaction_count": "float",
+          "payout_c": "long",
+          "weekday_3": "bool",
+          "weekday_6": "bool",
+          "payout_7": "long",
+          "payout_6": "long",
+          "payout_p": "long",
+          "weekday_2": "long",
+          "weekday_4.0": "long",
+          "payout_x": "long",
+          "weekday_4": "long",
+          "payout_4": "long",
+          "branch_minutes_since_last_transaction": "long",
+          "weekday_5": "long",
+          "id": "long",
+          "sender_days_to_last_transaction": "long",
+          "branch_working_days": "long",
+          "payout_m": "long",
+          "tx_brancity": "long",
+          "weekday_1.0": "long",
+          "%tx_brancity": "float",
+          "payout_d": "long",
+          "weekday_5.0": "long",
+          "date_created": "datetime",
+          "payout_1": "long",
+          "payout_2": "long",
+          "payout_3": "long",
+          "payout_5": "long",
+          "payout_0": "long",
+          "weekday_2.0": "long",
+          "weekday_1": "long",
+          "sender_sending_days": "long",
+          "sender_fraud": "long",
+          "id_receiver": "float",
+          "in_range": "long",
+          "idlocation_fraud": "float",
+          "receiver_fraud": "long"
+        }
+      },
+      "inputs": [
+        {
+          "name": "default",
+          "node_id": "c44692bd-8369-422f-b5b1-9f46612181dc",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "eeedcf20-5e31-4c3e-80ec-837587491b3f",
+      "type": "VISUALIZATION",
+      "operator": "sagemaker.visualizations.histogram_0.1",
+      "parameters": {
+        "name": "Miinutos desde ultima trans",
+        "x_axis": "sender_minutes_since_last_transaction"
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "5545d1e0-6871-49a8-a9ca-dc50e7e2f015",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "e221f313-5642-4170-b456-2db5aa108c8f",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.handle_outliers_0.1",
+      "parameters": {
+        "operator": "Standard deviation numeric outliers",
+        "standard_deviation_numeric_outliers_parameters": {
+          "input_column": [
+            "sender_minutes_since_last_transaction"
+          ],
+          "standard_deviations": 4,
+          "output_column": "clean_outliers_sender_minutes_since_last_transaction",
+          "fix_method": "Clip"
+        }
+      },
+      "trained_parameters": {
+        "standard_deviation_numeric_outliers_parameters": {
+          "_hash": "6cb709b6ec110846cb0e5dc718a4b882ada934cb",
+          "lower_threshold": -414969.6439539618,
+          "upper_threshold": 505516.31580039684
+        }
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "5545d1e0-6871-49a8-a9ca-dc50e7e2f015",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "4de34e02-29bc-4e34-92c1-9ab8c74dcff7",
+      "type": "VISUALIZATION",
+      "operator": "sagemaker.visualizations.histogram_0.1",
+      "parameters": {
+        "name": "Sender Minutes Last Trans Cleaned",
+        "insights_report_parameters": {},
+        "full_data": "false",
+        "x_axis": "clean_outliers_sender_minutes_since_last_transaction"
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "e221f313-5642-4170-b456-2db5aa108c8f",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    }
+  ]
+}
