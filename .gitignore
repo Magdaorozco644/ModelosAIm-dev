@@ -1,0 +1,7 @@
+*.ipynb_checkpoints
+
+# Archivos temporales del editor de texto
+*~
+*.swp
+*.tmp
+*.autosave
