@@ -12,604 +12,1035 @@ Mappings:
   GlueObjects:
     EnvioCatalogVcwDeliverytimeContractProvider:
       JobName: "sdlf_gj_bulk_envio_catalog_vcw_deliverytime_contract_provider"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_catalog_vcw_deliverytime_contract_provider_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_catalog_vcw_deliverytime_contract_provider_glue_script.py"
       CrawlerName: "sdlf_crw_envio_catalog_vcw_deliverytime_contract_provider"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/catalog/vcw_deliverytime_contract_provider"
       StateMachineName: "sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider"
     EnvioFraudFraudVectorsV21:
       JobName: "sdlf_gj_bulk_envio_fraud_fraud_vectors_v2_1"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_fraud_fraud_vectors_v2_1_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_fraud_fraud_vectors_v2_1_glue_script.py"
       CrawlerName: "sdlf_crw_envio_fraud_fraud_vectors_v2_1"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/fraud/fraud_vectors_v2_1"
       StateMachineName: "sdlf_sm_bulk_envio_fraud_fraud_vectors_v2_1"
     EnvioFraudMlFraudScore:
       JobName: "sdlf_gj_bulk_envio_fraud_ml_fraud_score"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_fraud_ml_fraud_score_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_fraud_ml_fraud_score_glue_script.py"
       CrawlerName: "sdlf_crw_envio_fraud_ml_fraud_score"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/fraud/ml_fraud_score"
       StateMachineName: "sdlf_sm_bulk_envio_fraud_ml_fraud_score"
     EnvioLoyaltyAccountingCustomerledger:
       JobName: "sdlf_gj_bulk_envio_loyalty_accounting_customerledger"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_loyalty_accounting_customerledger_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_loyalty_accounting_customerledger_glue_script.py"
       CrawlerName: "sdlf_crw_envio_loyalty_accounting_customerledger"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_customerledger"
       StateMachineName: "sdlf_sm_bulk_envio_loyalty_accounting_customerledger"
     EnvioLoyaltyAccountingJournal:
       JobName: "sdlf_gj_bulk_envio_loyalty_accounting_journal"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_loyalty_accounting_journal_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_loyalty_accounting_journal_glue_script.py"
       CrawlerName: "sdlf_crw_envio_loyalty_accounting_journal"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_journal"
       StateMachineName: "sdlf_sm_bulk_envio_loyalty_accounting_journal"
     EnvioLoyaltyAccountingSubmittransaction:
       JobName: "sdlf_gj_bulk_envio_loyalty_accounting_submittransaction"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_loyalty_accounting_submittransaction_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_loyalty_accounting_submittransaction_glue_script.py"
       CrawlerName: "sdlf_crw_envio_loyalty_accounting_submittransaction"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_submittransaction"
       StateMachineName: "sdlf_sm_bulk_envio_loyalty_accounting_submittransaction"
+    EnvioLoyaltyCoreProduct:
+      JobName: "sdlf_gj_bulk_envio_loyalty_core_product"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_loyalty_core_product_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_loyalty_core_product"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/core_product"
+      StateMachineName: "sdlf_sm_bulk_envio_loyalty_core_product"
     EnvioLoyaltyCustomersCustomer:
       JobName: "sdlf_gj_bulk_envio_loyalty_customers_customer"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_loyalty_customers_customer_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_loyalty_customers_customer_glue_script.py"
       CrawlerName: "sdlf_crw_envio_loyalty_customers_customer"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/customers_customer"
       StateMachineName: "sdlf_sm_bulk_envio_loyalty_customers_customer"
+    EnvioSalesTerritory:
+      JobName: "sdlf_gj_bulk_envio_sales_territory"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_sales_territory_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_sales_territory"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/sales/territory"
+      StateMachineName: "sdlf_sm_bulk_envio_sales_territory"
     EnvioSalesZone:
       JobName: "sdlf_gj_bulk_envio_sales_zone"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_sales_zone_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_sales_zone_glue_script.py"
       CrawlerName: "sdlf_crw_envio_sales_zone"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/sales/zone"
       StateMachineName: "sdlf_sm_bulk_envio_sales_zone"
     EnvioCrmBankCost:
       JobName: "sdlf_gj_bulk_envio_crm_bank_cost"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_crm_bank_cost_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_crm_bank_cost_glue_script.py"
       CrawlerName: "sdlf_crw_envio_crm_bank_cost"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/crm/bank_cost"
       StateMachineName: "sdlf_sm_bulk_envio_crm_bank_cost"
     EnvioCrmReceiverGpComponents:
       JobName: "sdlf_gj_bulk_envio_crm_receiver_gp_components"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_crm_receiver_gp_components_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_crm_receiver_gp_components_glue_script.py"
       CrawlerName: "sdlf_crw_envio_crm_receiver_gp_components"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/crm/receiver_gp_components"
       StateMachineName: "sdlf_sm_bulk_envio_crm_receiver_gp_components"
     EnvioDbaAgent:
       JobName: "sdlf_gj_bulk_envio_dba_agent"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_agent_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_agent_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_agent"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/agent"
       StateMachineName: "sdlf_sm_bulk_envio_dba_agent"
+    EnvioDbaAgentPosition:
+      JobName: "sdlf_gj_bulk_envio_dba_agent_position"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_agent_position_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_agent_position"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/agent_position"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_agent_position"
     EnvioDbaAuditRateGroupAgent:
       JobName: "sdlf_gj_bulk_envio_dba_audit_rate_group_agent"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_audit_rate_group_agent_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_audit_rate_group_agent_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_audit_rate_group_agent"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/audit_rate_group_agent"
       StateMachineName: "sdlf_sm_bulk_envio_dba_audit_rate_group_agent"
     EnvioDbaBanco:
       JobName: "sdlf_gj_bulk_envio_dba_banco"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_banco_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_banco_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_banco"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/banco"
       StateMachineName: "sdlf_sm_bulk_envio_dba_banco"
     EnvioDbaBranch:
       JobName: "sdlf_gj_bulk_envio_dba_branch"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch"
     EnvioDbaBranchAgent:
       JobName: "sdlf_gj_bulk_envio_dba_branch_agent"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_agent_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_agent_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch_agent"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_agent"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch_agent"
     EnvioDbaBranchInstallation:
       JobName: "sdlf_gj_bulk_envio_dba_branch_installation"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_installation_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_installation_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch_installation"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_installation"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch_installation"
     EnvioDbaBranchOwnerChange:
       JobName: "sdlf_gj_bulk_envio_dba_branch_owner_change"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_owner_change_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_owner_change_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch_owner_change"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_owner_change"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch_owner_change"
     EnvioDbaBranchOwnerInformation:
       JobName: "sdlf_gj_bulk_envio_dba_branch_owner_information"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_owner_information_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_owner_information_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch_owner_information"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_owner_information"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch_owner_information"
     EnvioDbaBranchPrefix:
       JobName: "sdlf_gj_bulk_envio_dba_branch_prefix"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_prefix_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_prefix_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch_prefix"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_prefix"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch_prefix"
     EnvioDbaBranchRelations:
       JobName: "sdlf_gj_bulk_envio_dba_branch_relations"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_branch_relations_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_branch_relations_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_branch_relations"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch_relations"
       StateMachineName: "sdlf_sm_bulk_envio_dba_branch_relations"
+    EnvioDbaCancelationRequests:
+      JobName: "sdlf_gj_bulk_envio_dba_cancelation_requests"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_cancelation_requests_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_cancelation_requests"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/cancelation_requests"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_cancelation_requests"
     EnvioDbaCashier:
       JobName: "sdlf_gj_bulk_envio_dba_cashier"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_cashier_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_cashier_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_cashier"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/cashier"
       StateMachineName: "sdlf_sm_bulk_envio_dba_cashier"
     EnvioDbaChain:
       JobName: "sdlf_gj_bulk_envio_dba_chain"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_chain_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_chain_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_chain"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/chain"
       StateMachineName: "sdlf_sm_bulk_envio_dba_chain"
     EnvioDbaCity:
       JobName: "sdlf_gj_bulk_envio_dba_city"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_city_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_city_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_city"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/city"
       StateMachineName: "sdlf_sm_bulk_envio_dba_city"
     EnvioDbaComision:
       JobName: "sdlf_gj_bulk_envio_dba_comision"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_comision_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_comision_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_comision"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/comision"
       StateMachineName: "sdlf_sm_bulk_envio_dba_comision"
     EnvioDbaComisionAgentModoPagoGrupo:
       JobName: "sdlf_gj_bulk_envio_dba_comision_agent_modo_pago_grupo"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_comision_agent_modo_pago_grupo_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_comision_agent_modo_pago_grupo_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_comision_agent_modo_pago_grupo"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/comision_agent_modo_pago_grupo"
       StateMachineName: "sdlf_sm_bulk_envio_dba_comision_agent_modo_pago_grupo"
     EnvioDbaComisionDelivery:
       JobName: "sdlf_gj_bulk_envio_dba_comision_delivery"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_comision_delivery_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_comision_delivery_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_comision_delivery"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/comision_delivery"
       StateMachineName: "sdlf_sm_bulk_envio_dba_comision_delivery"
+    EnvioDbaCompany:
+      JobName: "sdlf_gj_bulk_envio_dba_company"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_company_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_company"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/company"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_company"
     EnvioDbaConceptoContable:
       JobName: "sdlf_gj_bulk_envio_dba_concepto_contable"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_concepto_contable_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_concepto_contable_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_concepto_contable"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/concepto_contable"
       StateMachineName: "sdlf_sm_bulk_envio_dba_concepto_contable"
     EnvioDbaCountry:
       JobName: "sdlf_gj_bulk_envio_dba_country"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_country_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_country_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_country"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/country"
       StateMachineName: "sdlf_sm_bulk_envio_dba_country"
+    EnvioDbaCuentaBanco:
+      JobName: "sdlf_gj_bulk_envio_dba_cuenta_banco"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_cuenta_banco_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_cuenta_banco"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/cuenta_banco"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_cuenta_banco"
     EnvioDbaCurrency:
       JobName: "sdlf_gj_bulk_envio_dba_currency"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_currency_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_currency_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_currency"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/currency"
       StateMachineName: "sdlf_sm_bulk_envio_dba_currency"
     EnvioDbaCurrencyPurchase:
       JobName: "sdlf_gj_bulk_envio_dba_currency_purchase"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_currency_purchase_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_currency_purchase_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_currency_purchase"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/currency_purchase"
       StateMachineName: "sdlf_sm_bulk_envio_dba_currency_purchase"
     EnvioDbaDepositCodes:
       JobName: "sdlf_gj_bulk_envio_dba_deposit_codes"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_deposit_codes_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_deposit_codes_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_deposit_codes"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/deposit_codes"
       StateMachineName: "sdlf_sm_bulk_envio_dba_deposit_codes"
+    EnvioDbaFlagBranch:
+      JobName: "sdlf_gj_bulk_envio_dba_flag_branch"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_flag_branch_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_flag_branch"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/flag_branch"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_flag_branch"
     EnvioDbaFlagReceiver:
       JobName: "sdlf_gj_bulk_envio_dba_flag_receiver"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_flag_receiver_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_flag_receiver_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_flag_receiver"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/flag_receiver"
       StateMachineName: "sdlf_sm_bulk_envio_dba_flag_receiver"
     EnvioDbaForexFeedMarket:
       JobName: "sdlf_gj_bulk_envio_dba_forex_feed_market"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_forex_feed_market_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_forex_feed_market_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_forex_feed_market"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/forex_feed_market"
       StateMachineName: "sdlf_sm_bulk_envio_dba_forex_feed_market"
+    EnvioDbaFundsOrigin:
+      JobName: "sdlf_gj_bulk_envio_dba_funds_origin"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_funds_origin_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_funds_origin"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/funds_origin"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_funds_origin"
     EnvioDbaGroupBranch:
       JobName: "sdlf_gj_bulk_envio_dba_group_branch"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_group_branch_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_group_branch_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_group_branch"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/group_branch"
       StateMachineName: "sdlf_sm_bulk_envio_dba_group_branch"
     EnvioDbaGroupBranchPhase:
       JobName: "sdlf_gj_bulk_envio_dba_group_branch_phase"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_group_branch_phase_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_group_branch_phase_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_group_branch_phase"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/group_branch_phase"
       StateMachineName: "sdlf_sm_bulk_envio_dba_group_branch_phase"
+    EnvioDbaGroupType:
+      JobName: "sdlf_gj_bulk_envio_dba_group_type"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_group_type_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_group_type"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/group_type"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_group_type"
     EnvioDbaHistoryInventoryMarket:
       JobName: "sdlf_gj_bulk_envio_dba_history_inventory_market"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_history_inventory_market_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_history_inventory_market_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_history_inventory_market"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/history_inventory_market"
       StateMachineName: "sdlf_sm_bulk_envio_dba_history_inventory_market"
     EnvioDbaLocation:
       JobName: "sdlf_gj_bulk_envio_dba_location"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_location_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_location_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_location"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/location"
       StateMachineName: "sdlf_sm_bulk_envio_dba_location"
+    EnvioDbaModificationReasons:
+      JobName: "sdlf_gj_bulk_envio_dba_modification_reasons"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_modification_reasons_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_modification_reasons"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/modification_reasons"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_modification_reasons"
+    EnvioDbaModificationRequests:
+      JobName: "sdlf_gj_bulk_envio_dba_modification_requests"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_modification_requests_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_modification_requests"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/modification_requests"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_modification_requests"
     EnvioDbaModoPago:
       JobName: "sdlf_gj_bulk_envio_dba_modo_pago"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_modo_pago_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_modo_pago_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_modo_pago"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/modo_pago"
       StateMachineName: "sdlf_sm_bulk_envio_dba_modo_pago"
+    EnvioDbaModPayCurrency:
+      JobName: "sdlf_gj_bulk_envio_dba_mod_pay_currency"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_mod_pay_currency_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_mod_pay_currency"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/mod_pay_currency"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_mod_pay_currency"
+    EnvioDbaPayment:
+      JobName: "sdlf_gj_bulk_envio_dba_payment"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_payment_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_payment"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/payment"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_payment"
     EnvioDbaRateGroupAgent:
       JobName: "sdlf_gj_bulk_envio_dba_rate_group_agent"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_rate_group_agent_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_rate_group_agent_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_rate_group_agent"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/rate_group_agent"
       StateMachineName: "sdlf_sm_bulk_envio_dba_rate_group_agent"
     EnvioDbaRateGroupStateDelivery:
       JobName: "sdlf_gj_bulk_envio_dba_rate_group_state_delivery"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_rate_group_state_delivery_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_rate_group_state_delivery_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_rate_group_state_delivery"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/rate_group_state_delivery"
       StateMachineName: "sdlf_sm_bulk_envio_dba_rate_group_state_delivery"
     EnvioDbaRateType:
       JobName: "sdlf_gj_bulk_envio_dba_rate_type"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_rate_type_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_rate_type_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_rate_type"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/rate_type"
       StateMachineName: "sdlf_sm_bulk_envio_dba_rate_type"
+    EnvioDbaReceiptDisclaimers:
+      JobName: "sdlf_gj_bulk_envio_dba_receipt_disclaimers"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_receipt_disclaimers_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_receipt_disclaimers"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receipt_disclaimers"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_receipt_disclaimers"
     EnvioDbaReceiver:
       JobName: "sdlf_gj_bulk_envio_dba_receiver"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_receiver_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_receiver_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_receiver"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receiver"
       StateMachineName: "sdlf_sm_bulk_envio_dba_receiver"
     EnvioDbaReceiverFraud:
       JobName: "sdlf_gj_bulk_envio_dba_receiver_fraud"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_receiver_fraud_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_receiver_fraud_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_receiver_fraud"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receiver_fraud"
       StateMachineName: "sdlf_sm_bulk_envio_dba_receiver_fraud"
     EnvioDbaReceiverSource:
       JobName: "sdlf_gj_bulk_envio_dba_receiver_source"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_receiver_source_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_receiver_source_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_receiver_source"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receiver_source"
       StateMachineName: "sdlf_sm_bulk_envio_dba_receiver_source"
+    EnvioDbaRecipiente:
+      JobName: "sdlf_gj_bulk_envio_dba_recipiente"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_recipiente_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_recipiente"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/recipiente"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_recipiente"
     EnvioDbaSender:
       JobName: "sdlf_gj_bulk_envio_dba_sender"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_sender_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_sender_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_sender"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sender"
       StateMachineName: "sdlf_sm_bulk_envio_dba_sender"
+    EnvioDbaSfArmoredCar:
+      JobName: "sdlf_gj_bulk_envio_dba_sf_armored_car"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_sf_armored_car_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_sf_armored_car"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sf_armored_car"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_sf_armored_car"
+    EnvioDbaSfProvider:
+      JobName: "sdlf_gj_bulk_envio_dba_sf_provider"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_sf_provider_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_sf_provider"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sf_provider"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_sf_provider"
     EnvioDbaSfSafesBranches:
       JobName: "sdlf_gj_bulk_envio_dba_sf_safes_branches"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_sf_safes_branches_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_sf_safes_branches_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_sf_safes_branches"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sf_safes_branches"
       StateMachineName: "sdlf_sm_bulk_envio_dba_sf_safes_branches"
+    EnvioDbaSfVault:
+      JobName: "sdlf_gj_bulk_envio_dba_sf_vault"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_sf_vault_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_sf_vault"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sf_vault"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_sf_vault"
     EnvioDbaStandar:
       JobName: "sdlf_gj_bulk_envio_dba_standar"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_standar_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_standar_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_standar"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/standar"
       StateMachineName: "sdlf_sm_bulk_envio_dba_standar"
     EnvioDbaState:
       JobName: "sdlf_gj_bulk_envio_dba_state"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_state_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_state_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_state"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/state"
       StateMachineName: "sdlf_sm_bulk_envio_dba_state"
     EnvioDbaTipoTransmision:
       JobName: "sdlf_gj_bulk_envio_dba_tipo_transmision"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_tipo_transmision_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_tipo_transmision_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_tipo_transmision"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/tipo_transmision"
       StateMachineName: "sdlf_sm_bulk_envio_dba_tipo_transmision"
     EnvioDbaTipoTransmisionAgencia:
       JobName: "sdlf_gj_bulk_envio_dba_tipo_transmision_agencia"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_tipo_transmision_agencia_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_tipo_transmision_agencia_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_tipo_transmision_agencia"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/tipo_transmision_agencia"
       StateMachineName: "sdlf_sm_bulk_envio_dba_tipo_transmision_agencia"
     EnvioDbaTrader:
       JobName: "sdlf_gj_bulk_envio_dba_trader"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_trader_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_trader_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_trader"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/trader"
       StateMachineName: "sdlf_sm_bulk_envio_dba_trader"
     EnvioDbaTraderGroup:
       JobName: "sdlf_gj_bulk_envio_dba_trader_group"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_trader_group_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_trader_group_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_trader_group"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/trader_group"
       StateMachineName: "sdlf_sm_bulk_envio_dba_trader_group"
     EnvioDbaTransaccionDiariaBancoPayee:
       JobName: "sdlf_gj_bulk_envio_dba_transaccion_diaria_banco_payee"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_transaccion_diaria_banco_payee_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_transaccion_diaria_banco_payee_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_transaccion_diaria_banco_payee"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/transaccion_diaria_banco_payee"
       StateMachineName: "sdlf_sm_bulk_envio_dba_transaccion_diaria_banco_payee"
     EnvioDbaTransaccionDiariaPayee:
       JobName: "sdlf_gj_bulk_envio_dba_transaccion_diaria_payee"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_transaccion_diaria_payee_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_transaccion_diaria_payee_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_transaccion_diaria_payee"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/transaccion_diaria_payee"
       StateMachineName: "sdlf_sm_bulk_envio_dba_transaccion_diaria_payee"
+    EnvioDbaTypeBranch:
+      JobName: "sdlf_gj_bulk_envio_dba_type_branch"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_type_branch_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_type_branch"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/type_branch"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_type_branch"
+    EnvioDbaTypeIdSender:
+      JobName: "sdlf_gj_bulk_envio_dba_type_id_sender"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_type_id_sender_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_type_id_sender"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/type_id_sender"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_type_id_sender"
     EnvioDbaVappApplication:
       JobName: "sdlf_gj_bulk_envio_dba_vapp_application"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vapp_application_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vapp_application_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vapp_application"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vapp_application"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vapp_application"
+    EnvioDbaVappTypeapplications:
+      JobName: "sdlf_gj_bulk_envio_dba_vapp_typeapplications"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vapp_typeapplications_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_vapp_typeapplications"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vapp_typeapplications"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_vapp_typeapplications"
     EnvioDbaVcwBiller:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_biller"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_biller_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_biller_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_biller"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_biller"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_biller"
     EnvioDbaVcwBillpaymentSales:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_billpayment_sales"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_billpayment_sales_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_billpayment_sales_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_billpayment_sales"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_billpayment_sales"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_billpayment_sales"
     EnvioDbaVcwBillpaymentViaoneSales:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_billpayment_viaone_sales"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_billpayment_viaone_sales_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_billpayment_viaone_sales_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_billpayment_viaone_sales"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_billpayment_viaone_sales"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_billpayment_viaone_sales"
     EnvioDbaVcwCarriers:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_carriers"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_carriers_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_carriers_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_carriers"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_carriers"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_carriers"
     EnvioDbaVcwCarriersByProviders:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_carriers_by_providers"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_carriers_by_providers_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_carriers_by_providers_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_carriers_by_providers"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_carriers_by_providers"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers"
     EnvioDbaVcwCategory:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_category"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_category_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_category_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_category"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_category"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_category"
     EnvioDbaVcwCostGateway:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_cost_gateway"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_cost_gateway_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_cost_gateway_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_cost_gateway"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_cost_gateway"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_cost_gateway"
     EnvioDbaVcwDeliverytimeProvider:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_deliverytime_provider"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_deliverytime_provider_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_deliverytime_provider_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_deliverytime_provider"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_deliverytime_provider"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider"
     EnvioDbaVcwDeliveryTime:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_delivery_time"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_delivery_time_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_delivery_time_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_delivery_time"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_delivery_time"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_delivery_time"
     EnvioDbaVcwEmployees:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_employees"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_employees_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_employees_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_employees"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_employees"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_employees"
     EnvioDbaVcwEmployeesByBranch:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_employees_by_branch"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_employees_by_branch_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_employees_by_branch_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_employees_by_branch"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_employees_by_branch"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_employees_by_branch"
     EnvioDbaVcwExclusionPricing:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_exclusion_pricing"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_exclusion_pricing_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_exclusion_pricing_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_exclusion_pricing"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_exclusion_pricing"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_exclusion_pricing"
     EnvioDbaVcwMoneyordersSales:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_moneyorders_sales"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_moneyorders_sales_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_moneyorders_sales_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_moneyorders_sales"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_moneyorders_sales"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_moneyorders_sales"
     EnvioDbaVcwPriceExclusion:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_price_exclusion"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_price_exclusion_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_price_exclusion_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_price_exclusion"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_price_exclusion"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_price_exclusion"
     EnvioDbaVcwPriceStandard:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_price_standard"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_price_standard_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_price_standard_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_price_standard"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_price_standard"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_price_standard"
     EnvioDbaVcwProducts:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_products"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_products_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_products_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_products"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_products"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_products"
     EnvioDbaVcwProductType:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_product_type"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_product_type_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_product_type_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_product_type"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_product_type"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_product_type"
     EnvioDbaVcwProviders:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_providers"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_providers_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_providers_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_providers"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_providers"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_providers"
     EnvioDbaVcwSalesProducts:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_sales_products"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_sales_products_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_sales_products_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_sales_products"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_sales_products"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_sales_products"
     EnvioDbaVcwSalesStatus:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_sales_status"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_sales_status_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_sales_status_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_sales_status"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_sales_status"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_sales_status"
     EnvioDbaVcwStandardPricing:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_standard_pricing"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_standard_pricing_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_standard_pricing_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_standard_pricing"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_standard_pricing"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_standard_pricing"
     EnvioDbaVcwStatesPricing:
       JobName: "sdlf_gj_bulk_envio_dba_vcw_states_pricing"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_dba_vcw_states_pricing_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_vcw_states_pricing_glue_script.py"
       CrawlerName: "sdlf_crw_envio_dba_vcw_states_pricing"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_states_pricing"
       StateMachineName: "sdlf_sm_bulk_envio_dba_vcw_states_pricing"
     EnvioVonDbaCashier:
       JobName: "sdlf_gj_bulk_envio_von_dba_cashier"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_envio_von_dba_cashier_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_von_dba_cashier_glue_script.py"
       CrawlerName: "sdlf_crw_envio_von_dba_cashier"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/von_dba/cashier"
       StateMachineName: "sdlf_sm_bulk_envio_von_dba_cashier"
     ViachecksViacheckCheckonholdreasons:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_checkonholdreasons"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_checkonholdreasons_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_checkonholdreasons_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_checkonholdreasons"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/checkonholdreasons"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_checkonholdreasons"
     ViachecksViacheckCheckverification:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_checkverification"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_checkverification_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_checkverification_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_checkverification"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/checkverification"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_checkverification"
     ViachecksViacheckCheckverifyServicescodes:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_checkverify_servicescodes"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_checkverify_servicescodes_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_checkverify_servicescodes_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_checkverify_servicescodes"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/checkverify_servicescodes"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_checkverify_servicescodes"
     ViachecksViacheckChecksontemporaryaccounts:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_checksontemporaryaccounts"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_checksontemporaryaccounts_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_checksontemporaryaccounts_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_checksontemporaryaccounts"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/checksontemporaryaccounts"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_checksontemporaryaccounts"
     ViachecksViacheckHistoricalonholdrelease:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_historicalonholdrelease"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_historicalonholdrelease_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_historicalonholdrelease_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_historicalonholdrelease"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/historicalonholdrelease"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_historicalonholdrelease"
     ViachecksViacheckOnholdcategories:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_onholdcategories"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_onholdcategories_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_onholdcategories_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_onholdcategories"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/onholdcategories"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_onholdcategories"
     ViachecksViacheckOnholdcategoriesandgroups:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_onholdcategoriesandgroups"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_onholdcategoriesandgroups_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_onholdcategoriesandgroups_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_onholdcategoriesandgroups"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/onholdcategoriesandgroups"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_onholdcategoriesandgroups"
     ViachecksViacheckRulesgroup:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_rulesgroup"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_rulesgroup_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_rulesgroup_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_rulesgroup"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/rulesgroup"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_rulesgroup"
     ViachecksViacheckViacheckfeaturemetrics:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_viacheckfeaturemetrics"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_viacheckfeaturemetrics_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_viacheckfeaturemetrics_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_viacheckfeaturemetrics"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/viacheckfeaturemetrics"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemetrics"
     ViachecksViacheckViacheckfeaturemodules:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_viacheckfeaturemodules"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_viacheckfeaturemodules_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_viacheckfeaturemodules_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_viacheckfeaturemodules"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/viacheckfeaturemodules"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemodules"
     ViachecksViacheckVoidreason:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_voidreason"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_voidreason_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_voidreason_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_voidreason"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/voidreason"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_voidreason"
     ViachecksViacheckVoidsubtypereason:
       JobName: "sdlf_gj_bulk_viachecks_viacheck_voidsubtypereason"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_viacheck_voidsubtypereason_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_viacheck_voidsubtypereason_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_viacheck_voidsubtypereason"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/voidsubtypereason"
       StateMachineName: "sdlf_sm_bulk_viachecks_viacheck_voidsubtypereason"
     ViachecksDboCheckproperty:
       JobName: "sdlf_gj_bulk_viachecks_dbo_checkproperty"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_checkproperty_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_checkproperty_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_checkproperty"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/checkproperty"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_checkproperty"
     ViachecksDboCheckreaderScore:
       JobName: "sdlf_gj_bulk_viachecks_dbo_checkreader_score"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_checkreader_score_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_checkreader_score_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_checkreader_score"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/checkreader_score"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_checkreader_score"
     ViachecksDboReprocessedChecks:
       JobName: "sdlf_gj_bulk_viachecks_dbo_reprocessed_checks"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_reprocessed_checks_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_reprocessed_checks_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_reprocessed_checks"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/reprocessed_checks"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_reprocessed_checks"
     ViachecksDboTvcpParamAgencias:
       JobName: "sdlf_gj_bulk_viachecks_dbo_tvcp_param_agencias"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_tvcp_param_agencias_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_tvcp_param_agencias_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_tvcp_param_agencias"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/tvcp_param_agencias"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_tvcp_param_agencias"
     ViachecksDboBatchtable:
       JobName: "sdlf_gj_bulk_viachecks_dbo_batchtable"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_batchtable_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_batchtable_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_batchtable"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/batchtable"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_batchtable"
     ViachecksDboCheckstatustable:
       JobName: "sdlf_gj_bulk_viachecks_dbo_checkstatustable"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_checkstatustable_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_checkstatustable_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_checkstatustable"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/checkstatustable"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_checkstatustable"
     ViachecksDboChecktable:
       JobName: "sdlf_gj_bulk_viachecks_dbo_checktable"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_checktable_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_checktable_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_checktable"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/checktable"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_checktable"
     ViachecksDboCustomerLocation:
       JobName: "sdlf_gj_bulk_viachecks_dbo_customer_location"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_customer_location_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_customer_location_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_customer_location"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/customer_location"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_customer_location"
     ViachecksDboReturnchecks:
       JobName: "sdlf_gj_bulk_viachecks_dbo_returnchecks"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_returnchecks_glue_script.py"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_returnchecks_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_returnchecks"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/returnchecks"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_returnchecks"
     ViachecksDboReturncodes:
       JobName: "sdlf_gj_bulk_viachecks_dbo_returncodes"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/scripts/gjdev_bulk_viachecks_dbo_returncodes_glue_script.py"
+      NumberOfWorkers: 4
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_viachecks_dbo_returncodes_glue_script.py"
       CrawlerName: "sdlf_crw_viachecks_dbo_returncodes"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/returncodes"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_returncodes"
+
+
+
+
+
+
+  
+  GlueObjectsIncremental:
+    EnvioFraudFraudVectorsV21Incremental:
+      JobName: "sdlf_gj_incremental_envio_fraud_fraud_vectors_v2_1"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_fraud_fraud_vectors_v2_1_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_fraud_fraud_vectors_v2_1"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/fraud/fraud_vectors_v2_1"
+      StateMachineName: "sdlf_sm_incremental_envio_fraud_fraud_vectors_v2_1"
+    EnvioFraudMlFraudScoreIncremental:
+      JobName: "sdlf_gj_incremental_envio_fraud_ml_fraud_score"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_fraud_ml_fraud_score_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_fraud_ml_fraud_score"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/fraud/ml_fraud_score"
+      StateMachineName: "sdlf_sm_incremental_envio_fraud_ml_fraud_score"
+    EnvioLoyaltyAccountingCustomerledgerIncremental:
+      JobName: "sdlf_gj_incremental_envio_loyalty_accounting_customerledger"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_loyalty_accounting_customerledger_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_loyalty_accounting_customerledger"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_customerledger"
+      StateMachineName: "sdlf_sm_incremental_envio_loyalty_accounting_customerledger"
+    EnvioLoyaltyAccountingJournalIncremental:
+      JobName: "sdlf_gj_incremental_envio_loyalty_accounting_journal"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_loyalty_accounting_journal_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_loyalty_accounting_journal"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_journal"
+      StateMachineName: "sdlf_sm_incremental_envio_loyalty_accounting_journal"
+    EnvioLoyaltyAccountingSubmittransactionIncremental:
+      JobName: "sdlf_gj_incremental_envio_loyalty_accounting_submittransaction"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_loyalty_accounting_submittransaction_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_loyalty_accounting_submittransaction"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/accounting_submittransaction"
+      StateMachineName: "sdlf_sm_incremental_envio_loyalty_accounting_submittransaction"
+    EnvioLoyaltyCustomersCustomerIncremental:
+      JobName: "sdlf_gj_incremental_envio_loyalty_customers_customer"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_loyalty_customers_customer_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_loyalty_customers_customer"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/loyalty/customers_customer"
+      StateMachineName: "sdlf_sm_incremental_envio_loyalty_customers_customer"
+    EnvioCrmReceiverGpComponentsIncremental:
+      JobName: "sdlf_gj_incremental_envio_crm_receiver_gp_components"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_crm_receiver_gp_components_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_crm_receiver_gp_components"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/crm/receiver_gp_components"
+      StateMachineName: "sdlf_sm_incremental_envio_crm_receiver_gp_components"
+    EnvioDbaAuditRateGroupAgentIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_audit_rate_group_agent"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_audit_rate_group_agent_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_audit_rate_group_agent"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/audit_rate_group_agent"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_audit_rate_group_agent"
+    EnvioDbaBranchIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_branch"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_branch_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_branch"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/branch"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_branch"
+    EnvioDbaComisionAgentModoPagoGrupoIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_comision_agent_modo_pago_grupo"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_comision_agent_modo_pago_grupo_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_comision_agent_modo_pago_grupo"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/comision_agent_modo_pago_grupo"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_comision_agent_modo_pago_grupo"
+    EnvioDbaForexFeedMarketIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_forex_feed_market"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_forex_feed_market_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_forex_feed_market"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/forex_feed_market"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_forex_feed_market"
+    EnvioDbaHistoryInventoryMarketIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_history_inventory_market"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_history_inventory_market_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_history_inventory_market"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/history_inventory_market"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_history_inventory_market"
+    EnvioDbaRateGroupAgentIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_rate_group_agent"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_rate_group_agent_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_rate_group_agent"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/rate_group_agent"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_rate_group_agent"
+    EnvioDbaReceiverIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_receiver"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_receiver_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_receiver"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/receiver"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_receiver"
+    EnvioDbaSenderIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_sender"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_sender_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_sender"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sender"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_sender"
+    EnvioDbaTransaccionDiariaBancoPayeeIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_transaccion_diaria_banco_payee"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_transaccion_diaria_banco_payee_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_transaccion_diaria_banco_payee"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/transaccion_diaria_banco_payee"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_transaccion_diaria_banco_payee"
+    EnvioDbaTransaccionDiariaPayeeIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_transaccion_diaria_payee"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_transaccion_diaria_payee_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_transaccion_diaria_payee"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/transaccion_diaria_payee"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_transaccion_diaria_payee"
+    EnvioDbaVcwBillpaymentSalesIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_vcw_billpayment_sales"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_vcw_billpayment_sales_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_vcw_billpayment_sales"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_billpayment_sales"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_vcw_billpayment_sales"
+    EnvioDbaVcwBillpaymentViaoneSalesIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_vcw_billpayment_viaone_sales"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_vcw_billpayment_viaone_sales_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_vcw_billpayment_viaone_sales"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_billpayment_viaone_sales"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_vcw_billpayment_viaone_sales"
+    EnvioDbaVcwMoneyordersSalesIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_vcw_moneyorders_sales"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_vcw_moneyorders_sales_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_vcw_moneyorders_sales"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_moneyorders_sales"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_vcw_moneyorders_sales"
+    EnvioDbaVcwSalesProductsIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_vcw_sales_products"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_vcw_sales_products_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_vcw_sales_products"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_sales_products"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_vcw_sales_products"
+    EnvioDbaVcwStatesPricingIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_vcw_states_pricing"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_vcw_states_pricing_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_vcw_states_pricing"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/vcw_states_pricing"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_vcw_states_pricing"
+    ViachecksViacheckCheckverificationIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_viacheck_checkverification"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_viacheck_checkverification_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_viacheck_checkverification"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/checkverification"
+      StateMachineName: "sdlf_sm_incremental_viachecks_viacheck_checkverification"
+    ViachecksViacheckHistoricalonholdreleaseIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_viacheck_historicalonholdrelease"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_viacheck_historicalonholdrelease_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_viacheck_historicalonholdrelease"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/historicalonholdrelease"
+      StateMachineName: "sdlf_sm_incremental_viachecks_viacheck_historicalonholdrelease"
+    ViachecksViacheckViacheckfeaturemetricsIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_viacheck_viacheckfeaturemetrics"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_viacheck_viacheckfeaturemetrics_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_viacheck_viacheckfeaturemetrics"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/viacheck/viacheckfeaturemetrics"
+      StateMachineName: "sdlf_sm_incremental_viachecks_viacheck_viacheckfeaturemetrics"
+    ViachecksDboCheckreaderScoreIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_dbo_checkreader_score"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_dbo_checkreader_score_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_dbo_checkreader_score"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/checkreader_score"
+      StateMachineName: "sdlf_sm_incremental_viachecks_dbo_checkreader_score"
+    ViachecksDboBatchtableIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_dbo_batchtable"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_dbo_batchtable_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_dbo_batchtable"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/batchtable"
+      StateMachineName: "sdlf_sm_incremental_viachecks_dbo_batchtable"
+    ViachecksDboChecktableIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_dbo_checktable"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_dbo_checktable_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_dbo_checktable"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/checktable"
+      StateMachineName: "sdlf_sm_incremental_viachecks_dbo_checktable"
+    ViachecksDboReturnchecksIncremental:
+      JobName: "sdlf_gj_incremental_viachecks_dbo_returnchecks"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_viachecks_dbo_returnchecks_glue_script.py"
+      CrawlerName: "sdlf_crw_viachecks_dbo_returnchecks"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/returnchecks"
+      StateMachineName: "sdlf_sm_incremental_viachecks_dbo_returnchecks"
+
+
 
 #
 #
@@ -620,7 +1051,10 @@ Parameters:
   # The name of the job to be created
   VIAGlueObjectsNames:
     Type: CommaDelimitedList
-    Default: "EnvioCatalogVcwDeliverytimeContractProvider,EnvioFraudFraudVectorsV21,EnvioFraudMlFraudScore,EnvioLoyaltyAccountingCustomerledger,EnvioLoyaltyAccountingJournal,EnvioLoyaltyAccountingSubmittransaction,EnvioLoyaltyCustomersCustomer,EnvioSalesZone,EnvioCrmBankCost,EnvioCrmReceiverGpComponents,EnvioDbaAgent,EnvioDbaAuditRateGroupAgent,EnvioDbaBanco,EnvioDbaBranch,EnvioDbaBranchAgent,EnvioDbaBranchInstallation,EnvioDbaBranchOwnerChange,EnvioDbaBranchOwnerInformation,EnvioDbaBranchPrefix,EnvioDbaBranchRelations,EnvioDbaCashier,EnvioDbaChain,EnvioDbaCity,EnvioDbaComision,EnvioDbaComisionAgentModoPagoGrupo,EnvioDbaComisionDelivery,EnvioDbaConceptoContable,EnvioDbaCountry,EnvioDbaCurrency,EnvioDbaCurrencyPurchase,EnvioDbaDepositCodes,EnvioDbaFlagReceiver,EnvioDbaForexFeedMarket,EnvioDbaGroupBranch,EnvioDbaGroupBranchPhase,EnvioDbaHistoryInventoryMarket,EnvioDbaLocation,EnvioDbaModoPago,EnvioDbaRateGroupAgent,EnvioDbaRateGroupStateDelivery,EnvioDbaRateType,EnvioDbaReceiver,EnvioDbaReceiverFraud,EnvioDbaReceiverSource,EnvioDbaSender,EnvioDbaSfSafesBranches,EnvioDbaStandar,EnvioDbaState,EnvioDbaTipoTransmision,EnvioDbaTipoTransmisionAgencia,EnvioDbaTrader,EnvioDbaTraderGroup,EnvioDbaTransaccionDiariaBancoPayee,EnvioDbaTransaccionDiariaPayee,EnvioDbaVappApplication,EnvioDbaVcwBiller,EnvioDbaVcwBillpaymentSales,EnvioDbaVcwBillpaymentViaoneSales,EnvioDbaVcwCarriers,EnvioDbaVcwCarriersByProviders,EnvioDbaVcwCategory,EnvioDbaVcwCostGateway,EnvioDbaVcwDeliverytimeProvider,EnvioDbaVcwDeliveryTime,EnvioDbaVcwEmployees,EnvioDbaVcwEmployeesByBranch,EnvioDbaVcwExclusionPricing,EnvioDbaVcwMoneyordersSales,EnvioDbaVcwPriceExclusion,EnvioDbaVcwPriceStandard,EnvioDbaVcwProducts,EnvioDbaVcwProductType,EnvioDbaVcwProviders,EnvioDbaVcwSalesProducts,EnvioDbaVcwSalesStatus,EnvioDbaVcwStandardPricing,EnvioDbaVcwStatesPricing,EnvioVonDbaCashier,ViachecksViacheckCheckonholdreasons,ViachecksViacheckCheckverification,ViachecksViacheckCheckverifyServicescodes,ViachecksViacheckChecksontemporaryaccounts,ViachecksViacheckHistoricalonholdrelease,ViachecksViacheckOnholdcategories,ViachecksViacheckOnholdcategoriesandgroups,ViachecksViacheckRulesgroup,ViachecksViacheckViacheckfeaturemetrics,ViachecksViacheckViacheckfeaturemodules,ViachecksViacheckVoidreason,ViachecksViacheckVoidsubtypereason,ViachecksDboCheckproperty,ViachecksDboCheckreaderScore,ViachecksDboReprocessedChecks,ViachecksDboTvcpParamAgencias,ViachecksDboBatchtable,ViachecksDboCheckstatustable,ViachecksDboChecktable,ViachecksDboCustomerLocation,ViachecksDboReturnchecks,ViachecksDboReturncodes"
+    Default: "EnvioCatalogVcwDeliverytimeContractProvider, EnvioFraudFraudVectorsV21, EnvioFraudMlFraudScore, EnvioLoyaltyAccountingCustomerledger, EnvioLoyaltyAccountingJournal, EnvioLoyaltyAccountingSubmittransaction, EnvioLoyaltyCoreProduct, EnvioLoyaltyCustomersCustomer, EnvioSalesTerritory, EnvioSalesZone, EnvioCrmBankCost, EnvioCrmReceiverGpComponents, EnvioDbaAgent, EnvioDbaAgentPosition, EnvioDbaAuditRateGroupAgent, EnvioDbaBanco, EnvioDbaBranch, EnvioDbaBranchAgent, EnvioDbaBranchInstallation, EnvioDbaBranchOwnerChange, EnvioDbaBranchOwnerInformation, EnvioDbaBranchPrefix, EnvioDbaBranchRelations, EnvioDbaCancelationRequests, EnvioDbaCashier, EnvioDbaChain, EnvioDbaCity, EnvioDbaComision, EnvioDbaComisionAgentModoPagoGrupo, EnvioDbaComisionDelivery, EnvioDbaCompany, EnvioDbaConceptoContable, EnvioDbaCountry, EnvioDbaCuentaBanco, EnvioDbaCurrency, EnvioDbaCurrencyPurchase, EnvioDbaDepositCodes, EnvioDbaFlagBranch, EnvioDbaFlagReceiver, EnvioDbaForexFeedMarket, EnvioDbaFundsOrigin, EnvioDbaGroupBranch, EnvioDbaGroupBranchPhase, EnvioDbaGroupType, EnvioDbaHistoryInventoryMarket, EnvioDbaLocation, EnvioDbaModificationReasons, EnvioDbaModificationRequests, EnvioDbaModoPago, EnvioDbaModPayCurrency, EnvioDbaPayment, EnvioDbaRateGroupAgent, EnvioDbaRateGroupStateDelivery, EnvioDbaRateType, EnvioDbaReceiptDisclaimers, EnvioDbaReceiver, EnvioDbaReceiverFraud, EnvioDbaReceiverSource, EnvioDbaRecipiente, EnvioDbaSender, EnvioDbaSfArmoredCar, EnvioDbaSfProvider, EnvioDbaSfSafesBranches, EnvioDbaSfVault, EnvioDbaStandar, EnvioDbaState, EnvioDbaTipoTransmision, EnvioDbaTipoTransmisionAgencia, EnvioDbaTrader, EnvioDbaTraderGroup, EnvioDbaTransaccionDiariaBancoPayee, EnvioDbaTransaccionDiariaPayee, EnvioDbaTypeBranch, EnvioDbaTypeIdSender, EnvioDbaVappApplication, EnvioDbaVappTypeapplications, EnvioDbaVcwBiller, EnvioDbaVcwBillpaymentSales, EnvioDbaVcwBillpaymentViaoneSales, EnvioDbaVcwCarriers, EnvioDbaVcwCarriersByProviders, EnvioDbaVcwCategory, EnvioDbaVcwCostGateway, EnvioDbaVcwDeliverytimeProvider, EnvioDbaVcwDeliveryTime, EnvioDbaVcwEmployees, EnvioDbaVcwEmployeesByBranch, EnvioDbaVcwExclusionPricing, EnvioDbaVcwMoneyordersSales, EnvioDbaVcwPriceExclusion, EnvioDbaVcwPriceStandard, EnvioDbaVcwProducts, EnvioDbaVcwProductType, EnvioDbaVcwProviders, EnvioDbaVcwSalesProducts, EnvioDbaVcwSalesStatus, EnvioDbaVcwStandardPricing, EnvioDbaVcwStatesPricing, EnvioVonDbaCashier, ViachecksViacheckCheckonholdreasons, ViachecksViacheckCheckverification, ViachecksViacheckCheckverifyServicescodes, ViachecksViacheckChecksontemporaryaccounts, ViachecksViacheckHistoricalonholdrelease, ViachecksViacheckOnholdcategories, ViachecksViacheckOnholdcategoriesandgroups, ViachecksViacheckRulesgroup, ViachecksViacheckViacheckfeaturemetrics, ViachecksViacheckViacheckfeaturemodules, ViachecksViacheckVoidreason, ViachecksViacheckVoidsubtypereason, ViachecksDboCheckproperty, ViachecksDboCheckreaderScore, ViachecksDboReprocessedChecks, ViachecksDboTvcpParamAgencias, ViachecksDboBatchtable, ViachecksDboCheckstatustable, ViachecksDboChecktable, ViachecksDboCustomerLocation, ViachecksDboReturnchecks, ViachecksDboReturncodes"
+  VIAGlueObjectsNamesIncremental:
+    Type: CommaDelimitedList
+    Default: "EnvioFraudFraudVectorsV21Incremental, EnvioFraudMlFraudScoreIncremental, EnvioLoyaltyAccountingCustomerledgerIncremental, EnvioLoyaltyAccountingJournalIncremental, EnvioLoyaltyAccountingSubmittransactionIncremental, EnvioLoyaltyCustomersCustomerIncremental, EnvioCrmReceiverGpComponentsIncremental, EnvioDbaAuditRateGroupAgentIncremental, EnvioDbaBranchIncremental, EnvioDbaComisionAgentModoPagoGrupoIncremental, EnvioDbaForexFeedMarketIncremental, EnvioDbaHistoryInventoryMarketIncremental, EnvioDbaRateGroupAgentIncremental, EnvioDbaReceiverIncremental, EnvioDbaSenderIncremental, EnvioDbaTransaccionDiariaBancoPayeeIncremental, EnvioDbaTransaccionDiariaPayeeIncremental, EnvioDbaVcwBillpaymentSalesIncremental, EnvioDbaVcwBillpaymentViaoneSalesIncremental, EnvioDbaVcwMoneyordersSalesIncremental, EnvioDbaVcwSalesProductsIncremental, EnvioDbaVcwStatesPricingIncremental, ViachecksViacheckCheckverificationIncremental, ViachecksViacheckHistoricalonholdreleaseIncremental, ViachecksViacheckViacheckfeaturemetricsIncremental, ViachecksDboCheckreaderScoreIncremental, ViachecksDboBatchtableIncremental, ViachecksDboChecktableIncremental, ViachecksDboReturnchecksIncremental"
   # The name of the IAM role that the job assumes. It must have access to data, script, temporary directory
   VIAIAMRoleName:
     Type: String
@@ -643,16 +1077,13 @@ Parameters:
   VIAStateMachineType:
     Type: String
     Default: STANDARD
-
   # SNS
   VIASnsTopicName:
     Type: String
     Default: sdlf-email-notifications
-
   VIASnsTopicEndpoint:
     Type: String
-    Default: giovanni.posada@strata-analytics.us
-
+    Default: your.main@domain.us
   VIASnsTopicProtocol:
     Type: String
     Default: EMAIL
@@ -683,12 +1114,14 @@ Resources:
             PythonVersion: "3"
             ScriptLocation:
               Fn::FindInMap: ["GlueObjects", !Ref GlueJobItem, "ScriptLocation"]
-          NumberOfWorkers: 2
+          NumberOfWorkers:
+            Fn::FindInMap: ["GlueObjects", !Ref GlueJobItem, "NumberOfWorkers"]
           GlueVersion: "4.0"
           DefaultArguments:
             "--conf": "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
             "----write-shuffle-files-to-s3": "true"
             "--write-shuffle-spills-to-s3": "true"
+            '--enable-metrics': 'true'
           Tags:
             "map-migrated": "mig42454"
           ExecutionProperty:
@@ -696,6 +1129,44 @@ Resources:
           Name:
             Fn::FindInMap: ["GlueObjects", !Ref GlueJobItem, "JobName"]
           WorkerType: "G.1X"
+
+  # Create jobs to run script which accesses JDBC viamericas db via a connection and write to S3 file as parquet.
+  Fn::ForEach::GlueJobIncremental:
+    - GlueJobItem # identificador
+    - !Ref VIAGlueObjectsNamesIncremental # lista de los objetos a iterar
+    - JobIncremental${GlueJobItem}: 
+        Type: AWS::Glue::Job
+        Properties:
+          Role: !Ref VIAIAMRoleName
+          #DefaultArguments: JSON object
+          # For example, if required by script, set temporary directory as DefaultArguments={'--TempDir'; 's3://aws-glue-temporary-xyc/sal'}
+          Connections:
+            Connections:
+              - !Ref VIAConnectionName
+          #MaxRetries: Double
+          Description: "Job created with CloudFormation using existing script"
+          #LogUri: String
+          Command:
+            Name: "glueetl"
+            PythonVersion: "3"
+            ScriptLocation:
+              Fn::FindInMap: ["GlueObjectsIncremental", !Ref GlueJobItem, "ScriptLocation"]
+          NumberOfWorkers: 10
+          GlueVersion: "4.0"
+          DefaultArguments:
+            "--conf": "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+            "----write-shuffle-files-to-s3": "true"
+            "--write-shuffle-spills-to-s3": "true"
+            "--additional-python-modules": "awswrangler==2.14.0"
+            '--enable-metrics': 'true'
+          Tags:
+            "map-migrated": "mig42454"
+          ExecutionProperty:
+            MaxConcurrentRuns: 1
+          Name:
+            Fn::FindInMap: ["GlueObjectsIncremental", !Ref GlueJobItem, "JobName"]
+          WorkerType: "G.1X"
+
   # Create crawlers that create the schema in the database
   Fn::ForEach::GlueCrawlers:
     - GlueCrawlerItem
@@ -754,6 +1225,9 @@ Resources:
                   - "sns:*"
                 Resource:
                   - "*"
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
 
   # Sns topic
   VIASnsTopic:
@@ -853,3 +1327,96 @@ Resources:
             #  - TagsEntry
             #TracingConfiguration:
             #  TracingConfiguration
+  # State machines
+  Fn::ForEach::StateMachinesIncremental:
+    - StateMachineItem
+    - !Ref VIAGlueObjectsNamesIncremental
+    - StateMachineIncremental${StateMachineItem}:
+        Type: AWS::StepFunctions::StateMachine
+        Properties:
+          Definition:
+            {
+              "Comment": "This executes a glue job that writes to a S3 bucket and then runs a Crawler over the path the Glue Job wrote data to",
+              "StartAt": "RunGlueJob",
+              "States":
+                {
+                  "RunGlueJob":
+                    {
+                      "Parameters":
+                        {
+                          "JobName":
+                            !FindInMap [
+                              "GlueObjectsIncremental",
+                              !Ref StateMachineItem,
+                              "JobName",
+                            ],
+                        },
+                      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                      "Type": "Task",
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "States.ALL"
+                          ],
+                          "BackoffRate": 2,
+                          "IntervalSeconds": 180,
+                          "MaxAttempts": 3
+                        }
+                      ],
+                      "Catch":
+                        [
+                          {
+                            "ErrorEquals": ["States.ALL"],
+                            "Next": "SNS Publish",
+                          },
+                        ],
+                      "Next": "RunCrawler",
+                    },
+                  "RunCrawler":
+                    {
+                      "Parameters":
+                        {
+                          "Name":
+                            !FindInMap [
+                              "GlueObjectsIncremental",
+                              !Ref StateMachineItem,
+                              "CrawlerName",
+                            ],
+                        },
+                      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+                      "Type": "Task",
+                      "End": true,
+                    },
+                  "SNS Publish":
+                    {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::sns:publish",
+                      "Parameters":
+                        { 
+                          "TopicArn": !Ref VIASnsTopic, 
+                          "Message.$": "$" 
+                        },
+                      "Next": "Fail"
+                    },
+                    "Fail": 
+                    {
+                      "Type": "Fail"
+                    }
+                },
+            }
+          #DefinitionSubstitutions:
+          #  Key: Value
+          #LoggingConfiguration:
+          #  LoggingConfiguration
+          RoleArn: !GetAtt VIAStateMachinePipelineRole.Arn
+          StateMachineName:
+            Fn::FindInMap:
+              ["GlueObjectsIncremental", !Ref StateMachineItem, "StateMachineName"]
+          StateMachineType: !Ref VIAStateMachineType
+          Tags:
+            - Key: "map-migrated"
+              Value: "mig42454"
+            #  - TagsEntry
+            #TracingConfiguration:
+            #  TracingConfiguration
+
