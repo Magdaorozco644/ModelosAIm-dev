@@ -622,7 +622,7 @@ def create_daily_sales_count_cancelled_v2():
 			#list_current_input_partitions.sort(reverse=True)
 			days_to_process = list(set(list_current_input_partitions) - set(list_current_target_partitions))
 			days_to_process.sort()
-			paquete = " OR ".join([str('day') + " = " +"'"+str(b)+"'" for b in days_to_process])
+			paquete = " OR ".join([str('a.day') + " = " +"'"+str(b)+"'" for b in days_to_process])
 			print(" Current target partitions: ", str(list_current_target_partitions))
 			print(" Current input partitions: ", str(list_current_input_partitions))
 			print(" Days to process: ", str(days_to_process))
@@ -633,16 +633,16 @@ def create_daily_sales_count_cancelled_v2():
 				SELECT
 				CAST(RTRIM(p.NAME_MAIN_BRANCH) AS VARCHAR(60)) AS PAYER,
 				RTRIM(co.NAME_COUNTRY) AS COUNTRY,
-				day as DATE,
+				a.day as DATE,
 				SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 0 ELSE A.NET_AMOUNT_RECEIVER END) AS AMOUNT,
 				SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 1 ELSE 0 END) AS TX_CANCELLED,
-				day
+				a.day
 				FROM
 				viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
 				INNER JOIN viamericas.COUNTRY co ON a.ID_COUNTRY_RECEIVER = co.ID_COUNTRY
 				LEFT JOIN viamericas.BRANCH b ON a.ID_BRANCH = b.ID_BRANCH
-				WHERE day >= '{list_current_input_partitions[0]}' AND
+				WHERE a.day >= '{list_current_input_partitions[0]}' AND
 				NOT (A.ID_MAIN_BRANCH_SENT LIKE 'M%')
 				AND NOT (A.ID_BRANCH LIKE 'T%')
 				AND SUBSTRING(b.id_branch, 1, 1) IN (SELECT SUBSTRING(PREFIX, 1, 1) FROM viamericas.BRANCH_PREFIX P WHERE TRIM(B.ID_COUNTRY) = TRIM(P.ID_COUNTRY))
@@ -652,8 +652,8 @@ def create_daily_sales_count_cancelled_v2():
 				GROUP BY
 				RTRIM(p.NAME_MAIN_BRANCH),
 				RTRIM(co.NAME_COUNTRY),
-				day,
-				day """)
+				a.day
+				""")
 
 				df = df.repartition("day")
 	
@@ -668,10 +668,10 @@ def create_daily_sales_count_cancelled_v2():
 				SELECT
 				CAST(RTRIM(p.NAME_MAIN_BRANCH) AS VARCHAR(60)) AS PAYER,
 				RTRIM(co.NAME_COUNTRY) AS COUNTRY,
-				day as DATE,
+				a.day as DATE,
 				SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 0 ELSE A.NET_AMOUNT_RECEIVER END) AS AMOUNT,
 				SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 1 ELSE 0 END) AS TX_CANCELLED,
-				day
+				a.day
 				FROM
 				viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -687,8 +687,8 @@ def create_daily_sales_count_cancelled_v2():
 				GROUP BY
 				RTRIM(p.NAME_MAIN_BRANCH),
 				RTRIM(co.NAME_COUNTRY),
-				day,
-				day """)
+				a.day
+				""")
 
 				df = df.repartition("day")
 	
@@ -704,10 +704,10 @@ def create_daily_sales_count_cancelled_v2():
 					SELECT
 					CAST(RTRIM(p.NAME_MAIN_BRANCH) AS VARCHAR(60)) AS PAYER,
 					RTRIM(co.NAME_COUNTRY) AS COUNTRY,
-					day as DATE,
+					a.day as DATE,
 					SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 0 ELSE A.NET_AMOUNT_RECEIVER END) AS AMOUNT,
 					SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 1 ELSE 0 END) AS TX_CANCELLED,
-					day
+					a.day
 					FROM
 					viamericas.RECEIVER a
 					INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -717,15 +717,15 @@ def create_daily_sales_count_cancelled_v2():
 					NOT (A.ID_MAIN_BRANCH_SENT LIKE 'M%')
 					AND NOT (A.ID_BRANCH LIKE 'T%')
 					AND SUBSTRING(b.id_branch, 1, 1) IN (SELECT SUBSTRING(PREFIX, 1, 1) FROM viamericas.BRANCH_PREFIX P WHERE TRIM(B.ID_COUNTRY) = TRIM(P.ID_COUNTRY))
-					AND day >= '{days_to_process[0]}'
+					AND a.day >= '{days_to_process[0]}'
 					AND b.ID_LOCATION IS NOT NULL
 					AND b.ID_LOCATION NOT IN ('MD0010', 'MD0952', 'AK0003', 'CA3897', 'NY1130', 'MD0696', 'FL1933', 'AK0004', 'CA4046', 'NY1221', 'MD0623', 'MD1003', 'MD1018', 'AK0008', 'CA4291', 'NY1346', 'CA4350', 'NY1381', 'OK0236', 'FL2287', 'CA4391', 'AK0009', 'NY1397', 'CA4392', 'AK0010', 'FL2288', 'NY1399', 'AK0012', 'CA4396', 'NY1402', 'FL2289', 'AK0013', 'CA4418', 'NY1410', 'FL2301', 'AK0014', 'CA4428', 'NY1413')
 					AND a.NET_AMOUNT_RECEIVER <> 0
 					GROUP BY
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
-					day,
-					day """)
+					a.day
+					""")
 
 				df = df.repartition("day")
 
@@ -741,10 +741,10 @@ def create_daily_sales_count_cancelled_v2():
 				SELECT
 				CAST(RTRIM(p.NAME_MAIN_BRANCH) AS VARCHAR(60)) AS PAYER,
 				RTRIM(co.NAME_COUNTRY) AS COUNTRY,
-				day as DATE,
+				a.day as DATE,
 				SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 0 ELSE A.NET_AMOUNT_RECEIVER END) AS AMOUNT,
 				SUM(CASE WHEN A.ID_FLAG_RECEIVER = 'A' OR A.ID_FLAG_RECEIVER = 'C' THEN 1 ELSE 0 END) AS TX_CANCELLED,
-				day
+				a.day
 				FROM
 				viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -754,15 +754,15 @@ def create_daily_sales_count_cancelled_v2():
 				NOT (A.ID_MAIN_BRANCH_SENT LIKE 'M%')
 				AND NOT (A.ID_BRANCH LIKE 'T%')
 				AND SUBSTRING(b.id_branch, 1, 1) IN (SELECT SUBSTRING(PREFIX, 1, 1) FROM viamericas.BRANCH_PREFIX P WHERE TRIM(B.ID_COUNTRY) = TRIM(P.ID_COUNTRY))
-				AND day >= '2021-01-01'
+				AND a.day >= '2021-01-01'
 				AND b.ID_LOCATION IS NOT NULL
 				AND b.ID_LOCATION NOT IN ('MD0010', 'MD0952', 'AK0003', 'CA3897', 'NY1130', 'MD0696', 'FL1933', 'AK0004', 'CA4046', 'NY1221', 'MD0623', 'MD1003', 'MD1018', 'AK0008', 'CA4291', 'NY1346', 'CA4350', 'NY1381', 'OK0236', 'FL2287', 'CA4391', 'AK0009', 'NY1397', 'CA4392', 'AK0010', 'FL2288', 'NY1399', 'AK0012', 'CA4396', 'NY1402', 'FL2289', 'AK0013', 'CA4418', 'NY1410', 'FL2301', 'AK0014', 'CA4428', 'NY1413')
 				AND a.NET_AMOUNT_RECEIVER <> 0
 				GROUP BY
 				RTRIM(p.NAME_MAIN_BRANCH),
 				RTRIM(co.NAME_COUNTRY),
-				day,
-				day """)
+				a.day
+				""")
 
 			df = df.repartition("day")
 
