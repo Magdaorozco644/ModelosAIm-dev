@@ -1,0 +1,251 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: "AWS::LanguageExtensions"
+# Sample YAML to demonstrate creating a job using a ORACLE JDBC DB with the viamericas data to an S3 file
+#
+#
+# Mappings
+# here we define some required data for glue jobs and glue crawlers
+Mappings:
+  # GlueObjects
+  GlueObjects:
+    StageFraudTable:
+      JobName: "gj_stage_fraudtable"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/stage-fraudtable.py"
+      CrawlerName: "crw_stage_fraud_table"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/fraudtable"
+      StateMachineName: "sm_stage_fraud_table"
+    MoneyordersSales:
+      JobName: "gj_stage_moneyorders_sales"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/sdlf_gj_stage_moneyorders_sales.py"
+      CrawlerName: "crw_stage_moneyorders_sales"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/moneyorders_sales"
+      StateMachineName: "sm_stage_moneyorders_sales"
+    BillPayment:
+      JobName: "gj_stage_billpayment"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/stage_billpayment.py"
+      CrawlerName: "crw_stage_billpayment"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/billpayment"
+      StateMachineName: "sm_stage_billpayment"
+    Loyalty:
+      JobName: "gj_stage_loyalty"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/stage_loyalty.py"
+      CrawlerName: "crw_stage_loyalty"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/loyalty"
+      StateMachineName: "sm_stage_loyalty"
+    Viacheck:
+      JobName: "gj_stage_viacheck"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/stage_viacheck.py"
+      CrawlerName: "crw_stage_viacheck"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/viacheck"
+      StateMachineName: "sm_stage_viacheck"
+    Accounting:
+      JobName: "gj_stage_accounting"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/stage_accounting.py"
+      CrawlerName: "crw_stage_accounting"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/accounting"
+      StateMachineName: "sm_stage_accounting"
+    Topups:
+      JobName: "gj_stage_topups"
+      ScriptLocation: "s3://aws-glue-assets-283731589572-us-east-1/scripts/stage_topups.py"
+      CrawlerName: "crw_stage_topups"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-stage/topups"
+      StateMachineName: "sm_stage_topups"
+Parameters:
+  # Glue Job
+  # The name of the job to be created
+  StateFunctionNames:
+    Type: CommaDelimitedList
+    Default: "StageFraudTable, MoneyordersSales, BillPayment, Loyalty, Viacheck, Accounting, Topups"
+  VIAIAMRoleArn:
+    Type: String
+    Default: arn:aws:iam::283731589572:role/GlueRolFullAccess
+  VIACrawlerRolArn:
+    Type: String
+    Default: arn:aws:iam::283731589572:role/sdlf-lakeformation-admin
+  VIADatabaseName:
+    Type: String
+    Default: stage
+  # The S3 path where the script for this job is located
+  VIAConnectionName:
+    Type: String
+    Default: via-database-connection
+  # State machine
+  VIARolStateMachineArn:
+    Type: String
+    Default: arn:aws:iam::283731589572:role/cf-aws-glue-sf-run
+
+  VIAStateMachineType:
+    Type: String
+    Default: STANDARD
+
+  # SNS
+  VIASnsTopicArn:
+    Type: String
+    Default: arn:aws:sns:us-east-1:283731589572:sdlf-email-test
+
+  # External python function
+  ViaExternalPythonFunctions:
+    Type: String
+    Default: s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/Codes.zip
+  
+#
+#
+# Resources section defines metadata for the Data Catalog
+Resources:
+  # Create jobs to run script which accesses JDBC viamericas db via a connection and write to S3 file as parquet.
+  Fn::ForEach::GlueJobIncremental:
+    - GlueJobItem # identificador
+    - !Ref StateFunctionNames # lista de los objetos a iterar
+    - Job${GlueJobItem}: 
+        Type: AWS::Glue::Job
+        Properties:
+          Role: !Ref VIAIAMRoleArn
+          Connections:
+            Connections:
+              - !Ref VIAConnectionName
+          #MaxRetries: Double
+          Description: "Job created with CloudFormation using script template_stage.yaml"
+          #LogUri: String
+          Command:
+            Name: "glueetl"
+            PythonVersion: "3"
+            ScriptLocation:
+              Fn::FindInMap: ["GlueObjects", !Ref GlueJobItem, "ScriptLocation"]
+          NumberOfWorkers: 10
+          GlueVersion: "4.0"
+          DefaultArguments:
+            "--conf": "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+            "----write-shuffle-files-to-s3": "true"
+            "--write-shuffle-spills-to-s3": "true"
+            "--additional-python-modules": "awswrangler==2.14.0"
+            '--enable-metrics': 'true'
+            '--enable-glue-datacatalog': 'true'
+            '--extra-py-files': !Ref ViaExternalPythonFunctions
+          Tags:
+            "map-migrated": "mig42454"
+          ExecutionProperty:
+            MaxConcurrentRuns: 1
+          Name:
+            Fn::FindInMap: ["GlueObjects", !Ref GlueJobItem, "JobName"]
+          WorkerType: "G.1X"
+
+  Fn::ForEach::GlueCrawlers:
+    - GlueCrawlerItem
+    - !Ref StateFunctionNames
+    - Crawler${GlueCrawlerItem}:
+        Type: AWS::Glue::Crawler
+        Properties:
+          Name:
+            Fn::FindInMap: ["GlueObjects", !Ref GlueCrawlerItem, "CrawlerName"]
+          Role: !Ref VIACrawlerRolArn
+          #Classifiers: none, use the default classifier
+          Description: "AWS Glue crawler to crawl viamericas stage data"
+          #Schedule: none, use default run-on-demand
+          DatabaseName: !Ref VIADatabaseName
+          Targets:
+            S3Targets:
+              # Private S3 path with the viamericas data
+              - Path:
+                  Fn::FindInMap: ["GlueObjects", !Ref GlueCrawlerItem, "Path"]
+              - ConnectionName: !Ref VIAConnectionName
+          Tags:
+            "map-migrated": "mig42454"
+          TablePrefix: ""
+          RecrawlPolicy:
+            RecrawlBehavior: "CRAWL_EVERYTHING"
+          SchemaChangePolicy:
+            UpdateBehavior: "UPDATE_IN_DATABASE"
+            DeleteBehavior: "DEPRECATE_IN_DATABASE"
+          Configuration: '{"Version":1.0,"CreatePartitionIndex":true}'
+  # State machines
+  Fn::ForEach::StateMachinesIncremental:
+    - StateMachineItem
+    - !Ref StateFunctionNames
+    - StateMachine${StateMachineItem}:
+        Type: AWS::StepFunctions::StateMachine
+        Properties:
+          Definition:
+            {
+              "Comment": "This executes a glue job that writes to a S3 bucket and then runs a Crawler over the path the Glue Job wrote data to",
+              "StartAt": "RunGlueJob",
+              "States":
+                {
+                  "RunGlueJob":
+                    {
+                      "Parameters":
+                        {
+                          "JobName":
+                            !FindInMap [
+                              "GlueObjects",
+                              !Ref StateMachineItem,
+                              "JobName",
+                            ],
+                        },
+                      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                      "Type": "Task",
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "States.ALL"
+                          ],
+                          "BackoffRate": 2,
+                          "IntervalSeconds": 180,
+                          "MaxAttempts": 3
+                        }
+                      ],
+                      "Catch":
+                        [
+                          {
+                            "ErrorEquals": ["States.ALL"],
+                            "Next": "SNS Publish",
+                          },
+                        ],
+                      "Next": "RunCrawler",
+                    },
+                  "RunCrawler":
+                    {
+                      "Parameters":
+                        {
+                          "Name":
+                            !FindInMap [
+                              "GlueObjects",
+                              !Ref StateMachineItem,
+                              "CrawlerName",
+                            ],
+                        },
+                      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+                      "Type": "Task",
+                      "End": true,
+                    },
+                  "SNS Publish":
+                    {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::sns:publish",
+                      "Parameters":
+                        { 
+                          "TopicArn": !Ref VIASnsTopicArn, 
+                          "Message.$": "$" 
+                        },
+                      "Next": "Fail"
+                    },
+                    "Fail": 
+                    {
+                      "Type": "Fail"
+                    }
+                },
+            }
+          #DefinitionSubstitutions:
+          #  Key: Value
+          #LoggingConfiguration:
+          #  LoggingConfiguration
+          RoleArn: !Ref VIARolStateMachineArn
+          StateMachineName:
+            Fn::FindInMap:
+              ["GlueObjects", !Ref StateMachineItem, "StateMachineName"]
+          StateMachineType: !Ref VIAStateMachineType
+          Tags:
+            - Key: "map-migrated"
+              Value: "mig42454"
+            #  - TagsEntry
+            #TracingConfiguration:
+            #  TracingConfiguration
