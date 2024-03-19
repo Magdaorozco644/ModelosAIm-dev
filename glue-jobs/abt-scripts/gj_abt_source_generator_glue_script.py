@@ -75,7 +75,7 @@ def create_last_daily_forex():
 					.format('parquet') \
 					.partitionBy('day') \
 					.save( s3outputpath )
-			if len(days_to_process) > 0 and len(days_to_process) < 20:
+			elif len(days_to_process) > 0 and len(days_to_process) < 20:
 				df = spark.sql(f"""
                 select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day, tg.id_country
 				from (
@@ -377,7 +377,8 @@ def create_daily_check_gp():
 						--END
 					) as GP,
 				a.day as day,
-    			p.ID_MAIN_BRANCH
+    			p.ID_MAIN_BRANCH,
+       			co.ID_COUNTRY
 				FROM
 					viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -396,6 +397,7 @@ def create_daily_check_gp():
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
 					p.ID_MAIN_BRANCH,
+     				co.ID_COUNTRY
 					a.day
 				""")
 
@@ -407,7 +409,7 @@ def create_daily_check_gp():
 					.format('parquet') \
 					.partitionBy('day') \
 					.save( s3outputpath )
-			if len(days_to_process) > 0 and len(days_to_process) < 20:
+			elif len(days_to_process) > 0 and len(days_to_process) < 20:
 				df = spark.sql(f"""
                     SELECT
 					CAST(RTRIM(p.NAME_MAIN_BRANCH) AS VARCHAR(60)) AS PAYER,
@@ -440,7 +442,8 @@ def create_daily_check_gp():
 						--END
 					) as GP,
 				a.day as day,
-   				p.ID_MAIN_BRANCH
+   				p.ID_MAIN_BRANCH,
+				co.ID_COUNTRY
 				FROM
 					viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -459,6 +462,7 @@ def create_daily_check_gp():
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
 					p.ID_MAIN_BRANCH,
+					co.ID_COUNTRY
 					a.day
      			""")
 
@@ -567,7 +571,8 @@ def create_daily_check_gp():
 						--END
 					) as GP,
 				a.day as day,
-    			p.ID_MAIN_BRANCH
+    			p.ID_MAIN_BRANCH,
+				co.ID_COUNTRY
 				FROM
 					viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -586,7 +591,8 @@ def create_daily_check_gp():
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
 					a.day,
-     				p.ID_MAIN_BRANCH
+     				p.ID_MAIN_BRANCH,
+					co.ID_COUNTRY
             	""")
 
 			df = df.repartition("day")
@@ -671,7 +677,7 @@ def create_daily_sales_count_cancelled_v2():
 					.format('parquet') \
 					.partitionBy('day') \
 					.save( s3outputpath )
-			if len(days_to_process) > 0 and len(days_to_process) < 20:
+			elif len(days_to_process) > 0 and len(days_to_process) < 20:
 				df = spark.sql(f"""
 				SELECT
 				CAST(RTRIM(p.NAME_MAIN_BRANCH) AS VARCHAR(60)) AS PAYER,
