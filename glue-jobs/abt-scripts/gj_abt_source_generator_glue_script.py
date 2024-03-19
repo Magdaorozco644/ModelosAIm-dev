@@ -48,10 +48,10 @@ def create_last_daily_forex():
 			print(" Current input partitions: ", str(list_current_input_partitions))
 			print(" Days to process: ", str(days_to_process))
 			print(" Package expression: ", str(paquete))
-
+			#id_main_branch , id_country
 			if len(days_to_process) == 0:
 				df = spark.sql(f"""
-                select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day
+                select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day, tg.id_country
 				from (
 					select
 					symbol,
@@ -77,7 +77,7 @@ def create_last_daily_forex():
 					.save( s3outputpath )
 			if len(days_to_process) > 0 and len(days_to_process) < 20:
 				df = spark.sql(f"""
-                select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day
+                select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day, tg.id_country
 				from (
 					select
 					symbol,
@@ -104,7 +104,7 @@ def create_last_daily_forex():
 			else:
 				print('More than 20 partitions missing.')
 				df = spark.sql(f"""
-				select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day
+				select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day, tg.id_country
 				from (
 					select
 					symbol,
@@ -132,7 +132,7 @@ def create_last_daily_forex():
 		else:
 			print("Target table does not exist, will be created")
 			df = spark.sql(f"""
-            select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day
+            select distinct feed_tbl.symbol, feed_tbl.max_feed_date, feed_tbl.max_feed_price, c.name_country as country, feed_tbl.day as day, tg.id_country
 			from (
 				select
 				symbol,
@@ -376,7 +376,8 @@ def create_daily_check_gp():
 							SUM(CAST((CASE WHEN A.ID_FLAG_RECEIVER IN('A','C') THEN 0 ELSE COALESCE(vd.VIADEAL_REAL, COALESCE(vd.VIADEAL_ESTIMATED,0)) END) as decimal(18, 8)) ) -- VIADEAL
 						--END
 					) as GP,
-				a.day as day
+				a.day as day,
+    			p.ID_MAIN_BRANCH
 				FROM
 					viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -394,6 +395,7 @@ def create_daily_check_gp():
 				GROUP BY
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
+					p.ID_MAIN_BRANCH,
 					a.day
 				""")
 
@@ -437,7 +439,8 @@ def create_daily_check_gp():
 							SUM(CAST((CASE WHEN A.ID_FLAG_RECEIVER IN('A','C') THEN 0 ELSE COALESCE(vd.VIADEAL_REAL, COALESCE(vd.VIADEAL_ESTIMATED,0)) END) as decimal(18, 8)) ) -- VIADEAL
 						--END
 					) as GP,
-				a.day as day
+				a.day as day,
+   				p.ID_MAIN_BRANCH
 				FROM
 					viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -455,6 +458,7 @@ def create_daily_check_gp():
 				GROUP BY
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
+					p.ID_MAIN_BRANCH,
 					a.day
      			""")
 
@@ -498,7 +502,8 @@ def create_daily_check_gp():
 								SUM(CAST((CASE WHEN A.ID_FLAG_RECEIVER IN('A','C') THEN 0 ELSE COALESCE(vd.VIADEAL_REAL, COALESCE(vd.VIADEAL_ESTIMATED,0)) END) as decimal(18, 8)) ) -- VIADEAL
 							--END
 						) as GP,
-					a.day as day
+					a.day as day,
+    				p.ID_MAIN_BRANCH
 					FROM
 						viamericas.RECEIVER a
 					INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -516,6 +521,7 @@ def create_daily_check_gp():
 					GROUP BY
 						RTRIM(p.NAME_MAIN_BRANCH),
 						RTRIM(co.NAME_COUNTRY),
+    					p.ID_MAIN_BRANCH,
 						a.day
 					""")
 
@@ -560,7 +566,8 @@ def create_daily_check_gp():
 							SUM(CAST((CASE WHEN A.ID_FLAG_RECEIVER IN('A','C') THEN 0 ELSE COALESCE(vd.VIADEAL_REAL, COALESCE(vd.VIADEAL_ESTIMATED,0)) END) as decimal(18, 8)) ) -- VIADEAL
 						--END
 					) as GP,
-				a.day as day
+				a.day as day,
+    			p.ID_MAIN_BRANCH
 				FROM
 					viamericas.RECEIVER a
 				INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -578,7 +585,8 @@ def create_daily_check_gp():
 				GROUP BY
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
-					a.day
+					a.day,
+     				p.ID_MAIN_BRANCH
             	""")
 
 			df = df.repartition("day")

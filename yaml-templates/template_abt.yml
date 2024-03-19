@@ -140,7 +140,7 @@ Resources:
         "--enable-glue-datacatalog" : true
         "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
         "--date_lag": "1"
-        "--end_date": "2023-10-21"
+        "--end_date": "2023-12-31"
         "--process_date": "None"
         "--start_date": "2021-01-01"
       Tags:
