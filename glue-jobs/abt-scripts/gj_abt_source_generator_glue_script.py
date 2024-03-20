@@ -397,7 +397,7 @@ def create_daily_check_gp():
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
 					p.ID_MAIN_BRANCH,
-     				co.ID_COUNTRY
+     				co.ID_COUNTRY,
 					a.day
 				""")
 
@@ -462,7 +462,7 @@ def create_daily_check_gp():
 					RTRIM(p.NAME_MAIN_BRANCH),
 					RTRIM(co.NAME_COUNTRY),
 					p.ID_MAIN_BRANCH,
-					co.ID_COUNTRY
+					co.ID_COUNTRY,
 					a.day
      			""")
 
@@ -507,7 +507,8 @@ def create_daily_check_gp():
 							--END
 						) as GP,
 					a.day as day,
-    				p.ID_MAIN_BRANCH
+    				p.ID_MAIN_BRANCH,
+        			co.ID_COUNTRY
 					FROM
 						viamericas.RECEIVER a
 					INNER JOIN viamericas.GROUP_BRANCH p ON p.ID_MAIN_BRANCH = CASE WHEN a.ID_MAIN_BRANCH_EXPIRED IS NULL THEN RTRIM(a.ID_MAIN_BRANCH_SENT) ELSE RTRIM(a.ID_MAIN_BRANCH_EXPIRED) END
@@ -526,6 +527,7 @@ def create_daily_check_gp():
 						RTRIM(p.NAME_MAIN_BRANCH),
 						RTRIM(co.NAME_COUNTRY),
     					p.ID_MAIN_BRANCH,
+         				co.ID_COUNTRY,
 						a.day
 					""")
 
