@@ -298,8 +298,12 @@ class ABT:
         date_range = pd.date_range(start=start_date, end=end_date)
 
         # Obtener el rango de fechas mínimo y máximo para cada 'payer_country'
+        #'payer_country','id_country','id_main_branch'
+
         payer_country_ranges = (
-            df.groupby("payer_country")["date"].agg(["min", "max"]).reset_index()
+            df.groupby(["payer_country", "id_country", "id_main_branch"])["date"]
+            .agg(["min", "max"])
+            .reset_index()
         )
         payer_country_ranges["min"] = payer_country_ranges["min"].fillna(
             pd.to_datetime(start_date)
@@ -314,6 +318,8 @@ class ABT:
             payer_country = row["payer_country"]
             start_payer = row["min"]
             end_payer = row["max"]
+            payer_id_country = row["id_country"]
+            payer_id_main_branch = row["id_main_branch"]
 
             # Filtrar el DataFrame original por 'payer_country'
             df_payer = df[df["payer_country"] == payer_country]
@@ -321,26 +327,40 @@ class ABT:
             # Rellenar valores faltantes en el rango de fechas del 'payer_country'
             date_range_payer = pd.date_range(start=start_payer, end=end_payer)
             date_combinations = pd.DataFrame(
-                {"date": date_range_payer, "payer_country": payer_country}
+                {
+                    "date": date_range_payer,
+                    "payer_country": payer_country,
+                    "id_country": payer_id_country,
+                    "id_main_branch": payer_id_main_branch,
+                }
             )
             df_combined = pd.merge(
                 date_combinations, df_payer, on=["date", "payer_country"], how="left"
             )
-
             # Rellenar valores faltantes con cero
             numeric_columns = ["amount", "coupon_count", "tx", "gp", "margin"]
             df_combined[numeric_columns] = df_combined[numeric_columns].fillna(0)
 
             # Rellenar valores faltantes en las columnas 'payer' y 'country' utilizando el método ffill
-            df_combined[["payer", "country"]] = df_combined[
-                ["payer", "country"]
-            ].ffill()
+            df_combined[["payer", "country", "id_country", "id_main_branch"]] = (
+                df_combined[
+                    ["payer", "country", "id_country_x", "id_main_branch_x"]
+                ].ffill()
+            )
 
             # Rellenar valores faltantes en la columna 'day' con los valores de la columna 'date' cuando sea NaN
             df_combined["day"] = df_combined["day"].fillna(df_combined["date"])
 
             df_filled = pd.concat([df_filled, df_combined], ignore_index=True)
 
+        df_filled = df_filled.drop(
+            columns=[
+                "id_country_x",
+                "id_country_y",
+                "id_main_branch_x",
+                "id_main_branch_y",
+            ]
+        )
         return df_filled
 
     def create_last_daily_forex(self):
