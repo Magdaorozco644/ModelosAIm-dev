@@ -1,0 +1,587 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: "AWS::LanguageExtensions"
+# Sample YAML to demonstrate creating a job using a ORACLE JDBC DB with the viamericas data to an S3 file
+#
+#
+# Mappings
+# here we define some required data for glue jobs and glue crawlers
+Mappings:
+  # GlueObjectsAbt
+  GlueObjects:
+    ABTPartitionGenerator:
+      JobName: "sdlf_gj_abt_partition_generator"
+      #TODO: CHANGE SCRIPT LOCATION
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_abt_partition_generator_glue_script.py"
+
+    ABTSourceGenerator:
+      JobName: "sdlf_gj_abt_source_generator"
+      #TODO: CHANGE SCRIPT LOCATION
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_abt_source_generator_glue_script.py"
+
+  # Crawler objects
+  CrawlerObjects:
+    LastDailyForex:
+      CrawlerName: "sdlf_crw_abt_source_generator_last_daily_forex_country"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/last_daily_forex_country/"
+    DailyCheckGp:
+      CrawlerName: "sdlf_crw_abt_source_generator_daily_check_gp"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/daily_check_gp/"
+    DailySalesCountCancelled:
+      CrawlerName: "sdlf_crw_abt_source_generator_daily_sales_count_cancelled_v2"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/daily_sales_count_cancelled_v2/"
+#
+#
+# Parameters section contains names that are substituted in the Resources section
+# These parameters are the names the resources created in the Data Catalog
+Parameters:
+  #Glue Job
+  # The name of the job to be created
+  VIAGlueObjectsNames:
+    Type: String
+    Default: "ABTPartitionGenerator"
+  # The name of the job to be created
+  VIAGlueObjectsPython:
+    Type: String
+    Default: "ABTPartitionGenerator"
+  # The name of the job to be created
+  VIAGlueObjectsNamesSpark:
+    Type: String
+    Default: "ABTSourceGenerator"
+  # The name of the IAM role that the job assumes. It must have access to data, script, temporary directory
+  VIAIAMRoleName:
+    Type: String
+    Default: GlueRolFullAccess
+  # The S3 path where the script for this job is located
+  VIACrawlerRolArn:
+    Type: String
+    Default: arn:aws:iam::283731589572:role/sdlf-lakeformation-admin
+
+  # Database to store data
+  VIADatabaseName:
+    Type: String
+    Default: analytics
+
+  # Crawler names
+  VIACrawlerObjectsNames:
+    Type: CommaDelimitedList
+    Default: "LastDailyForex, DailyCheckGp, DailySalesCountCancelled"
+
+  # Lambda Rol name
+  VIALambdaRoleInputMapName:
+    Type: String
+    Default: sdlf_lambda_role_input_map_name
+  VIALambdaRoleCrawler:
+    Type: String
+    Default: sdlf_lambda_role_crawler
+
+  # Lambda Name
+  VIALambdaInputMapName:
+    Type: String
+    Default: sdlf_input_analytics_map
+  VIALambdaCrawlerName:
+    Type: String
+    Default: sdlf_lambda_crawler_init
+
+  # State Machine Role Name
+  VIAStateMachineABTRoleName:
+    Type: String
+    Default: sdlf_state_machine_abt_role
+
+  # State Machine name
+  VIAStateMachineABTName:
+    Type: String
+    Default: sdlf_state_machine_abt
+
+  VIAStateMachineType:
+    Type: String
+    Default: STANDARD
+  # SNS
+  VIASnsTopicName:
+    Type: String
+    Default: sdlf-abt-notifications
+  VIASnsTopicEndpoint:
+    Type: String
+    Default: lautaro.gramuglia@strata-analytics.us
+  VIASnsTopicProtocol:
+    Type: String
+    Default: EMAIL
+
+  # Event Rule Role
+  ViaEventBridgeRuleRoleName:
+    Type: String
+    Default: role_rule_abt_execution_daily
+  # Event Rule Name
+  ViaEventBridgeRuleDailyName:
+    Type: String
+    Default: rule_daily_abt_sm_execution
+
+Resources:
+  ##### Glue Jobs #####
+  # Python Shell ABT PARTITION GENERATOR
+  VIAGlueABTPartitionGenerator:
+    Type: AWS::Glue::Job
+    Properties:
+      Role: !Ref VIAIAMRoleName
+      #MaxRetries: Number
+      Description: "Job created with CloudFormation using existing script. Abt Partition Generator."
+      #LogUri: String
+      Command:
+        Name: "pythonshell"
+        PythonVersion: "3.9"
+        ScriptLocation:
+          Fn::FindInMap:
+            ["GlueObjects", !Ref VIAGlueObjectsPython, "ScriptLocation"]
+      MaxCapacity: 1
+      DefaultArguments:
+        "--LOG_LEVEL": "INFO"
+        "--JOB_NAME": "sdlf_gj_abt_partition_generator"
+        "library-set": "analytics"
+        "--additional-python-modules": "holidays==0.43"
+        "--enable-glue-datacatalog" : true
+        "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
+        "--date_lag": "1"
+        "--end_date": "2023-12-31"
+        "--process_date": "None"
+        "--start_date": "2021-01-01"
+      Tags:
+        "map-migrated": "mig42454"
+        "process": "abt"
+      ExecutionProperty:
+        MaxConcurrentRuns: 1
+      Timeout: 30
+      Name:
+        Fn::FindInMap: ["GlueObjects", !Ref VIAGlueObjectsPython, "JobName"]
+
+  # Spark etl
+  VIAGlueABTSourceGenerator:
+    Type: AWS::Glue::Job
+    Properties:
+      Role: !Ref VIAIAMRoleName
+      Description: "Job created with CloudFormation using existing script. Abt partition generator"
+      #LogUri: String
+      Command:
+        Name: "glueetl"
+        PythonVersion: "3"
+        ScriptLocation:
+          Fn::FindInMap:
+            ["GlueObjects", !Ref VIAGlueObjectsNamesSpark, "ScriptLocation"]
+      NumberOfWorkers: 3
+      GlueVersion: "4.0"
+      DefaultArguments:
+        "--additional-python-modules": "awswrangler==2.14.0"
+      ExecutionProperty:
+        MaxConcurrentRuns: 1
+      Name:
+        Fn::FindInMap: ["GlueObjects", !Ref VIAGlueObjectsNamesSpark, "JobName"]
+      Timeout: 30
+      Tags:
+        "map-migrated": "mig42454"
+        "process": "abt"
+      WorkerType: "G.1X"
+
+  ##### Crawlers #####
+  # Create crawlers that create the schema in the database
+  # Crawler 1 : 1 Glue
+  VIACrawlerGlueABT:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: "sdlf_crw_abt_partition_generator"
+      Role: !Ref VIACrawlerRolArn
+      #Classifiers: none, use the default classifier
+      Description: "AWS Glue crawler to crawl viamericas data"
+      #Schedule: none, use default run-on-demand
+      DatabaseName: !Ref VIADatabaseName
+      Targets:
+        S3Targets:
+          # Private S3 path with the viamericas data
+          #TODO: CHANGE PATH LOCATION
+          - Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/abt/"
+      Tags:
+        "map-migrated": "mig42454"
+        "process": "abt"
+      TablePrefix: ""
+      RecrawlPolicy:
+        RecrawlBehavior: "CRAWL_EVERYTHING"
+      SchemaChangePolicy:
+        UpdateBehavior: "UPDATE_IN_DATABASE"
+        DeleteBehavior: "DEPRECATE_IN_DATABASE"
+      Configuration: '{"Version":1.0,"CreatePartitionIndex":true}'
+
+  # Crawler N : 1 Glue
+  Fn::ForEach::GlueCrawlers:
+    - GlueCrawlerItem
+    - !Ref VIACrawlerObjectsNames
+    - Crawler${GlueCrawlerItem}:
+        Type: AWS::Glue::Crawler
+        Properties:
+          Name:
+            Fn::FindInMap:
+              ["CrawlerObjects", !Ref GlueCrawlerItem, "CrawlerName"]
+          Role: !Ref VIACrawlerRolArn
+          #Classifiers: none, use the default classifier
+          Description: "AWS Glue crawler to crawl viamericas data"
+          #Schedule: none, use default run-on-demand
+          DatabaseName: !Ref VIADatabaseName
+          Targets:
+            S3Targets:
+              # Private S3 path with the viamericas data
+              - Path:
+                  Fn::FindInMap:
+                    ["CrawlerObjects", !Ref GlueCrawlerItem, "Path"]
+          Tags:
+            "map-migrated": "mig42454"
+            "process": "abt"
+          TablePrefix: ""
+          RecrawlPolicy:
+            RecrawlBehavior: "CRAWL_EVERYTHING"
+          SchemaChangePolicy:
+            UpdateBehavior: "UPDATE_IN_DATABASE"
+            DeleteBehavior: "DEPRECATE_IN_DATABASE"
+          Configuration: '{"Version":1.0,"CreatePartitionIndex":true}'
+
+  ##### Rol Lambdas #####
+  # Rol for lambda function input map
+  VIALambdaInputMapRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${VIALambdaRoleCrawler}
+      Description: "IAM role for lambda"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                Resource:
+                  - "*"
+
+  # Rol for lambda function crawler
+  VIALambdaCrawlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${VIALambdaRoleInputMapName}
+      Description: "IAM role for lambda"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                  - "glue:*"
+                Resource:
+                  - "*"
+
+  ##### Lambdas #####
+  # Lambda Input Map
+  VIALambdaInputMap:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: "python3.11"
+      Role: !GetAtt VIALambdaInputMapRole.Arn
+      FunctionName: !Sub ${VIALambdaInputMapName}
+      Handler: sdlf_input_analytics_map.lambda_handler
+      Timeout: 60
+      EphemeralStorage:
+        Size: 512
+      MemorySize: 512
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+        - Key: "process"
+          Value: "abt"
+      Code:
+        S3Bucket: viamericas-datalake-dev-us-east-1-283731589572-analytics
+        S3Key: Lambdas/scripts/sdlf_input_analytics_map.zip
+      Description: List Amazon S3 buckets in us-east-1.
+  # Lambda Crawler
+  VIALambdaCrawler:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: "python3.11"
+      Role: !GetAtt VIALambdaCrawlerRole.Arn
+      FunctionName: !Sub ${VIALambdaCrawlerName}
+      Handler: sdlf_lambda_crawler_init.lambda_handler
+      Timeout: 900
+      EphemeralStorage:
+        Size: 512
+      MemorySize: 512
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+        - Key: "process"
+          Value: "abt"
+      Code:
+        S3Bucket: viamericas-datalake-dev-us-east-1-283731589572-analytics
+        S3Key: Lambdas/scripts/sdlf_lambda_crawler_init.zip
+      Description: List Amazon S3 buckets in us-east-1.
+
+  ##### SNS #####
+  # Sns topic
+  VIASnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref VIASnsTopicEndpoint
+          Protocol: !Ref VIASnsTopicProtocol
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+        - Key: "process"
+          Value: "abt"
+      DisplayName: "Alert! ABT Process Failed."
+      TopicName: !Ref VIASnsTopicName
+
+  ##### Event Rule Role #####
+  VIAEventBridgeRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref ViaEventBridgeRuleRoleName
+      Description: "IAM role for event rule"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "states:StartExecution"
+                Resource:
+                  - "*"
+
+  ##### Rol State Machine #####
+  # Role pipeline orchestrator
+  VIAStateMachineAbtRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref VIAStateMachineABTRoleName
+      Description: "IAM role for step functions"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "states.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                  - "lambda:*"
+                  - "states:*"
+                  - "events:PutTargets"
+                  - "events:PutRule"
+                  - "events:DescribeRule"
+                  - "glue:*"
+                  - "logs:*"
+                  - "sns:*"
+                Resource:
+                  - "*"
+
+  ##### State Machine #####
+  VIAStateMachineAbt:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "glue_run_analytics_inputs",
+          "States":
+            {
+              "glue_run_analytics_inputs":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Parameters":
+                    {
+                      "JobName":
+                        !FindInMap [
+                          "GlueObjects",
+                          "ABTSourceGenerator",
+                          "JobName",
+                        ],
+                    },
+                  "Next": "sdlf_input_analytics",
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+                        "ResultPath": "$.Error",
+                        "Next": "Alert",
+                      },
+                    ],
+                },
+              "Alert":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::sns:publish",
+                  "Parameters":
+                    {
+                      "Message.$": "$.Error",
+                      "TopicArn": !Ref  VIASnsTopic,
+                    },
+                  "Next": "Fail",
+                },
+              "Fail": { "Type": "Fail" },
+              "sdlf_input_analytics":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt  VIALambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "sdlf_lambda_crawler",
+                      "States":
+                        {
+                          "sdlf_lambda_crawler":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::lambda:invoke",
+                              "OutputPath": "$.Payload",
+                              "Parameters":
+                                {
+                                  "FunctionName": !GetAtt VIALambdaCrawler.Arn,
+                                  "Payload.$": "$",
+                                },
+                              "Retry":
+                                [
+                                  {
+                                    "ErrorEquals":
+                                      [
+                                        "Lambda.ServiceException",
+                                        "Lambda.AWSLambdaException",
+                                        "Lambda.SdkClientException",
+                                        "Lambda.TooManyRequestsException",
+                                      ],
+                                    "IntervalSeconds": 1,
+                                    "MaxAttempts": 3,
+                                    "BackoffRate": 2,
+                                  },
+                                ],
+                              "End": true,
+                            },
+                        },
+                    },
+                  "ItemsPath": "$.CrawlerNames",
+                  "Next": "glue_run_abt",
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.TaskFailed"],
+                        "ResultPath": "$.Error",
+                        "Next": "Alert",
+                      },
+                    ],
+                },
+              "glue_run_abt":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Parameters":
+                    {
+                      "JobName":
+                        !FindInMap [
+                          "GlueObjects",
+                          "ABTPartitionGenerator",
+                          "JobName",
+                        ],
+                    },
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+                        "ResultPath": "$.Error",
+                        "Next": "Alert",
+                      },
+                    ],
+                  "Next": "Success",
+                },
+              "Success": { "Type": "Succeed" },
+            },
+        }
+      RoleArn: !GetAtt VIAStateMachineAbtRole.Arn
+      StateMachineName: !Ref VIAStateMachineABTName
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+        - Key: "process"
+          Value: "abt"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration
+
+  ##### Event Rule  #####
+  VIAEventRuleDailyExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleDailyName
+      Description: Executes ABT process daily.
+      ScheduleExpression: cron(0 10 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineAbt
+          Id: VIAStateMachineAbt
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn
