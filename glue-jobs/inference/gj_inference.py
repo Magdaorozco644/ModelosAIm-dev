@@ -16,6 +16,11 @@ import boto3
 from io import BytesIO
 import joblib
 from awsglue.utils import getResolvedOptions
+from awsglue.transforms import *
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+from awsglue.dynamicframe import DynamicFrame
 
 
 # check input variables
@@ -131,7 +136,7 @@ class Inference:
         self.logger = LoggerInit(args["LOG_LEVEL"]).logger
         self.logger.info("Init Inference Prediction")
         self.process_date = self.check_date()
-        self.logger.info(f"Process date: {self.partition_dt}")
+        self.logger.info(f"Process date: {self.process_date}")
         self.s3_client = boto3.client("s3")
 
     def check_date(self):
@@ -156,16 +161,26 @@ class Inference:
         # Abt partition
         data = self.load_abt_df()
         self.logger.info("Data loaded.")
+        # Failed Predicts
+        failed_payers = []
         # Process 2d
         self.logger.info("Processing 2d model.")
-        df_2d = self.process_model_ndays(
+        df_2d, failed_list = self.process_model_ndays(
             days=2, prefix=self.args["model_2d_prefix"], data=data
         )
+        failed_payers.extend(failed_list)
         # Process 8d
         self.logger.info("Processing 8d model.")
-        df_8d = self.process_model_ndays(
-            days=8, prefix=self.args["model_2d_prefix"], data=data
+        # Marcar con 1 en 'day_of_the_dead' cuando 'date' sea 2 de noviembre
+        data["date"] = pd.to_datetime(data["date"])
+        data.loc[
+            data["date"].dt.month.eq(11) & data["date"].dt.day.eq(2), "day_of_the_dead"
+        ] = 1
+        df_8d, failed_list = self.process_model_ndays(
+            days=8, prefix=self.args["model_8d_prefix"], data=data
         )
+        failed_payers.extend(failed_list)
+        self.logger.info(f"Failed predictions: {failed_payers}")
         # Replace first 2 days from df_8d with df_2d
         # Exclude [index - payer_country] from 8d that exists in 2d
         df_8d_filtered = df_8d[
@@ -208,12 +223,18 @@ class Inference:
         self.logger.info(f"DF 8d: {df_final_8d.shape}")
         self.logger.info(f"DF 2d: {df_final_2d.shape}")
 
-        self.save_df(df=df_final_2d, name="predictions_2d.parquet")
-        self.save_df(df=df_final_8d, name="predictions_8d.parquet")
+        self.save_df(df=df_final_2d, name=f"{self.process_date}/predictions_2d/")
+        self.save_df(df=df_final_8d, name=f"{self.process_date}/predictions_8d/")
+
+        return failed_payers, df_final_2d, df_final_8d
 
     def save_df(self, df, name):
         path_s3 = (
-            "s3://" + self.args["bucket_name"] + self.args["prefix_inference_name"] + name
+            "s3://"
+            + self.args["bucket_name"]
+            + "/"
+            + self.args["prefix_inference_name"]
+            + name
         )
         self.logger.info(f"Save inference in: {path_s3}")
         # Guarda el DataFrame en formato Parquet en S3
@@ -240,14 +261,24 @@ class Inference:
         # Initialize an empty DataFrame to store the results
         df_temp = pd.DataFrame(columns=["date", "pred", "payer_country", "model"])
         # Pckl Models
-        pkl_files = self.list_pkl_objects(prefix=prefix)
+        if days == 2:
+            prefix_s3 = self.args["prefix_model_name_2d"]
+        elif days == 8:
+            prefix_s3 = self.args["prefix_model_name_8d"]
+        else:
+            raise InputVaribleRequired("Days must be 2 or 8.")
+        pkl_files = self.list_pkl_objects(prefix_name=prefix, prefix_s3=prefix_s3)
+        if len(pkl_files) == 0:
+            raise InputVaribleRequired("Total pkl objects equals = 0")
         # flag
         i = 1
         # Iterate over pkl files
         for file_key in pkl_files:
             # Extract payer_country from file_key
             payer_country = file_key.split("/")[2]
-            self.logger.info(f"Payer country: {payer_country}")
+            self.logger.info(
+                f"Payer country: {payer_country}, Bucket Name: {self.args['bucket_name']}, Prefix: {file_key}"
+            )
 
             # Download pkl file from S3 and load it into memory
             response = self.s3_client.get_object(
@@ -299,9 +330,7 @@ class Inference:
 
             except:
                 # If an exception occurs, set predictions to zero
-                self.logger.info(
-                    "\033[1;31m" + f"Error processing {payer_country}" + "\033[0m"
-                )
+                self.logger.info(f"Error processing {payer_country}")
                 predictions = [0, 0]
                 df_temp = pd.DataFrame(
                     {
@@ -328,23 +357,26 @@ class Inference:
         # Rename column
         temp_df.rename(columns={"index": "pred_date"}, inplace=True)
         self.logger.info(f"Result df: {temp_df.shape}")
-        return temp_df
+        return temp_df, payer_countries_pinched
 
-    def list_pkl_objects(self, prefix: str):
+    def list_pkl_objects(self, prefix_name: str, prefix_s3: str):
         """_summary_
 
         Args:
             prefix (str): _description_. 'MODEL_2d_'
         """
+        self.logger.info(f'Bucket: {self.args["bucket_name"]} , Prefix: {prefix_s3}')
         elements = self.s3_client.list_objects(
-            Bucket=self.args["bucket_name"], Prefix=self.args["prefix_models"]
+            Bucket=self.args["bucket_name"], Prefix=prefix_s3
         )
+        print(elements)
 
         # Listing pkl files
         pkl_files = [
             obj["Key"]
             for obj in elements.get("Contents", [])
-            if obj["Key"].endswith(".pkl") and (obj["Key"].startswith(prefix))
+            if obj["Key"].endswith(".pkl")
+            and (obj["Key"].split("/")[-1].startswith(prefix_name))
         ]
 
         self.logger.info(f"Total pckl models: {len(pkl_files)}")
@@ -364,6 +396,7 @@ class Inference:
         prefix = f'{self.args["prefix_abt_name"]}/dt='
         # List objects in the S3 path
         files = self.get_all_files(bucket_name=self.args["bucket_name"], prefix=prefix)
+        max_date = None
         # Iterate prefixs
         for prefix in files:
             # Get date
@@ -419,14 +452,79 @@ if __name__ == "__main__":
         "bucket_name": "__required__",
         "prefix_abt_name": "__required__",
         "prefix_inference_name": "__required__",
-        "prefix_models": "__required__",
+        "prefix_model_name_8d": "__required__",
+        "prefix_model_name_2d": "__required__",
         "model_2d_prefix": "__required__",
         "model_8d_prefix": "__required__",
+        "arn_report": "__required__",
+        "temp-s3-dir": "__required__",
         "process_date": "None",
     }
+    sc = SparkContext()
+    glueContext = GlueContext(sc)
+    spark = glueContext.spark_session
+    job = Job(glueContext)
 
     parser = ArgsGet(my_default_args)
     args = parser.loaded_args
+    job.init(args["JOB_NAME"], args)
     # Object Inference
     prediction = Inference(args=args)
-    prediction.process_payer()
+    failure_predictions, df_final_2d, df_final_8d = prediction.process_payer()
+
+    # Send sns message with failures
+    if len(failure_predictions) > 0:
+        formatted_message = "List of payers that failed the prediction: \n"
+        formatted_message += "\n".join(str(item) for item in failure_predictions)
+        # Create SNS client
+        sns_client = boto3.client("sns")
+
+        # Send email
+        response = sns_client.publish(
+            TopicArn=args["arn_report"],
+            Message=formatted_message,
+            Subject="Report Failed Predictions",
+        )
+
+    # Pandas DataFrame to Spark DataFrame
+    df_final_2d_spark = spark.createDataFrame(df_final_2d)
+    df_final_8d_spark = spark.createDataFrame(df_final_8d)
+
+    # Converto to Frame to upload to Redshift
+    df_final_2d_frame = DynamicFrame.fromDF(
+        df_final_2d_spark, glueContext, "df_final_2d"
+    )
+    df_final_8d_frame = DynamicFrame.fromDF(
+        df_final_8d_spark, glueContext, "df_final_8d"
+    )
+
+    # Redshift connection
+    rds_conn = "via-redshift-connection"
+    pre_query = """ """
+    post_query = """ """
+
+    glueContext.write_dynamic_frame.from_catalog(
+        frame= df_final_2d_frame,
+        catalog_connection=rds_conn,
+        connection_options={
+            "database": "redshift-dc-database-name",
+            "dbtable": "redshift-table-name",
+            "preactions": pre_query,
+            "postactions": post_query,
+        },
+        redshift_tmp_dir=args["temp-s3-dir"],
+    )
+
+    glueContext.write_dynamic_frame.from_catalog(
+        frame= df_final_8d_frame,
+        catalog_connection=rds_conn,
+        connection_options={
+            "database": "redshift-dc-database-name",
+            "dbtable": "redshift-table-name",
+            "preactions": pre_query,
+            "postactions": post_query,
+        },
+        redshift_tmp_dir=args["temp-s3-dir"],
+    )
+
+    job.commit()
