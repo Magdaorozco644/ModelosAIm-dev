@@ -113,7 +113,7 @@ class ArgsGet:
         for k, value in self.args.items():
             if not glue_args.get(k) and value == "__required__":
                 raise InputVaribleRequired(
-                    f"The variable {k} is required and was no setted, please pass it as argument '--{k} value'"
+                    f"The variable {k} is required and was no setted, please pass it as argument '--{k}' {value}"
                 )
             else:  # set default"
                 glue_args[k] = glue_args[k] or value
@@ -457,7 +457,11 @@ if __name__ == "__main__":
         "model_2d_prefix": "__required__",
         "model_8d_prefix": "__required__",
         "arn_report": "__required__",
-        "temp-s3-dir": "__required__",
+        "temp_s3_dir": "__required__",
+        "database": "__required__",
+        "schema": "__required__",
+        "table_name_2d": "__required__",
+        "table_name_8d": "__required__",
         "process_date": "None",
     }
     sc = SparkContext()
@@ -500,31 +504,69 @@ if __name__ == "__main__":
 
     # Redshift connection
     rds_conn = "via-redshift-connection"
-    pre_query = """ """
-    post_query = """ """
+    # Create stage temp table with schema.
+    pre_query = """
+    drop table if exists {database}.{schema}.stage_table_temporary;
+    create table {database}.{schema}.stage_table_temporary as select from {database}.{schema}.{table_name} where 1=2;
+    """
+    post_query = """
+    begin;
+    delete from {database}.{schema}.{table_name} using {database}.{schema}.stage_table_temporary where {database}.{schema}.stage_table_temporary.processing_date = {database}.{schema}.{table_name}.processing_date;
+    insert into {database}.{schema}.{table_name} select * from {database}.{schema}.stage_table_temporary;
+    drop table {database}.{schema}.stage_table_temporary;
+    end;
+    """
 
-    glueContext.write_dynamic_frame.from_catalog(
-        frame= df_final_2d_frame,
+    pre_query_2d = pre_query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name_2d"],
+    )
+    post_query_2d = post_query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name_2d"],
+    )
+    print(f"Pre query 2d: {pre_query_2d}")
+    print(f"Post query 2d: {post_query_2d}")
+
+    glueContext.write_dynamic_frame.from_jdbc_conf(
+        frame=df_final_2d_frame,
         catalog_connection=rds_conn,
         connection_options={
-            "database": "redshift-dc-database-name",
-            "dbtable": "redshift-table-name",
-            "preactions": pre_query,
-            "postactions": post_query,
+            "database": args["database"],
+            "dbtable": f"{args['schema']}.stage_table_temporary",
+            "preactions": pre_query_2d,
+            "postactions": post_query_2d,
         },
-        redshift_tmp_dir=args["temp-s3-dir"],
+        redshift_tmp_dir=args["temp_s3_dir"],
+        transformation_ctx="upsert_to_redshift_2d",
     )
 
-    glueContext.write_dynamic_frame.from_catalog(
-        frame= df_final_8d_frame,
+    pre_query_8d = pre_query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name_8d"],
+    )
+    post_query_8d = post_query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name_8d"],
+    )
+    print(f"Pre query 8d: {pre_query_8d}")
+    print(f"Post query 8d: {post_query_8d}")
+
+    glueContext.write_dynamic_frame.from_jdbc_conf(
+        frame=df_final_8d_frame,
         catalog_connection=rds_conn,
         connection_options={
-            "database": "redshift-dc-database-name",
-            "dbtable": "redshift-table-name",
-            "preactions": pre_query,
-            "postactions": post_query,
+            "database": args["database"],
+            "dbtable": f"{args['schema']}.stage_table_temporary",
+            "preactions": pre_query_8d,
+            "postactions": post_query_8d,
         },
-        redshift_tmp_dir=args["temp-s3-dir"],
+        redshift_tmp_dir=args["temp_s3_dir"],
+        transformation_ctx="upsert_to_redshift_8d",
     )
 
     job.commit()
