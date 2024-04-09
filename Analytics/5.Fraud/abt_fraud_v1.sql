@@ -24,7 +24,7 @@ create table analytics.source_fraud_m18 as (
         id_country,
         fraud_classification,
         sender_minutes_since_last_transaction,
-        branch_minutes_since_last_transaction
+        branch_minutes_since_last_transaction,
         sender_days_since_last_transaction
     FROM
         viamericas.source_fraud trans
@@ -42,7 +42,6 @@ create table analytics.branch_trans_40min_cte_lg as (
     and rc.date_receiver between date_add('minute',-40, trans.DATE_RECEIVER ) and  trans.DATE_RECEIVER
     group by trans.id_branch, trans.id_receiver
 );
-
 -- branch_trans_10min
 create table analytics.branch_trans_10min_cte_lg as (
     select trans.id_branch,  trans.id_receiver,  count(rc.date_receiver) as branch_trans_10min
@@ -53,7 +52,6 @@ create table analytics.branch_trans_10min_cte_lg as (
     and rc.date_receiver between date_add('minute',-10, trans.DATE_RECEIVER) and trans.DATE_RECEIVER
     group by trans.id_branch, trans.id_receiver
  );
-
 -- Creamos por cada año una tabla auxiliar y luego unimos
 create table analytics.branch_trans_3m_distinct_cte_2020_lg as (
     select trans.id_branch, trans.id_receiver, count(rc.date_receiver) as branch_trans_3m, count(distinct(date_trunc('day', rc.date_receiver))) count_date_receiver_distinct
@@ -136,8 +134,6 @@ create table analytics.branch_trans_3m_distinct_cte as (
     group by t1.id_branch, t1.id_receiver
 );
 
-
-
 -- cash_pick_up_4min
 create table analytics.cash_pick_up_4min_cte as (
     select trans.id_branch as id_branch, trans.id_receiver, count(rc.date_receiver) as cash_pick_up_4min
@@ -145,7 +141,7 @@ create table analytics.cash_pick_up_4min_cte as (
     analytics.source_fraud_m18 trans left join
         viamericas.receiver rc
     on trans.id_branch = trim(rc.id_branch)
-    and rc.date_receiver between date_add('minute',-4, trans.DATE_RECEIVER) and  trans.DATE_RECEIVER
+    and rc.date_receiver between date_add('minute',-40, trans.DATE_RECEIVER) and  trans.DATE_RECEIVER
     and rc.mode_pay_receiver in ('M','P','S')
     group by trans.id_branch, trans.id_receiver
 );
@@ -153,7 +149,7 @@ create table analytics.cash_pick_up_4min_cte as (
 
 --------------------------------------------------------------- ABT -----------------------------------------------
 
-create table analytics.abt_fraud as (
+create table analytics.abt_fraud_temp as (
     with receiver_fraud_fecha as(
         SELECT
             r.DATE_RECEIVER, r.ID_RECEIVER, r.ID_BRANCH, rf.fraud_type, rf.fraud_classification,
@@ -215,7 +211,7 @@ create table analytics.abt_fraud as (
             from receiver_fraud_fecha fr join viamericas.sender sd
             on fr.id_branch = sd.id_branch and fr.id_sender=sd.id_sender) sdfr
         on trans.id_receiver = sdfr.id_receiver and sdfr.date_receiver < trans.DATE_RECEIVER
-        and sdfr.fraud_classification = 'Real'
+        and sdfr.fraud_classification = 'Real' and trans.id_sender_global = sdfr.id_sender_global
         group by trans.id_sender_global, trans.id_branch, trans.id_receiver
     ),
     sender_state_cte as (
@@ -223,43 +219,57 @@ create table analytics.abt_fraud as (
         from analytics.source_fraud_m18 trans join
             viamericas.sender sd on trans.id_sender_global = sd.id_sender_global
     )
-    select
-        sf.*,
-        rff.fraud_type,
-        rff.fraud_classification as fraud_classification_2,
-        rff.incident_code,
-        rff.id_country_receiver,
-        rff.id_payment,
-        rff.id_state_receiver,
-        rff.id_city_receiver,
-        rff.bank_receiver,
-        bt3md.branch_trans_3m,
-        bt3md.count_date_receiver_distinct,
-        st.sender_state,
-        st.day,
-        bff.branch_has_fraud,
-        bff.fecha_last_fraud_branch,
-        rhf.receiver_has_fraud,
-        bt4m.branch_trans_40min,
-        bt10m.branch_trans_10min,
-        cpu4m.cash_pick_up_4min,
-        lnf.location_nro_fraud,
-        st3m.sender_trans_3m,
-        st3m.range_hist,
-        snf.sender_nro_fraud
-    from
-        analytics.source_fraud_m18 sf
-    left join analytics.branch_trans_3m_distinct_cte bt3md on sf.id_branch = bt3md.id_branch and sf.id_receiver = bt3md.id_receiver
-    left join sender_trans_3m_cte st3m on sf.id_sender_global = st3m.id_sender_global and sf.id_branch = st3m.id_branch and sf.id_receiver = st3m.id_receiver
-    left join sender_nro_fraud_cte snf on sf.id_sender_global = snf.id_sender_global and sf.id_branch = snf.id_branch and sf.id_receiver = snf.id_receiver
-    left join sender_state_cte st on sf.id_sender_global = st.id_sender_global
-    left join receiver_has_fraud_cte rhf on sf.id_receiver = try(cast(rhf.id_receiver as integer)) and sf.id_branch = rhf.id_branch
-    left join branch_and_fecha_last_fraud bff on sf.id_branch = bff.id_branch and sf.id_receiver = bff.id_receiver
-    left join analytics.branch_trans_40min_cte_lg bt4m on sf.id_branch = bt4m.id_branch and sf.id_receiver = bt4m.id_receiver
-    left join analytics.branch_trans_10min_cte_lg bt10m on sf.id_branch = bt10m.id_branch and sf.id_receiver = bt10m.id_receiver
-    left join analytics.cash_pick_up_4min_cte cpu4m on sf.id_branch = cpu4m.id_branch and sf.id_receiver = cpu4m.id_receiver
-    left join receiver_fraud_fecha rff on sf.id_branch = rff.id_branch and sf.id_receiver = rff.id_receiver
-    left join location_nro_fraud_cte lnf on sf.id_location = lnf.id_location and sf.id_branch = lnf.id_branch and sf.id_receiver = lnf.id_receiver
+        select
+            sf.*,
+            rff.fraud_type,
+            rff.fraud_classification as fraud_classification_2,
+            rff.incident_code,
+            rff.id_country_receiver,
+            rff.id_payment,
+            rff.id_state_receiver,
+            rff.id_city_receiver,
+            rff.bank_receiver,
+            bt3md.branch_trans_3m,
+            bt3md.count_date_receiver_distinct,
+            st.sender_state,
+            st.day,
+            bff.branch_has_fraud,
+            bff.fecha_last_fraud_branch,
+            rhf.receiver_has_fraud,
+            bt4m.branch_trans_40min,
+            bt10m.branch_trans_10min,
+            cpu4m.cash_pick_up_4min,
+            lnf.location_nro_fraud,
+            st3m.sender_trans_3m,
+            st3m.range_hist,
+            snf.sender_nro_fraud
+        from
+            analytics.source_fraud_m18 sf
+        left join analytics.branch_trans_3m_distinct_cte bt3md on sf.id_branch = bt3md.id_branch and sf.id_receiver = bt3md.id_receiver
+        left join sender_trans_3m_cte st3m on sf.id_sender_global = st3m.id_sender_global and sf.id_branch = st3m.id_branch and sf.id_receiver = st3m.id_receiver
+        left join sender_nro_fraud_cte snf on sf.id_sender_global = snf.id_sender_global and sf.id_branch = snf.id_branch and sf.id_receiver = snf.id_receiver
+        left join sender_state_cte st on sf.id_sender_global = st.id_sender_global
+        left join receiver_has_fraud_cte rhf on sf.id_receiver = try(cast(rhf.id_receiver as integer)) and sf.id_branch = rhf.id_branch
+        left join branch_and_fecha_last_fraud bff on sf.id_branch = bff.id_branch and sf.id_receiver = bff.id_receiver
+        left join analytics.branch_trans_40min_cte_lg bt4m on sf.id_branch = bt4m.id_branch and sf.id_receiver = bt4m.id_receiver
+        left join analytics.branch_trans_10min_cte_lg bt10m on sf.id_branch = bt10m.id_branch and sf.id_receiver = bt10m.id_receiver
+        left join analytics.cash_pick_up_4min_cte cpu4m on sf.id_branch = cpu4m.id_branch and sf.id_receiver = cpu4m.id_receiver
+        left join receiver_fraud_fecha rff on sf.id_branch = rff.id_branch and sf.id_receiver = rff.id_receiver
+        left join location_nro_fraud_cte lnf on sf.id_location = lnf.id_location and sf.id_branch = lnf.id_branch and sf.id_receiver = lnf.id_receiver
+
+);
+
+
+-- FINAL ABT WITHOUT DUPLICATED ROWS
+create table analytics.abt_fraud as (
+    select abt.*
+    from analytics.abt_fraud_temp abt inner join
+        (   select id_receiver, id_branch, max(cast(day as timestamp)) last
+            from analytics.abt_fraud_temp where date_receiver >= cast(day as timestamp)
+            group by id_receiver, id_branch
+        ) ult_st
+    on abt.id_receiver = ult_st.id_receiver and abt.id_branch = ult_st.id_branch
+    and cast(abt.day as timestamp) = ult_st.last
 );
 
 
@@ -275,6 +285,7 @@ drop table analytics.branch_trans_4min_cte_lg;
 drop table analytics.branch_trans_10min_cte_lg;
 drop table analytics.branch_prom_diario_cte;
 drop table analytics.cash_pick_up_4min_cte;
+drop table analytics.abt_fraud_temp;
 
 
 -- DROP ABT
