@@ -17,12 +17,18 @@ Parameters:
   VIAStateMachineNameHourlyOrchestrator:
     Type: String
     Default: sdlf_pipeline_bulk_hourly_orchestrator
+  VIAStateMachineNameFifteenMinutesOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_fifteen_minutes_orchestrator
   VIAStateMachineNameHalfHourOrchestrator:
     Type: String
     Default: sdlf_pipeline_bulk_half_hour_orchestrator
   VIAStateMachineNameSixHoursOrchestrator:
     Type: String
     Default: sdlf_pipeline_bulk_six_hour_orchestrator
+  VIAStateMachineNameTwelveHoursOrchestrator:
+    Type: String
+    Default: sdlf_pipeline_bulk_twelve_hour_orchestrator
   VIAStateMachineNameDailyOrchestrator:
     Type: String
     Default: sdlf_pipeline_bulk_daily_orchestrator
@@ -32,6 +38,9 @@ Parameters:
   ViaEventBridgeRuleRoleName:
     Type: String
     Default: role_rule_hourly_sm_execution
+  ViaEventBridgeRuleFifteenMinutesName:
+    Type: String
+    Default: rule_fifteen_minutes_sm_execution
   ViaEventBridgeRuleHalfHourName:
     Type: String
     Default: rule_half_hour_sm_execution
@@ -41,6 +50,9 @@ Parameters:
   ViaEventBridgeRuleSixHoursName:
     Type: String
     Default: rule_six_hours_sm_execution
+  ViaEventBridgeRuleTwelveHoursName:
+    Type: String
+    Default: rule_twelve_hours_sm_execution
   ViaEventBridgeRuleDailyName:
     Type: String
     Default: rule_daily_sm_execution
@@ -86,73 +98,127 @@ Resources:
               ACCOUNT = "283731589572"
               REGION = "us-east-1"
 
-              STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider, sdlf_sm_bulk_envio_fraud_fraud_vectors_v2_1, sdlf_sm_bulk_envio_loyalty_accounting_customerledger, sdlf_sm_bulk_envio_loyalty_accounting_journal, sdlf_sm_bulk_envio_loyalty_accounting_submittransaction, sdlf_sm_bulk_envio_loyalty_customers_customer, sdlf_sm_bulk_envio_sales_zone, sdlf_sm_bulk_envio_crm_bank_cost, sdlf_sm_bulk_envio_crm_receiver_gp_components, sdlf_sm_bulk_envio_dba_agent, sdlf_sm_bulk_envio_dba_banco, sdlf_sm_bulk_envio_dba_branch, sdlf_sm_bulk_envio_dba_branch_agent, sdlf_sm_bulk_envio_dba_branch_installation, sdlf_sm_bulk_envio_dba_branch_owner_change, sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_branch_prefix, sdlf_sm_bulk_envio_dba_branch_relations, sdlf_sm_bulk_envio_dba_cashier, sdlf_sm_bulk_envio_dba_chain, sdlf_sm_bulk_envio_dba_city, sdlf_sm_bulk_envio_dba_comision, sdlf_sm_bulk_envio_dba_comision_agent_modo_pago_grupo, sdlf_sm_bulk_envio_dba_comision_delivery, sdlf_sm_bulk_envio_dba_concepto_contable, sdlf_sm_bulk_envio_dba_country, sdlf_sm_bulk_envio_dba_currency, sdlf_sm_bulk_envio_dba_currency_purchase, sdlf_sm_bulk_envio_dba_deposit_codes, sdlf_sm_bulk_envio_dba_flag_receiver, sdlf_sm_bulk_envio_dba_forex_feed_market, sdlf_sm_bulk_envio_dba_group_branch, sdlf_sm_bulk_envio_dba_group_branch_phase, sdlf_sm_bulk_envio_dba_history_inventory_market, sdlf_sm_bulk_envio_dba_location, sdlf_sm_bulk_envio_dba_modo_pago, sdlf_sm_bulk_envio_dba_rate_group_agent, sdlf_sm_bulk_envio_dba_rate_group_state_delivery, sdlf_sm_bulk_envio_dba_rate_type, sdlf_sm_bulk_envio_dba_receiver_fraud, sdlf_sm_bulk_envio_dba_receiver_source, sdlf_sm_bulk_envio_dba_sender, sdlf_sm_bulk_envio_dba_sf_safes_branches, sdlf_sm_bulk_envio_dba_standar, sdlf_sm_bulk_envio_dba_state, sdlf_sm_bulk_envio_dba_tipo_transmision, sdlf_sm_bulk_envio_dba_tipo_transmision_agencia, sdlf_sm_bulk_envio_dba_trader, sdlf_sm_bulk_envio_dba_trader_group, sdlf_sm_bulk_envio_dba_transaccion_diaria_payee, sdlf_sm_bulk_envio_dba_vapp_application, sdlf_sm_bulk_envio_dba_vcw_biller, sdlf_sm_bulk_envio_dba_vcw_billpayment_viaone_sales, sdlf_sm_bulk_envio_dba_vcw_carriers, sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers, sdlf_sm_bulk_envio_dba_vcw_category, sdlf_sm_bulk_envio_dba_vcw_cost_gateway, sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider, sdlf_sm_bulk_envio_dba_vcw_delivery_time, sdlf_sm_bulk_envio_dba_vcw_employees, sdlf_sm_bulk_envio_dba_vcw_employees_by_branch, sdlf_sm_bulk_envio_dba_vcw_exclusion_pricing, sdlf_sm_bulk_envio_dba_vcw_moneyorders_sales, sdlf_sm_bulk_envio_dba_vcw_price_exclusion, sdlf_sm_bulk_envio_dba_vcw_price_standard, sdlf_sm_bulk_envio_dba_vcw_products, sdlf_sm_bulk_envio_dba_vcw_product_type, sdlf_sm_bulk_envio_dba_vcw_providers, sdlf_sm_bulk_envio_dba_vcw_sales_products, sdlf_sm_bulk_envio_dba_vcw_sales_status, sdlf_sm_bulk_envio_dba_vcw_standard_pricing, sdlf_sm_bulk_envio_dba_vcw_states_pricing, sdlf_sm_bulk_envio_von_dba_cashier, sdlf_sm_bulk_viachecks_viacheck_checkonholdreasons, sdlf_sm_bulk_viachecks_viacheck_checkverification, sdlf_sm_bulk_viachecks_viacheck_checkverify_servicescodes, sdlf_sm_bulk_viachecks_viacheck_checksontemporaryaccounts, sdlf_sm_bulk_viachecks_viacheck_historicalonholdrelease, sdlf_sm_bulk_viachecks_viacheck_onholdcategories, sdlf_sm_bulk_viachecks_viacheck_onholdcategoriesandgroups, sdlf_sm_bulk_viachecks_viacheck_rulesgroup, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemetrics, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemodules, sdlf_sm_bulk_viachecks_viacheck_voidreason, sdlf_sm_bulk_viachecks_viacheck_voidsubtypereason, sdlf_sm_bulk_viachecks_dbo_checkproperty, sdlf_sm_bulk_viachecks_dbo_checkreader_score, sdlf_sm_bulk_viachecks_dbo_reprocessed_checks, sdlf_sm_bulk_viachecks_dbo_tvcp_param_agencias, sdlf_sm_bulk_viachecks_dbo_batchtable, sdlf_sm_bulk_viachecks_dbo_checkstatustable, sdlf_sm_bulk_viachecks_dbo_checktable, sdlf_sm_bulk_viachecks_dbo_customer_location, sdlf_sm_bulk_viachecks_dbo_returnchecks, sdlf_sm_bulk_viachecks_dbo_returncodes"""
+              STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider, sdlf_sm_bulk_envio_fraud_fraud_vectors_v2_1, sdlf_sm_bulk_envio_fraud_ml_fraud_score, sdlf_sm_bulk_envio_loyalty_accounting_customerledger, sdlf_sm_bulk_envio_loyalty_accounting_journal, sdlf_sm_bulk_envio_loyalty_accounting_submittransaction, sdlf_sm_bulk_envio_loyalty_core_product, sdlf_sm_bulk_envio_loyalty_customers_customer, sdlf_sm_bulk_envio_sales_territory, sdlf_sm_bulk_envio_sales_zone, sdlf_sm_bulk_envio_crm_bank_cost, sdlf_sm_bulk_envio_crm_receiver_gp_components, sdlf_sm_bulk_envio_dba_agent, sdlf_sm_bulk_envio_dba_agent_position, sdlf_sm_bulk_envio_dba_audit_rate_group_agent, sdlf_sm_bulk_envio_dba_banco, sdlf_sm_bulk_envio_dba_branch, sdlf_sm_bulk_envio_dba_branch_agent, sdlf_sm_bulk_envio_dba_branch_installation, sdlf_sm_bulk_envio_dba_branch_owner_change, sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_branch_prefix, sdlf_sm_bulk_envio_dba_branch_relations, sdlf_sm_bulk_envio_dba_cancelation_requests, sdlf_sm_bulk_envio_dba_cashier, sdlf_sm_bulk_envio_dba_chain, sdlf_sm_bulk_envio_dba_city, sdlf_sm_bulk_envio_dba_comision, sdlf_sm_bulk_envio_dba_comision_agent_modo_pago_grupo, sdlf_sm_bulk_envio_dba_comision_delivery, sdlf_sm_bulk_envio_dba_company, sdlf_sm_bulk_envio_dba_concepto_contable, sdlf_sm_bulk_envio_dba_country, sdlf_sm_bulk_envio_dba_cuenta_banco, sdlf_sm_bulk_envio_dba_currency, sdlf_sm_bulk_envio_dba_currency_purchase, sdlf_sm_bulk_envio_dba_deposit_codes, sdlf_sm_bulk_envio_dba_flag_branch, sdlf_sm_bulk_envio_dba_flag_receiver, sdlf_sm_bulk_envio_dba_forex_feed_market, sdlf_sm_bulk_envio_dba_funds_origin, sdlf_sm_bulk_envio_dba_group_branch, sdlf_sm_bulk_envio_dba_group_branch_phase, sdlf_sm_bulk_envio_dba_group_type, sdlf_sm_bulk_envio_dba_history_inventory_market, sdlf_sm_bulk_envio_dba_location, sdlf_sm_bulk_envio_dba_modification_reasons, sdlf_sm_bulk_envio_dba_modo_pago, sdlf_sm_bulk_envio_dba_payment, sdlf_sm_bulk_envio_dba_rate_group_agent, sdlf_sm_bulk_envio_dba_rate_group_state_delivery, sdlf_sm_bulk_envio_dba_rate_type, sdlf_sm_bulk_envio_dba_receipt_disclaimers, sdlf_sm_bulk_envio_dba_receiver, sdlf_sm_bulk_envio_dba_receiver_fraud, sdlf_sm_bulk_envio_dba_receiver_source, sdlf_sm_bulk_envio_dba_recipiente, sdlf_sm_bulk_envio_dba_sender, sdlf_sm_bulk_envio_dba_sf_armored_car, sdlf_sm_bulk_envio_dba_sf_provider, sdlf_sm_bulk_envio_dba_sf_safes_branches, sdlf_sm_bulk_envio_dba_sf_vault, sdlf_sm_bulk_envio_dba_standar, sdlf_sm_bulk_envio_dba_state, sdlf_sm_bulk_envio_dba_tipo_transmision, sdlf_sm_bulk_envio_dba_tipo_transmision_agencia, sdlf_sm_bulk_envio_dba_trader, sdlf_sm_bulk_envio_dba_trader_group, sdlf_sm_bulk_envio_dba_transaccion_diaria_banco_payee, sdlf_sm_bulk_envio_dba_transaccion_diaria_payee, sdlf_sm_bulk_envio_dba_type_id_sender, sdlf_sm_bulk_envio_dba_vapp_application, sdlf_sm_bulk_envio_dba_vapp_typeapplications, sdlf_sm_bulk_envio_dba_vcw_biller, sdlf_sm_bulk_envio_dba_vcw_billpayment_sales, sdlf_sm_bulk_envio_dba_vcw_billpayment_viaone_sales, sdlf_sm_bulk_envio_dba_vcw_carriers, sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers, sdlf_sm_bulk_envio_dba_vcw_category, sdlf_sm_bulk_envio_dba_vcw_cost_gateway, sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider, sdlf_sm_bulk_envio_dba_vcw_delivery_time, sdlf_sm_bulk_envio_dba_vcw_employees, sdlf_sm_bulk_envio_dba_vcw_employees_by_branch, sdlf_sm_bulk_envio_dba_vcw_exclusion_pricing, sdlf_sm_bulk_envio_dba_vcw_moneyorders_sales, sdlf_sm_bulk_envio_dba_vcw_price_exclusion, sdlf_sm_bulk_envio_dba_vcw_price_standard, sdlf_sm_bulk_envio_dba_vcw_products, sdlf_sm_bulk_envio_dba_vcw_product_type, sdlf_sm_bulk_envio_dba_vcw_providers, sdlf_sm_bulk_envio_dba_vcw_sales_products, sdlf_sm_bulk_envio_dba_vcw_sales_status, sdlf_sm_bulk_envio_dba_vcw_standard_pricing, sdlf_sm_bulk_envio_dba_vcw_states_pricing, sdlf_sm_bulk_envio_von_dba_cashier, sdlf_sm_bulk_viachecks_viacheck_checkonholdreasons, sdlf_sm_bulk_viachecks_viacheck_checkverification, sdlf_sm_bulk_viachecks_viacheck_checkverify_servicescodes, sdlf_sm_bulk_viachecks_viacheck_checksontemporaryaccounts, sdlf_sm_bulk_viachecks_viacheck_historicalonholdrelease, sdlf_sm_bulk_viachecks_viacheck_onholdcategories, sdlf_sm_bulk_viachecks_viacheck_onholdcategoriesandgroups, sdlf_sm_bulk_viachecks_viacheck_rulesgroup, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemetrics, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemodules, sdlf_sm_bulk_viachecks_viacheck_voidreason, sdlf_sm_bulk_viachecks_viacheck_voidsubtypereason, sdlf_sm_bulk_viachecks_dbo_checkproperty, sdlf_sm_bulk_viachecks_dbo_checkreader_score, sdlf_sm_bulk_viachecks_dbo_reprocessed_checks, sdlf_sm_bulk_viachecks_dbo_tvcp_param_agencias, sdlf_sm_bulk_viachecks_dbo_batchtable, sdlf_sm_bulk_viachecks_dbo_checkstatustable, sdlf_sm_bulk_viachecks_dbo_checktable, sdlf_sm_bulk_viachecks_dbo_customer_location, sdlf_sm_bulk_viachecks_dbo_returnchecks, sdlf_sm_bulk_viachecks_dbo_returncodes, sdlf_sm_bulk_envio_dba_modification_requests, sdlf_sm_bulk_envio_dba_type_branch, sdlf_sm_bulk_envio_dba_mod_pay_currency"""
+                        
+              FIFTEEN_MINUTES_STATE_MACHINE_NAMES = """sdlf_sm_incremental_envio_dba_receiver, sdlf_sm_incremental_envio_fraud_ml_fraud_score, sdlf_sm_incremental_envio_dba_transaccion_diaria_payee, sdlf_sm_incremental_envio_dba_sender, sdlf_sm_incremental_envio_dba_transaccion_diaria_banco_payee, sdlf_sm_incremental_viachecks_dbo_batchtable, sdlf_sm_incremental_envio_dba_history_inventory_market, sdlf_sm_incremental_envio_dba_vcw_billpayment_sales, sdlf_sm_incremental_envio_dba_forex_feed_market, sdlf_sm_incremental_envio_dba_vcw_moneyorders_sales, sdlf_sm_incremental_envio_dba_vcw_billpayment_viaone_sales, sdlf_sm_incremental_envio_dba_vcw_sales_products, sdlf_sm_incremental_envio_dba_branch, sdlf_sm_incremental_viachecks_dbo_returnchecks, sdlf_sm_incremental_envio_dba_sf_safe_transactions"""
+                      
               
-              HALF_HOUR_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_rate_type"""
-              
-              HOURLY_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider, sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_rate_type, sdlf_sm_bulk_envio_dba_vcw_sales_status"""
-              
-              SIX_HOURS_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider, sdlf_sm_bulk_envio_dba_comision, sdlf_sm_bulk_envio_dba_comision_delivery, sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers"""
-              
-              DAILY_STATE_MACHINE_NAMES = """sdlf_sm_bulk_envio_dba_concepto_contable, sdlf_sm_bulk_envio_dba_receiver_source, sdlf_sm_bulk_envio_dba_vcw_employees, sdlf_sm_bulk_envio_dba_vcw_employees_by_branch, sdlf_sm_bulk_envio_dba_flag_receiver"""
-              
+              TWELVE_HOURS_STATE_MACHINES_NAMES = "sdlf_sm_bulk_envio_dba_agent"
+                        
+              HALF_HOUR_STATE_MACHINE_NAMES = """sdlf_sm_incremental_viachecks_viacheck_historicalonholdrelease, sdlf_sm_incremental_envio_loyalty_accounting_journal, sdlf_sm_incremental_envio_loyalty_accounting_customerledger, sdlf_sm_incremental_envio_loyalty_accounting_submittransaction, sdlf_sm_incremental_envio_loyalty_customers_customer, sdlf_sm_bulk_envio_crm_bank_cost, sdlf_sm_bulk_viachecks_dbo_customer_location, sdlf_sm_bulk_envio_dba_branch_owner_change"""
+                        
+              HOURLY_STATE_MACHINE_NAMES = """sdlf_sm_incremental_viachecks_dbo_checkreader_score, sdlf_sm_incremental_viachecks_dbo_checktable, sdlf_sm_incremental_envio_dba_audit_rate_group_agent, sdlf_sm_incremental_envio_dba_comision_agent_modo_pago_grupo, sdlf_sm_incremental_envio_dba_rate_group_agent, sdlf_sm_bulk_envio_dba_branch_owner_information, sdlf_sm_bulk_envio_dba_group_branch, sdlf_sm_bulk_envio_dba_location, sdlf_sm_bulk_envio_dba_deposit_codes, sdlf_sm_bulk_envio_dba_chain, sdlf_sm_bulk_envio_dba_branch_agent"""
+                        
+              SIX_HOURS_STATE_MACHINE_NAMES = """sdlf_sm_incremental_envio_dba_vcw_states_pricing, sdlf_sm_bulk_viachecks_viacheck_checksontemporaryaccounts, sdlf_sm_bulk_envio_dba_currency_purchase, sdlf_sm_bulk_envio_dba_vcw_biller, sdlf_sm_bulk_viachecks_dbo_tvcp_param_agencias, sdlf_sm_bulk_envio_dba_receiver_fraud, sdlf_sm_bulk_envio_dba_comision, sdlf_sm_bulk_envio_dba_cashier, sdlf_sm_bulk_envio_dba_comision_delivery, sdlf_sm_bulk_envio_dba_vcw_carriers_by_providers, sdlf_sm_bulk_envio_dba_vcw_deliverytime_provider"""
+                        
+              DAILY_STATE_MACHINE_NAMES = """sdlf_sm_incremental_envio_fraud_fraud_vectors_v2_1, sdlf_sm_incremental_envio_crm_receiver_gp_components, sdlf_sm_incremental_viachecks_viacheck_checkverification, sdlf_sm_incremental_viachecks_viacheck_viacheckfeaturemetrics, sdlf_sm_bulk_envio_dba_city, sdlf_sm_bulk_envio_dba_vcw_exclusion_pricing, sdlf_sm_bulk_envio_dba_vcw_standard_pricing, sdlf_sm_bulk_envio_dba_vcw_employees, sdlf_sm_bulk_envio_dba_vcw_employees_by_branch, sdlf_sm_bulk_envio_dba_branch_installation, sdlf_sm_bulk_envio_dba_vapp_application, sdlf_sm_bulk_envio_dba_vcw_price_standard, sdlf_sm_bulk_envio_dba_vcw_products, sdlf_sm_bulk_envio_dba_rate_group_state_delivery, sdlf_sm_bulk_envio_dba_rate_type, sdlf_sm_bulk_envio_dba_branch_relations, sdlf_sm_bulk_envio_dba_state, sdlf_sm_bulk_envio_dba_tipo_transmision_agencia, sdlf_sm_bulk_viachecks_viacheck_checkonholdreasons, sdlf_sm_bulk_envio_dba_vcw_cost_gateway, sdlf_sm_bulk_envio_dba_standar, sdlf_sm_bulk_envio_dba_vcw_carriers, sdlf_sm_bulk_envio_von_dba_cashier, sdlf_sm_bulk_viachecks_dbo_reprocessed_checks, sdlf_sm_bulk_envio_dba_vcw_price_exclusion, sdlf_sm_bulk_envio_dba_sf_safes_branches, sdlf_sm_bulk_envio_dba_country, sdlf_sm_bulk_envio_dba_banco, sdlf_sm_bulk_envio_dba_concepto_contable, sdlf_sm_bulk_viachecks_viacheck_rulesgroup, sdlf_sm_bulk_viachecks_viacheck_onholdcategoriesandgroups, sdlf_sm_bulk_envio_dba_currency, sdlf_sm_bulk_viachecks_viacheck_checkverify_servicescodes, sdlf_sm_bulk_envio_sales_zone, sdlf_sm_bulk_envio_dba_trader_group, sdlf_sm_bulk_viachecks_dbo_returncodes, sdlf_sm_bulk_envio_dba_trader, sdlf_sm_bulk_viachecks_viacheck_onholdcategories, sdlf_sm_bulk_envio_catalog_vcw_deliverytime_contract_provider, sdlf_sm_bulk_envio_dba_vcw_category, sdlf_sm_bulk_viachecks_dbo_checkproperty, sdlf_sm_bulk_envio_dba_modo_pago, sdlf_sm_bulk_envio_dba_vcw_sales_status, sdlf_sm_bulk_viachecks_dbo_checkstatustable, sdlf_sm_bulk_envio_dba_group_branch_phase, sdlf_sm_bulk_envio_dba_vcw_providers, sdlf_sm_bulk_envio_dba_flag_receiver, sdlf_sm_bulk_envio_dba_tipo_transmision, sdlf_sm_bulk_envio_dba_vcw_product_type, sdlf_sm_bulk_viachecks_viacheck_viacheckfeaturemodules, sdlf_sm_bulk_viachecks_viacheck_voidsubtypereason, sdlf_sm_bulk_envio_dba_receiver_source, sdlf_sm_bulk_envio_dba_vcw_delivery_time, sdlf_sm_bulk_viachecks_viacheck_voidreason, sdlf_sm_bulk_envio_dba_branch_prefix, sdlf_sm_bulk_envio_dba_agent_position, sdlf_sm_bulk_envio_dba_company, sdlf_sm_bulk_envio_dba_flag_branch, sdlf_sm_bulk_envio_dba_cuenta_banco, sdlf_sm_bulk_envio_dba_group_type, sdlf_sm_bulk_envio_sales_territory, sdlf_sm_bulk_envio_dba_cancelation_requests, sdlf_sm_bulk_envio_dba_funds_origin, sdlf_sm_bulk_envio_dba_modification_reasons, sdlf_sm_bulk_envio_dba_modification_requests, sdlf_sm_bulk_envio_dba_payment, sdlf_sm_bulk_envio_dba_type_id_sender, sdlf_sm_bulk_envio_dba_sf_armored_car, sdlf_sm_bulk_envio_dba_sf_provider, sdlf_sm_bulk_envio_dba_sf_vault, sdlf_sm_bulk_envio_dba_mod_pay_currency, sdlf_sm_bulk_envio_dba_receipt_disclaimers, sdlf_sm_bulk_envio_dba_vapp_typeapplications, sdlf_sm_bulk_envio_loyalty_core_product, sdlf_sm_bulk_enviodw_bankcost_banco, sdlf_sm_bulk_enviodw_bankcost_bank_cost, sdlf_sm_bulk_enviodw_bankcost_consolidated_bank_cost_main_branch, sdlf_sm_bulk_enviodw_bankcost_cost_type_deposit_bank, sdlf_sm_bulk_enviodw_bankcost_deposit, sdlf_sm_bulk_enviodw_bankcost_deposit_consolidated, sdlf_sm_bulk_enviodw_bankcost_trx, sdlf_sm_bulk_enviodw_bankcost_viasafe_fees, sdlf_sm_bulk_envio_crm_bank_cost"""
+                        
               list_state_machines = STATE_MACHINE_NAMES.split(", ")
+                        
+              list_fifteen_minutes_state_machines = FIFTEEN_MINUTES_STATE_MACHINE_NAMES.split(', ')
+                        
+              list_twelve_hours_state_machines = TWELVE_HOURS_STATE_MACHINES_NAMES.split(', ')
+                        
               list_half_hour_state_machines = HALF_HOUR_STATE_MACHINE_NAMES.split(", ")
               list_hourly_state_machines = HOURLY_STATE_MACHINE_NAMES.split(", ")
               list_six_hours_state_machines = SIX_HOURS_STATE_MACHINE_NAMES.split(", ")
               list_daily_state_machines = DAILY_STATE_MACHINE_NAMES.split(", ")    
-              
+                        
               state_machine_arns = []
               for state_machine in list_state_machines:
                   state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
-                  
+                            
                   state_machine_arns.append({
-                      "arn": state_machine_arn
-                  })
-              
+                                "arn": state_machine_arn
+                            })
+                        
+              fifteen_minutes_states_machines_arn = []
+              for state_machine in list_fifteen_minutes_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                            
+                  fifteen_minutes_states_machines_arn.append({
+                                "arn": state_machine_arn
+                            })
+                        
               half_hour_state_machine_arns = []
               for state_machine in list_half_hour_state_machines:
                   state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
-                            
+                                      
                   half_hour_state_machine_arns.append({
-                      "arn": state_machine_arn
-                  })
-                        
+                          "arn": state_machine_arn
+                      })
+                                  
               hourly_state_machine_arns = []
               for state_machine in list_hourly_state_machines:
                   state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
-                            
+                                      
                   hourly_state_machine_arns.append({
-                      "arn": state_machine_arn
-                  })
+                          "arn": state_machine_arn
+                      })
 
               six_hours_state_machine_arns = []
               for state_machine in list_six_hours_state_machines:
                   state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
-                            
+                                      
                   six_hours_state_machine_arns.append({
                       "arn": state_machine_arn
                   })
-              
+                      
+              twelve_hours_state_machine_arns = []
+              for state_machine in list_twelve_hours_state_machines:
+                  state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
+                                      
+                  twelve_hours_state_machine_arns.append({
+                      "arn": state_machine_arn
+                  })
+                        
               daily_state_machines_arns = []
               for state_machine in list_daily_state_machines:
                   state_machine_arn = f"arn:aws:states:{REGION}:{ACCOUNT}:stateMachine:{state_machine}"
-                            
+                                      
                   daily_state_machines_arns.append({
                       "arn": state_machine_arn
                   })
-
-
+              
               return {
-                      "stateMachines": state_machine_arns,
-                      "halfHourStateMachines": half_hour_state_machine_arns,
-                      "hourlyStateMachines": hourly_state_machine_arns,
-                      "sixHoursStateMachines": six_hours_state_machine_arns,
-                      "dailyStateMachines": daily_state_machines_arns
-                  }
+                  "stateMachines": state_machine_arns,
+                  "fifteenMinutesStateMachines": fifteen_minutes_states_machines_arn,
+                  "halfHourStateMachines": half_hour_state_machine_arns,
+                  "hourlyStateMachines": hourly_state_machine_arns,
+                  "sixHoursStateMachines": six_hours_state_machine_arns,
+                  "twelveHoursStateMachines": twelve_hours_state_machine_arns,
+                  "dailyStateMachines": daily_state_machines_arns
+              }
       Description: List Amazon S3 buckets in us-east-1.
       TracingConfig:
         Mode: Active
+
+    # Rol para event bridge rule
+    # Role pipeline orchestrator
+  VIAEventBridgeRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref ViaEventBridgeRuleRoleName
+      Description: "IAM role for event rule"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "states:StartExecution"
+                Resource:
+                  - "*"    
 
     # Role pipeline orchestrator
   VIAStateMachinePipelineOrchestratorRole:
@@ -265,7 +331,104 @@ Resources:
           Value: "mig42454"
       #  - TagsEntry
       #TracingConfiguration:
+      #  TracingConfiguration  
+
+    # Step function
+  VIAStateMachineFifteenMinutesOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.fifteenMinutesStateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameFifteenMinutesOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
       #  TracingConfiguration    
+  
+    # Crea la regla de EventBridge
+  VIAEventRuleFifteenMinutesExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleFifteenMinutesName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(15 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineFifteenMinutesOrchestrator
+          Id: VIAStateMachineFifteenMinutesOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
+
+  
 
   # Step function
   VIAStateMachineHalfHourOrchestrator:
@@ -348,6 +511,19 @@ Resources:
       #  - TagsEntry
       #TracingConfiguration:
       #  TracingConfiguration    
+
+    # Crea la regla de EventBridge
+  VIAEventRuleHalfHourExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleHalfHourName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(30 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineHalfHourOrchestrator
+          Id: VIAStateMachineHalfHourOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
   
   # Step function
   VIAStateMachineHourlyOrchestrator:
@@ -426,38 +602,11 @@ Resources:
       StateMachineType: !Ref VIAStateMachineType
       Tags:
         - Key: "map-migrated"
-          Value: "mig42454"
+          Value: "map-migrated"
       #  - TagsEntry
       #TracingConfiguration:
       #  TracingConfiguration    
 
-
-  # Rol para event bridge rule
-    # Role pipeline orchestrator
-  VIAEventBridgeRuleRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Ref ViaEventBridgeRuleRoleName
-      Description: "IAM role for event rule"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - "events.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-      Policies:
-        - PolicyName: "root"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "states:StartExecution"
-                Resource:
-                  - "*"    
   # Crea la regla de EventBridge
   VIAEventRuleHourlyExecution:
     Type: AWS::Events::Rule
@@ -469,19 +618,6 @@ Resources:
       Targets:
         - Arn: !Ref VIAStateMachineHourlyOrchestrator
           Id: VIAStateMachineHourlyOrchestrator
-          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
-  
-    # Crea la regla de EventBridge
-  VIAEventRuleHalfHourExecution:
-    Type: AWS::Events::Rule
-    Properties:
-      Name: !Ref ViaEventBridgeRuleHalfHourName
-      Description: Ejecuta la función de paso cada una hora
-      ScheduleExpression: rate(30 minutes)
-      State: ENABLED
-      Targets:
-        - Arn: !Ref VIAStateMachineHalfHourOrchestrator
-          Id: VIAStateMachineHalfHourOrchestrator
           RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
   
     # Step function
@@ -577,6 +713,101 @@ Resources:
       Targets:
         - Arn: !Ref VIAStateMachineSixHoursOrchestrator
           Id: VIAStateMachineSixHoursOrchestrator
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
+  
+    # Step function
+  VIAStateMachineTwelveHoursOrchestrator:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "Lambda Invoke",
+          "States":
+            {
+              "Lambda Invoke":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt ViaLambdaInputMap.Arn,
+                    },
+                  "Retry":
+                    [
+                      {
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2,
+                      },
+                    ],
+                  "Next": "Map",
+                },
+              "Map":
+                {
+                  "Type": "Map",
+                  "ItemProcessor":
+                    {
+                      "ProcessorConfig": { "Mode": "INLINE" },
+                      "StartAt": "Step Functions StartExecution",
+                      "States":
+                        {
+                          "Step Functions StartExecution":
+                            {
+                              "Type": "Task",
+                              "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                              "Parameters":
+                                {
+                                  "StateMachineArn.$": "$.arn",
+                                  "Input":
+                                    {
+                                      "StatePayload": "Hello from Step Functions!",
+                                      "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id",
+                                    },
+                                },
+                              "End": true,
+                            },
+                        },
+                    },
+                  "End": true,
+                  "ItemsPath": "$.twelveHoursStateMachines",
+                },
+            },
+        }
+      #DefinitionSubstitutions:
+      #  Key: Value
+      #LoggingConfiguration:
+      #  LoggingConfiguration
+      RoleArn: !GetAtt VIAStateMachinePipelineOrchestratorRole.Arn
+      StateMachineName: !Ref VIAStateMachineNameTwelveHoursOrchestrator
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration    
+  # Crea la regla de EventBridge
+      # Crea la regla de EventBridge
+  VIAEventRuleTwelveHoursExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleTwelveHoursName
+      Description: Ejecuta la función de paso cada una hora
+      ScheduleExpression: rate(12 hours)
+      State: ENABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineTwelveHoursOrchestrator
+          Id: VIAStateMachineTwelveHoursOrchestrator
           RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn  
   
       # Step function

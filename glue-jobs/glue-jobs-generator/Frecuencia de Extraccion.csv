@@ -1,0 +1,132 @@
+Database,Schema,Table,number_of_rows_dev_environment,Filas (prod 20231215),extraction_load_type,tabla_update,Actualizacion incremental,Actualizacion completa,Important Columns,Campo de actualización,LLave primaria,Presenta cambios,Frecuencia de actualización,cdc,step function,,Observación,USE?,grupo a migrar a producción
+ViaChecks,dbo,CHECKREADER_SCORE,450.329.885,476.350.175,incremental_load,,Si,,system_date,system_date,,,15min,,1hr,,,,1
+Envio,dba,RECEIVER,79.342.498,169.317.685,incremental_load,,Si,,DATE_RECEIVER,LAST_UPDATED,,x,15min,ok,15min,(Reports) - Realtime for Fraud ML,[DATE_RECEIVER] para nuevos registros,,2
+ViaChecks,dbo,checkTable,43.797.846,45.532.532,incremental_load,,Si,,CheckDate,LAST_UPDATED,,x,15min,,1hr,,[CheckDate] para nuevos registros,,3
+Envio,Fraud,ML_Fraud_Score,42.178.986,46.445.750,incremental_load,,Si,,DATE_CREATED,DATE_CREATED,,,15min,,15min,(Reports) - Realtime for Fraud ML,,,4
+Envio,dba,AUDIT_RATE_GROUP_AGENT,25.423.924,24.292.064,incremental_load,,Si,,DATE_PROCESS,DATE_PROCESS,,,1hr,,1hr,,,,1
+Envio,dba,TRANSACCION_DIARIA_PAYEE,24.260.356,25.493.686,incremental_load,,Si,,DATE_TRANS_DIARIA,DATE_TRANS_DIARIA,,,15min,,15min,,,,2
+Envio,dba,SENDER,21.600.681,22.023.730,incremental_load,,Si,,INSERTED_DATE,LAST_UPDATED,,x,15min,,15min,,[INSERTED_DATE] para nuevos registros,,3
+Envio,Fraud,Fraud_Vectors_V2_1,17.432.906,,incremental_load,,Si,,DATE_CREATED ,DATE_CREATED ,,,1440min,,1day,,,,4
+Envio,dba,TRANSACCION_DIARIA_BANCO_PAYEE,13.277.228,13.998.180,incremental_load,,Si,,DATE_TRANS_DIARIA,DATE_TRANS_DIARIA,,,15min,,15min,,,,1
+ViaChecks,dbo,batchTable,13.154.852,13.601.785,incremental_load,chequear,Si,,created,CREATED,,,15min,,15min,,NO UPDATES. [CREATED] para nuevos registros,,2
+Envio,dba,HISTORY_INVENTORY_MARKET,12.902.315,13.530.908,incremental_load,,Si,,DATE,DATE,,,15min,,15min,,,,3
+ViaChecks,Viacheck,HistoricalOnHoldRelease,11.780.700,12.540.005,incremental_load,,Si,,processeddate,processeddate,,,30min,,30min,,,,4
+Envio,Loyalty,accounting_journal,8.842.114,10.831.254,incremental_load,,SI,,CREATION_DATE,CREATION_DATE,,,30min,,30min,,,,1
+Envio,Loyalty,accounting_customerledger,8.842.110,10.831.250,incremental_load,,SI,,CREATION_DATE,CREATION_DATE,,,30min,,30min,,,,2
+Envio,Loyalty,accounting_submittransaction,7.536.287,9.207.825,incremental_load,,SI,,CREATION_DATE,MODIFICATION_DATE,,x,30min,,30min,,,,3
+Envio,dba,VCW_BILLPAYMENT_SALES,6.693.175,6.927.063,incremental_load,,Si,,TRANSACTION_DATE,LAST_UPDATED,,,15min,,15min,,[TRANSACTION_DATE] para nuevos registros,,4
+Envio,dba,COMISION_AGENT_MODO_PAGO_GRUPO,4.518.300,,incremental_load,,Si,,LAST_UPDATED,LAST_UPDATED,,x,1hr,,1hr,,[INSERTED_DATE] (Nueva columna) para nuevos registros,,1
+Envio,dba,FOREX_FEED_MARKET,4.010.720,,incremental_load,,Si,,FEED_DATE,FEED_DATE,,,15min,,15min,,,,2
+Envio,dba,VCW_MONEYORDERS_SALES,2.395.479,,incremental_load,,Si,,TRANSACTION_DATE,LAST_UPDATED,,,15min,,15min,,[TRANSACTION_DATE] para nuevos registros,,3
+Envio,dba,VCW_BILLPAYMENT_VIAONE_SALES,2.332.533,,incremental_load,,Si,,CREATION_DATE,CREATION_DATE,,,15min,,15min,,NO UPDATES. [CREATION_DATE] para nuevos registros,,4
+Envio,dba,VCW_SALES_PRODUCTS,2.220.788,,incremental_load,,Si,,DATETRANSACTION,LAST_UPDATED,,,15min,,15min,,[DATETRANSACTION] para nuevos registros,,1
+Envio,dba,VCW_STATES_PRICING,1.626.303,,incremental_load,,Si,,UPDATE_DATE,UPDATE_DATE,,,6hr,,6hr,,,,2
+Envio,crm,Receiver_GP_Components,1.548.112,,incremental_load,,Si,,DATE_RECEIVER,DATE_RECEIVER,,,1440min,,1day,,,,3
+ViaChecks,Viacheck,CheckVerification,826.566,907.204,incremental_load,,Si,,VERIFICATIONDATE,VERIFICATIONDATE,,,1440min,,1day,,,,4
+Envio,Loyalty,customers_customer,751.899,,incremental_load,,Si,,enrollment_date,enrollment_date,,,30min,,30min,,,,1
+ViaChecks,Viacheck,ViacheckFeatureMetrics,571.894,843.951,incremental_load,,Si,,MetricDate ,MetricDate ,,,1440min,,1day,,,,2
+Envio,dba,RATE_GROUP_AGENT,497.843,,incremental_load,,Si,,DATE_UPGRADE,DATE_UPGRADE,,,1hr,,1hr,,,,3
+Envio,dba,BRANCH,332.154,,incremental_load,,Si,,DATE_INSERTED,LAST_UPDATED,,x,15min,,15min,,[DATE_INSERTED] para nuevos registros,,4
+ViaChecks,dbo,returnChecks,298.162,314.776,incremental_load,,Si,,insertedDate ,insertedDate ,,,15min,,15min,,,,1
+Envio,dba,CITY,115.928,,full,,,Si,,,,,1440min,,1day,,,,2
+Envio,dba,VCW_EXCLUSION_PRICING,76.234,,full,,,Si,,,,,30min,,1day,implica correr 48 veces al día los glue jobs,,,3
+ViaChecks,Viacheck,ChecksOnTemporaryAccounts,73.473,82.257,full,,,Si,,,,,6hr,,6hr,,,,4
+Envio,dba,CURRENCY_PURCHASE,64.017,,full,,,Si,,,,,15min,,6hr,,,,1
+Envio,crm,BANK_COST,44.749,,full,,,Si,,,,,1440min,,30min,,,,2
+Envio,dba,VCW_BILLER,41.955,,full,,,Si,,,,,6hr,,6hr,,,,3
+Envio,dba,VCW_STANDARD_PRICING,38.011,,full,,,Si,,,,,30min,,1day,,,,4
+Envio,dba,VCW_EMPLOYEES,37.849,,full,,,Si,,,,,1day,,1day,,,,1
+Envio,dba,VCW_EMPLOYEES_BY_BRANCH,37.597,,full,,,Si,,,,,1day,,1day,,,,2
+Envio,dba,BRANCH_OWNER_INFORMATION,25.587,,full,,,Si,,,,,30min,,1hr,,,,3
+Envio,dba,BRANCH_INSTALLATION,25.128,,full,,,Si,,,,,1440min,,1day,,,,4
+Envio,dba,GROUP_BRANCH,25.024,,full,,,Si,,,,,15min,,1hr,,,,1
+Envio,dba,LOCATION,23.246,,full,,,Si,,,,,15min,,1hr,,,,2
+Envio,dba,DEPOSIT_CODES,21.125,,full,,,Si,,,,,1hr,,1hr,,,,3
+Envio,dba,VAPP_APPLICATION,18.733,,full,,,Si,,,,,1440min,,1day,,,,4
+Envio,dba,CHAIN,18.105,,full,,,Si,,,,,15min,,1hr,,,,1
+Envio,dba,BRANCH_AGENT,12.343,,full,,,Si,,,,,15min,,1hr,,,,2
+ViaChecks,dbo,TVCP_PARAM_AGENCIAS,8.281,,full,,,Si,,,,,60min,,6hr,,,,3
+ViaChecks,dbo,customer_location,8.210,,full,,,Si,,,,,30min,,30min,,,,4
+Envio,dba,VCW_PRICE_STANDARD,5.049,,full,,,Si,,,,,30min,,1day,,,,1
+Envio,dba,VCW_PRODUCTS,5.049,,full,,,Si,,,,,30min,,1day,,,,2
+Envio,dba,RATE_GROUP_STATE_DELIVERY,3.349,,full,,,Si,,,,,6hr,,1day,,,,3
+Envio,dba,RATE_TYPE,3.314,,full,,,Si,,,,,1day,,1day,,,,4
+Envio,dba,BRANCH_RELATIONS,3.141,,full,,,Si,,,,,30min,,1day,,,,1
+Envio,dba,STATE,2.991,,full,,,Si,,,,,1day,,1day,,,,2
+Envio,dba,RECEIVER_FRAUD,2.324,,full,,,Si,,,,,6hr,,6hr,,,,3
+Envio,dba,BRANCH_OWNER_CHANGE,1.975,,full,,,Si,,,,,30min,,30min,,,,4
+Envio,dba,TIPO_TRANSMISION_AGENCIA,1.881,,full,,,Si,,,,,1day,,1day,,,,1
+ViaChecks,Viacheck,CheckOnHoldReasons,1.839,,full,,,Si,,,,,15min,,1day,,,,2
+Envio,dba,VCW_COST_GATEWAY,1.706,,full,,,Si,,,,,30min,,1day,,,,3
+Envio,dba,COMISION,1.631,,full,,,Si,,,,,30min,,6hr,,,,4
+Envio,dba,STANDAR,1.376,,full,,,Si,,,,,6hr,,1day,,,,1
+Envio,dba,CASHIER,1.375,,full,,,Si,,,,,30min,,6hr,,,,2
+Envio,dba,COMISION_DELIVERY,1.265,,full,,,Si,,,,,30min,,6hr,,,,3
+Envio,dba,VCW_CARRIERS_BY_PROVIDERS,951,,full,,,Si,,,,,30min,,6hr,,,,4
+Envio,dba,VCW_CARRIERS,942,,full,,,Si,,,,,30min,,1day,,,,1
+Envio,von_dba,CASHIER,668,,full,,,Si,,,,,30min,,1day,,validar como actualizar en el stage de producto,,2
+ViaChecks,dbo,Reprocessed_Checks,628,,full,,,Si,,,,,30min,,1day,,,,3
+Envio,dba,AGENT,299,,full,,,Si,,,,,30min,,12hs,,,,4
+Envio,dba,VCW_PRICE_EXCLUSION,275,,full,,,Si,,,,,30min,,1day,,,,1
+Envio,dba,SF_SAFES_BRANCHES,271,,full,,,Si,,,,,30min,,1day,,,,2
+Envio,dba,COUNTRY,215,,full,,,Si,,,,,1440min,,1day,,,,3
+Envio,dba,BANCO,198,,full,,,Si,,,,,1day,,1day,,,,4
+Envio,dba,CONCEPTO_CONTABLE,87,,full,,,Si,,,,,1day,,1day,,,,1
+ViaChecks,Viacheck,RulesGroup,85,,full,,,Si,,,,,1day,,1day,,,,2
+ViaChecks,Viacheck,OnHoldCategoriesAndGroups,78,,full,,,Si,,,,,30min,,1day,,,,3
+Envio,dba,CURRENCY,72,,full,,,Si,,,,,1day,,1day,,,,4
+ViaChecks,Viacheck,CheckVerify_ServicesCodes,52,,full,,,Si,,,,,30min,,1day,,,,1
+Envio,Sales,Zone,51,,full,,,Si,,,,,1440min,,1day,,,,2
+Envio,dba,TRADER_GROUP,48,,full,,,Si,,,,,1day,,1day,,,,3
+ViaChecks,dbo,returnCodes,45,,full,,,Si,,,,,1day,,1day,,,,4
+Envio,dba,TRADER,38,,full,,,Si,,,,,1440min,,1day,,,,1
+ViaChecks,Viacheck,OnHoldCategories,21,,full,,,Si,,,,,1day,,1day,,,,2
+Envio,dba,VCW_DELIVERYTIME_PROVIDER,20,,full,,,Si,,,,,30min,,6hr,,,,3
+Envio,Catalog,VCW_DELIVERYTIME_CONTRACT_PROVIDER,18,,full,,,Si,,,,,30min,,1day,,,,4
+Envio,dba,VCW_CATEGORY,18,,full,,,Si,,,,,1440min,,1day,,,,1
+ViaChecks,dbo,CHECKPROPERTY,15,,full,,,Si,,,,,1440min,,1day,,,,2
+Envio,dba,MODO_PAGO,14,,full,,,Si,,,,,1440min,,1day,,,,3
+Envio,dba,VCW_SALES_STATUS,10,,full,,,Si,,,,,30min,,1day,,,,4
+ViaChecks,dbo,checkStatusTable,10,,full,,,Si,,,,,1440min,,1day,,,,1
+Envio,dba,GROUP_BRANCH_PHASE,8,,full,,,Si,,,,,1440min,,1day,,,,2
+Envio,dba,VCW_PROVIDERS,8,,full,,,Si,,,,,30min,,1day,,,,3
+Envio,dba,FLAG_RECEIVER,7,,full,,,Si,,,,,1440min,,1day,,,,4
+Envio,dba,TIPO_TRANSMISION,6,,full,,,Si,,,,,1440min,,1day,,,,1
+Envio,dba,VCW_PRODUCT_TYPE,6,,full,,,Si,,,,,30min,,1day,48 corridas diarias,,,2
+ViaChecks,Viacheck,ViacheckFeatureModules,6,,full,,,Si,,,,,1day,,1day,,,,3
+ViaChecks,Viacheck,VoidSubTypeReason,6,,full,,,Si,,,,,1day,,1day,,,,4
+Envio,dba,RECEIVER_SOURCE,5,,full,,,Si,,,,,1day,,1day,,,,1
+Envio,dba,VCW_DELIVERY_TIME,5,,full,,,Si,,,,,30min,,1day,,,,2
+ViaChecks,Viacheck,VoidReason,4,,full,,,Si,,,,,1day,,1day,,,,3
+Envio,dba,BRANCH_PREFIX,3,,full,,,Si,,,,,1440min,,1day,,,,4
+Envio,dba,AGENT_POSITION,5,,full,,No,Si,,,,,1440min,,1day,,,,1
+Envio,dba,COMPANY,6,,full,,No,Si,,,,,1440min,,1day,,,,2
+Envio,dba,FLAG_BRANCH,3,,full,,No,Si,,,,,1440min,,1day,,,,3
+Envio,dba,TYPE_BRANCH,3,,full,,No,Si,,,,,1440min,,1day,,,Old/Not Used/Needed,4
+Envio,dba,CUENTA_BANCO,207,,full,,No,Si,,,,,1440min,,1day,,,,1
+Envio,dba,GROUP_TYPE,23,,full,,No,Si,,,,,1440min,,1day,,,,2
+Envio,sales,TERRITORY,35,,full,,No,Si,,,,,1440min,,1day,,,,3
+Envio,dba,CANCELATION_REQUESTS,9,,full,,No,Si,,,,,1440min,,1day,,,,4
+Envio,dba,FUNDS_ORIGIN,8,,full,,No,Si,,,,,1440min,,1day,,,,1
+Envio,dba,MODIFICATION_REASONS,4,,full,,No,Si,,,,,1440min,,1day,,,,2
+Envio,dba,MODIFICATION_REQUESTS,8,,full,,No,Si,,,,,1440min,,1day,,,,3
+Envio,dba,PAYMENT,8,,full,,No,Si,,,,,1440min,,1day,,,,4
+Envio,dba,RECIPIENTE,383704,,incremental_load,,Si,No,N/A,N/A,,,15min,,15min,Relation one to one to Receiver,OMITIR... NO ESTÁ EN USO,Old/Not Used/Needed,1
+Envio,dba,TYPE_ID_SENDER,41,,full,,No,Si,,,,,1440min,,1day,,,,2
+Envio,dba,SF_ARMORED_CAR,12,,full,,No,Si,,,,,1440min,,1day,,,,3
+Envio,dba,SF_PROVIDER,3,,full,,No,Si,,,,,1440min,,1day,,,,4
+Envio,dba,SF_VAULT,47,,full,,No,Si,,,,,1440min,,1day,,,,1
+Envio,dba,MOD_PAY_CURRENCY,2,,full,,No,Si,,,,,1440min,,1day,,,,2
+Envio,dba,RECEIPT_DISCLAIMERS,242,,full,,No,Si,,,,,1440min,,1day,,,,3
+Envio,dba,VAPP_TYPEAPPLICATIONS,3,,full,,No,Si,,,,,1440min,,1day,,,,4
+Envio,loyalty,CORE_PRODUCT,13,,full,,No,Si,,,,,1440min,,1day,,,,1
+EnvioDW,bankcost,BANCO,,,full,,No,Si,,,,,1440min,,1day,,,,2
+EnvioDW,bankcost,BANK_COST,,,full,,No,Si,,,,,1440min,,1day,,,,3
+EnvioDW,bankcost,CONSOLIDATED_BANK_COST_MAIN_BRANCH,,,full,,No,Si,,,,,1440min,,1day,,,,4
+EnvioDW,bankcost,COST_TYPE_DEPOSIT_BANK,,,full,,No,Si,,,,,1440min,,1day,,,,1
+EnvioDW,bankcost,DEPOSIT,,,full,,No,Si,,,,,1440min,,1day,,,,2
+EnvioDW,bankcost,DEPOSIT_CONSOLIDATED,,,full,,No,Si,,,,,1440min,,1day,,,,3
+EnvioDW,bankcost,TRX,,,full,,No,Si,,,,,1440min,,1day,,,,4
+EnvioDW,bankcost,VIASAFE_FEES,,,full,,No,Si,,,,,1440min,,1day,,,,1
+Envio,crm,BANK_COST,,,full,,No,Si,DATE_PROCESS,DATE_PROCESS,,,1440min,,1day,,,,2
+Envio,dba,SF_SAFE_TRANSACTIONS,,,incremental_load,,Si,,TRANSACTION_DATE,TRANSACTION_DATE,,,15min,,15min,,,,
