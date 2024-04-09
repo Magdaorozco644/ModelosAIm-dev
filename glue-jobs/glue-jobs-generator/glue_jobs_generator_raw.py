@@ -11,15 +11,6 @@ PREFIX = "bulk/scripts"
 ROLE = "GlueRolFullAccess"
 ALLOCATED_CAPACITY = 10
 
-# Leer el archivo Excel
-excel_file = r'Data Dictionary Total.csv'
-
-df = pd.read_csv(excel_file)
-df = df[df['USE?'].isnull()]
-df = df.groupby(["Database", "Schema", "Table"]).agg(list).reset_index()
-
-jobs = []
-
 
 def upload_file(body, database, schema, table):
     # Conectar con S3 usando boto3
@@ -47,30 +38,39 @@ def upload_file(body, database, schema, table):
 
 def build_script(database, schema, table, columns):
     columns = list(set(columns))
-    columns = list(map(lambda x: '[' + x + ']', columns))
+    print(columns)
 
     update_field = {
         'checkreader_score': 'system_date', 
-        'receiver': 'DATE_RECEIVER',
-        'ml_fraud_score': 'DATE_CREATED', 
-        'audit_rate_group_agent': 'DATE_PROCESS', 
-        'transaccion_diaria_payee': 'DATE_TRANS_DIARIA', 
-        'fraud_vectors_v2_1': 'DATE_CREATED', #
-        'history_inventory_market': 'DATE', 
-        'historicalonholdrelease': 'processeddate',
-        'accounting_journal': 'CREATION_DATE',
-        'accounting_customerledger': 'CREATION_DATE',
-        'accounting_submittransaction': 'MODIFICATION_DATE',
-        'forex_feed_market': 'FEED_DATE', 
-        'receiver_gp_components': 'DATE_RECEIVER', 
-        'checkverification': 'VERIFICATIONDATE', 
-        'viacheckfeaturemetrics': 'MetricDate', 
-        'returnchecks': 'insertedDate', 
-        'transaccion_diaria_banco_payee': 'DATE_TRANS_DIARIA',
-        'customers_customer': 'enrollment_date',
-        'vcw_sales_products' : 'DATETRANSACTION',
-        'vcw_billpayment_sales': 'TRANSACTION_DATE',
-        'batchtable': 'created'
+        'receiver': 'date_receiver', 
+        'checktable': 'checkdate', 
+        'ml_fraud_score': 'date_created', 
+        'audit_rate_group_agent': 'date_process', 
+        'transaccion_diaria_payee': 'date_trans_diaria', 
+        # 'sender': 'inserted_date', 
+        'fraud_vectors_v2_1': 'date_created', 
+        'transaccion_diaria_banco_payee': 'date_trans_diaria', 
+        'batchtable': 'created', 
+        'history_inventory_market': 'date', 
+        'historicalonholdrelease': 'processeddate', 
+        'accounting_journal': 'creation_date', 
+        'accounting_customerledger': 'creation_date', 
+        'accounting_submittransaction': 'creation_date',
+        'vcw_billpayment_sales': 'transaction_date', 
+        'comision_agent_modo_pago_grupo': 'last_updated', 
+        'forex_feed_market': 'feed_date', 
+        # 'vcw_moneyorders_sales': 'transaction_date', 
+        'vcw_billpayment_viaone_sales': 'creation_date', 
+        'vcw_sales_products': 'datetransaction', 
+        'vcw_states_pricing': 'update_date', 
+        'receiver_gp_components': 'date_receiver', 
+        'checkverification': 'verificationdate', 
+        'customers_customer': 'enrollment_date', 
+        'viacheckfeaturemetrics': 'metricdate', 
+        'rate_group_agent': 'date_upgrade', 
+        # 'branch': 'date_inserted', 
+        'returnchecks': 'inserteddate',
+        'sf_safe_transactions': 'transaction_date'
     }
 
     tables_update_field = [*update_field.keys()]
@@ -92,7 +92,7 @@ from awsglue.utils import getResolvedOptions
 sc = SparkContext()
 spark = SparkSession(sc)
 
-
+spark.conf.set("spark.sql.sources.partitionOverwriteMode","dynamic")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
@@ -222,7 +222,7 @@ sc = SparkContext()
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
 
-
+spark.conf.set("spark.sql.sources.partitionOverwriteMode","dynamic")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
@@ -258,7 +258,7 @@ secret_name = "BUCKET_NAMES"
 region_name = "us-east-1"
 secret_bucket_names = get_secret(secret_name, region_name)
 
-jdbc_viamericas = "jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
+jdbc_viamericas = f"jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
 qryStr = f"(SELECT {" ,".join(columns)} FROM {database}.{schema}.{table}) x"
 
 jdbcDF = spark.read.format('jdbc')\\
@@ -280,41 +280,76 @@ jdbcDF.write.parquet(s3_output_path, mode="overwrite")
     return glue_script
 
 
-# Agrupar las columnas por tabla y construir el SELECT statement
-select_statements = {}
-jobs_str = ""
+def main():
+    # Leer el archivo Excel
+    excel_file = r'Data Dictionary Total.csv'
 
-for index, row in df.iterrows():
-    database = row['Database'].lower()
-    schema = row['Schema'].lower()
-    table = row['Table'].lower()
-    columns = row['Column']
+    df = pd.read_csv(excel_file)  # Read dataset
+    df = df[df['USE?'].isnull()]  # Filter by columns that won't be used
 
-    # Agregar la tabla y las columnas al diccionario
-    if table not in select_statements:
-        select_statements[table] = columns
+    # Generating files just for all database except EnvioDW.
+    df = df[df['Database'] != 'EnvioDW']
 
-    # create script
-    glue_script = build_script(database, schema, table, columns)
+    # Ignore sysname, tAppName, and tSessionId because they are duplicates of other columns
+    df = df[df['Data_Type'] != 'sysname']
+    df = df[df['Data_Type'] != 'tAppName']
+    df = df[df['Data_Type'] != 'tSessionId']
+    
+    # Create script just for one table
+    # df = df[df['Table'] == 'SF_SAFE_TRANSACTIONS'] 
 
-    # Crear un directorio para guardar los scripts si no existe
-    output_directory = 'glue_scripts'
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+    df['Column'] = df.apply(
+        lambda row: f"trim([{row['Column']}]) as {row['Column']}"
+        if
+        row['Data_Type'] == 'nchar'
+        or row['Data_Type'] == 'nvarchar'
+        or row['Data_Type'] == 'char'
+        else f"[{row['Column']}]",
+        axis=1
+    )  # Add trim function to columns with nchar, nvarchar y char types.
 
-    # Escribir el script en un archivo
-    output_file = f"{output_directory}/{database}_{schema}_{table}_glue_script.py"
-    with open(output_file, 'w') as f:
-        f.write(glue_script)
+    df = df.groupby(["Database", "Schema", "Table"]).agg(list).reset_index()
 
-    # Subir script a aws
-    upload_file(glue_script, database, schema, table)
+    jobs = []
+    # Agrupar las columnas por tabla y construir el SELECT statement
+    select_statements = {}
+    jobs_str = ""
 
-print(jobs_str)
-# Escribir el listado de trabajos en un archivo JSON
-with open('jobs.json', 'w') as json_file:
-    jobs_json = json.dumps(jobs, indent=4)
-    json_file.write(jobs_json)
+    for index, row in df.iterrows():
+        database = row['Database'].lower()
+        schema = row['Schema'].lower()
+        table = row['Table'].lower()
+        columns = row['Column']
 
-print("Archivo jobs.json generado exitosamente.")
-print("Scripts de Glue generados exitosamente.")
+        # Agregar la tabla y las columnas al diccionario
+        if table not in select_statements:
+            select_statements[table] = columns
+
+        # create script
+        glue_script = build_script(database, schema, table, columns)
+
+        # Crear un directorio para guardar los scripts si no existe
+        output_directory = 'glue_scripts'
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        # Escribir el script en un archivo
+        output_file = f"{output_directory}/{database}_{schema}_{table}_glue_script.py"
+        with open(output_file, 'w') as f:
+            f.write(glue_script)
+
+        # Subir script a aws
+        upload_file(glue_script, database, schema, table)
+
+    print(jobs_str)
+    # Escribir el listado de trabajos en un archivo JSON
+    with open('jobs.json', 'w') as json_file:
+        jobs_json = json.dumps(jobs, indent=4)
+        json_file.write(jobs_json)
+
+    print("Archivo jobs.json generado exitosamente.")
+    print("Scripts de Glue generados exitosamente.")
+
+
+if __name__ == "__main__":
+    main()

@@ -18,26 +18,22 @@ update_file = r'Frecuencia de Extraccion.csv'
 # Dictionary
 df = pd.read_csv(excel_file)
 df = df[df['USE?'].isnull()]
-df = df[df['Table'] == 'SF_SAFE_TRANSACTIONS']
+# df = df[df['Table'] == 'SF_SAFE_TRANSACTIONS']
 dict_df = df.groupby(["Database", "Schema", "Table"]).agg(list).reset_index()
 
 # Update frequency
 frequency = pd.read_csv(update_file)
-frequency = frequency[frequency['Table'] == 'SF_SAFE_TRANSACTIONS']
+# frequency = frequency[frequency['Table'] == 'SF_SAFE_TRANSACTIONS']
 frequency = frequency[(frequency['USE?'] != 'Old/Not Used/Needed') & (frequency['extraction_load_type'] == 'incremental_load')]
 
-print(frequency)
-
 jobs = []
-# incremental_updates = [
-#     'checkreader_score', 'receiver', 'checktable', 'ml_fraud_score', 'audit_rate_group_agent', 'transaccion_diaria_payee', 'sender', 'fraud_vectors_v2_1', 'transaccion_diaria_banco_payee', 'batchtable', 'history_inventory_market', 'historicalonholdrelease', 'accounting_journal', 'accounting_customerledger',
-#     'accounting_submittransaction', 'vcw_billpayment_sales', 
-#     'comision_agent_modo_pago_grupo',
-#     'forex_feed_market', 'vcw_moneyorders_sales', 'vcw_billpayment_viaone_sales', 'vcw_sales_products', 'vcw_states_pricing', 'receiver_gp_components', 'checkverification', 'customers_customer', 'viacheckfeaturemetrics', 'rate_group_agent', 'branch', 'returnchecks', 'sf_safe_transactions'
-# ]
 incremental_updates = [
-    'sf_safe_transactions'
+    'checkreader_score', 'receiver', 'checktable', 'ml_fraud_score', 'audit_rate_group_agent', 'transaccion_diaria_payee', 'sender', 'fraud_vectors_v2_1', 'transaccion_diaria_banco_payee', 'batchtable', 'history_inventory_market', 'historicalonholdrelease', 'accounting_journal', 'accounting_customerledger',
+    'accounting_submittransaction', 'vcw_billpayment_sales', 
+    'comision_agent_modo_pago_grupo',
+    'forex_feed_market', 'vcw_moneyorders_sales', 'vcw_billpayment_viaone_sales', 'vcw_sales_products', 'vcw_states_pricing', 'receiver_gp_components', 'checkverification', 'customers_customer', 'viacheckfeaturemetrics', 'rate_group_agent', 'branch', 'returnchecks', 'sf_safe_transactions'
 ]
+
 
 def upload_file(body, database, schema, table):
     # Conectar con S3 usando boto3
