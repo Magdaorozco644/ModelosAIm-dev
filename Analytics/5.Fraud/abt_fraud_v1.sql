@@ -12,7 +12,7 @@ create table analytics.source_fraud_m18 as (
         id_payout,
         status,
         was_fraud,
-        receiver_transaction_count
+        receiver_transaction_count,
         receiver_date_first_transaction,
         receiver_date_last_transaction,
         id_country_receiver_claim,

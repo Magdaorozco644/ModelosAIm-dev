@@ -160,7 +160,7 @@ class ABT:
             try:
                 partition_dt = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
             except ValueError:
-                self.logger("Invalid format date.")
+                self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
                     f"The variable 'process_date' must be in the format YYYY-MM-DD or 'None', please correct it."
                 )
