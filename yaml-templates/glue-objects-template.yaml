@@ -857,7 +857,13 @@ Mappings:
       CrawlerName: "sdlf_crw_viachecks_dbo_returncodes"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/returncodes"
       StateMachineName: "sdlf_sm_bulk_viachecks_dbo_returncodes"
-
+    EnvioDbaSfSafeTransactions:
+      JobName: "sdlf_gj_bulk_envio_dba_sf_safe_transactions"
+      NumberOfWorkers: 10
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/bulk/scripts/gjdev_bulk_envio_dba_sf_safe_transactions_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_sf_safe_transactions"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sf_safe_transactions"
+      StateMachineName: "sdlf_sm_bulk_envio_dba_sf_safe_transactions"
 
 
 
@@ -1039,8 +1045,12 @@ Mappings:
       CrawlerName: "sdlf_crw_viachecks_dbo_returnchecks"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/viachecks/dbo/returnchecks"
       StateMachineName: "sdlf_sm_incremental_viachecks_dbo_returnchecks"
-
-
+    EnvioDbaSfSafeTransactionsIncremental:
+      JobName: "sdlf_gj_incremental_envio_dba_sf_safe_transactions"
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_sf_safe_transactions_glue_script.py"
+      CrawlerName: "sdlf_crw_envio_dba_sf_safe_transactions"
+      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/sf_safe_transactions"
+      StateMachineName: "sdlf_sm_incremental_envio_dba_sf_safe_transactions"
 
 #
 #
@@ -1051,10 +1061,10 @@ Parameters:
   # The name of the job to be created
   VIAGlueObjectsNames:
     Type: CommaDelimitedList
-    Default: "EnvioCatalogVcwDeliverytimeContractProvider, EnvioFraudFraudVectorsV21, EnvioFraudMlFraudScore, EnvioLoyaltyAccountingCustomerledger, EnvioLoyaltyAccountingJournal, EnvioLoyaltyAccountingSubmittransaction, EnvioLoyaltyCoreProduct, EnvioLoyaltyCustomersCustomer, EnvioSalesTerritory, EnvioSalesZone, EnvioCrmBankCost, EnvioCrmReceiverGpComponents, EnvioDbaAgent, EnvioDbaAgentPosition, EnvioDbaAuditRateGroupAgent, EnvioDbaBanco, EnvioDbaBranch, EnvioDbaBranchAgent, EnvioDbaBranchInstallation, EnvioDbaBranchOwnerChange, EnvioDbaBranchOwnerInformation, EnvioDbaBranchPrefix, EnvioDbaBranchRelations, EnvioDbaCancelationRequests, EnvioDbaCashier, EnvioDbaChain, EnvioDbaCity, EnvioDbaComision, EnvioDbaComisionAgentModoPagoGrupo, EnvioDbaComisionDelivery, EnvioDbaCompany, EnvioDbaConceptoContable, EnvioDbaCountry, EnvioDbaCuentaBanco, EnvioDbaCurrency, EnvioDbaCurrencyPurchase, EnvioDbaDepositCodes, EnvioDbaFlagBranch, EnvioDbaFlagReceiver, EnvioDbaForexFeedMarket, EnvioDbaFundsOrigin, EnvioDbaGroupBranch, EnvioDbaGroupBranchPhase, EnvioDbaGroupType, EnvioDbaHistoryInventoryMarket, EnvioDbaLocation, EnvioDbaModificationReasons, EnvioDbaModificationRequests, EnvioDbaModoPago, EnvioDbaModPayCurrency, EnvioDbaPayment, EnvioDbaRateGroupAgent, EnvioDbaRateGroupStateDelivery, EnvioDbaRateType, EnvioDbaReceiptDisclaimers, EnvioDbaReceiver, EnvioDbaReceiverFraud, EnvioDbaReceiverSource, EnvioDbaRecipiente, EnvioDbaSender, EnvioDbaSfArmoredCar, EnvioDbaSfProvider, EnvioDbaSfSafesBranches, EnvioDbaSfVault, EnvioDbaStandar, EnvioDbaState, EnvioDbaTipoTransmision, EnvioDbaTipoTransmisionAgencia, EnvioDbaTrader, EnvioDbaTraderGroup, EnvioDbaTransaccionDiariaBancoPayee, EnvioDbaTransaccionDiariaPayee, EnvioDbaTypeBranch, EnvioDbaTypeIdSender, EnvioDbaVappApplication, EnvioDbaVappTypeapplications, EnvioDbaVcwBiller, EnvioDbaVcwBillpaymentSales, EnvioDbaVcwBillpaymentViaoneSales, EnvioDbaVcwCarriers, EnvioDbaVcwCarriersByProviders, EnvioDbaVcwCategory, EnvioDbaVcwCostGateway, EnvioDbaVcwDeliverytimeProvider, EnvioDbaVcwDeliveryTime, EnvioDbaVcwEmployees, EnvioDbaVcwEmployeesByBranch, EnvioDbaVcwExclusionPricing, EnvioDbaVcwMoneyordersSales, EnvioDbaVcwPriceExclusion, EnvioDbaVcwPriceStandard, EnvioDbaVcwProducts, EnvioDbaVcwProductType, EnvioDbaVcwProviders, EnvioDbaVcwSalesProducts, EnvioDbaVcwSalesStatus, EnvioDbaVcwStandardPricing, EnvioDbaVcwStatesPricing, EnvioVonDbaCashier, ViachecksViacheckCheckonholdreasons, ViachecksViacheckCheckverification, ViachecksViacheckCheckverifyServicescodes, ViachecksViacheckChecksontemporaryaccounts, ViachecksViacheckHistoricalonholdrelease, ViachecksViacheckOnholdcategories, ViachecksViacheckOnholdcategoriesandgroups, ViachecksViacheckRulesgroup, ViachecksViacheckViacheckfeaturemetrics, ViachecksViacheckViacheckfeaturemodules, ViachecksViacheckVoidreason, ViachecksViacheckVoidsubtypereason, ViachecksDboCheckproperty, ViachecksDboCheckreaderScore, ViachecksDboReprocessedChecks, ViachecksDboTvcpParamAgencias, ViachecksDboBatchtable, ViachecksDboCheckstatustable, ViachecksDboChecktable, ViachecksDboCustomerLocation, ViachecksDboReturnchecks, ViachecksDboReturncodes"
+    Default: "EnvioCatalogVcwDeliverytimeContractProvider, EnvioFraudFraudVectorsV21, EnvioFraudMlFraudScore, EnvioLoyaltyAccountingCustomerledger, EnvioLoyaltyAccountingJournal, EnvioLoyaltyAccountingSubmittransaction, EnvioLoyaltyCoreProduct, EnvioLoyaltyCustomersCustomer, EnvioSalesTerritory, EnvioSalesZone, EnvioCrmBankCost, EnvioCrmReceiverGpComponents, EnvioDbaAgent, EnvioDbaAgentPosition, EnvioDbaAuditRateGroupAgent, EnvioDbaBanco, EnvioDbaBranch, EnvioDbaBranchAgent, EnvioDbaBranchInstallation, EnvioDbaBranchOwnerChange, EnvioDbaBranchOwnerInformation, EnvioDbaBranchPrefix, EnvioDbaBranchRelations, EnvioDbaCancelationRequests, EnvioDbaCashier, EnvioDbaChain, EnvioDbaCity, EnvioDbaComision, EnvioDbaComisionAgentModoPagoGrupo, EnvioDbaComisionDelivery, EnvioDbaCompany, EnvioDbaConceptoContable, EnvioDbaCountry, EnvioDbaCuentaBanco, EnvioDbaCurrency, EnvioDbaCurrencyPurchase, EnvioDbaDepositCodes, EnvioDbaFlagBranch, EnvioDbaFlagReceiver, EnvioDbaForexFeedMarket, EnvioDbaFundsOrigin, EnvioDbaGroupBranch, EnvioDbaGroupBranchPhase, EnvioDbaGroupType, EnvioDbaHistoryInventoryMarket, EnvioDbaLocation, EnvioDbaModificationReasons, EnvioDbaModificationRequests, EnvioDbaModoPago, EnvioDbaModPayCurrency, EnvioDbaPayment, EnvioDbaRateGroupAgent, EnvioDbaRateGroupStateDelivery, EnvioDbaRateType, EnvioDbaReceiptDisclaimers, EnvioDbaReceiver, EnvioDbaReceiverFraud, EnvioDbaReceiverSource, EnvioDbaRecipiente, EnvioDbaSender, EnvioDbaSfArmoredCar, EnvioDbaSfProvider, EnvioDbaSfSafesBranches, EnvioDbaSfVault, EnvioDbaStandar, EnvioDbaState, EnvioDbaTipoTransmision, EnvioDbaTipoTransmisionAgencia, EnvioDbaTrader, EnvioDbaTraderGroup, EnvioDbaTransaccionDiariaBancoPayee, EnvioDbaTransaccionDiariaPayee, EnvioDbaTypeBranch, EnvioDbaTypeIdSender, EnvioDbaVappApplication, EnvioDbaVappTypeapplications, EnvioDbaVcwBiller, EnvioDbaVcwBillpaymentSales, EnvioDbaVcwBillpaymentViaoneSales, EnvioDbaVcwCarriers, EnvioDbaVcwCarriersByProviders, EnvioDbaVcwCategory, EnvioDbaVcwCostGateway, EnvioDbaVcwDeliverytimeProvider, EnvioDbaVcwDeliveryTime, EnvioDbaVcwEmployees, EnvioDbaVcwEmployeesByBranch, EnvioDbaVcwExclusionPricing, EnvioDbaVcwMoneyordersSales, EnvioDbaVcwPriceExclusion, EnvioDbaVcwPriceStandard, EnvioDbaVcwProducts, EnvioDbaVcwProductType, EnvioDbaVcwProviders, EnvioDbaVcwSalesProducts, EnvioDbaVcwSalesStatus, EnvioDbaVcwStandardPricing, EnvioDbaVcwStatesPricing, EnvioVonDbaCashier, ViachecksViacheckCheckonholdreasons, ViachecksViacheckCheckverification, ViachecksViacheckCheckverifyServicescodes, ViachecksViacheckChecksontemporaryaccounts, ViachecksViacheckHistoricalonholdrelease, ViachecksViacheckOnholdcategories, ViachecksViacheckOnholdcategoriesandgroups, ViachecksViacheckRulesgroup, ViachecksViacheckViacheckfeaturemetrics, ViachecksViacheckViacheckfeaturemodules, ViachecksViacheckVoidreason, ViachecksViacheckVoidsubtypereason, ViachecksDboCheckproperty, ViachecksDboCheckreaderScore, ViachecksDboReprocessedChecks, ViachecksDboTvcpParamAgencias, ViachecksDboBatchtable, ViachecksDboCheckstatustable, ViachecksDboChecktable, ViachecksDboCustomerLocation, ViachecksDboReturnchecks, ViachecksDboReturncodes, EnvioDbaSfSafeTransactions"
   VIAGlueObjectsNamesIncremental:
     Type: CommaDelimitedList
-    Default: "EnvioFraudFraudVectorsV21Incremental, EnvioFraudMlFraudScoreIncremental, EnvioLoyaltyAccountingCustomerledgerIncremental, EnvioLoyaltyAccountingJournalIncremental, EnvioLoyaltyAccountingSubmittransactionIncremental, EnvioLoyaltyCustomersCustomerIncremental, EnvioCrmReceiverGpComponentsIncremental, EnvioDbaAuditRateGroupAgentIncremental, EnvioDbaBranchIncremental, EnvioDbaComisionAgentModoPagoGrupoIncremental, EnvioDbaForexFeedMarketIncremental, EnvioDbaHistoryInventoryMarketIncremental, EnvioDbaRateGroupAgentIncremental, EnvioDbaReceiverIncremental, EnvioDbaSenderIncremental, EnvioDbaTransaccionDiariaBancoPayeeIncremental, EnvioDbaTransaccionDiariaPayeeIncremental, EnvioDbaVcwBillpaymentSalesIncremental, EnvioDbaVcwBillpaymentViaoneSalesIncremental, EnvioDbaVcwMoneyordersSalesIncremental, EnvioDbaVcwSalesProductsIncremental, EnvioDbaVcwStatesPricingIncremental, ViachecksViacheckCheckverificationIncremental, ViachecksViacheckHistoricalonholdreleaseIncremental, ViachecksViacheckViacheckfeaturemetricsIncremental, ViachecksDboCheckreaderScoreIncremental, ViachecksDboBatchtableIncremental, ViachecksDboChecktableIncremental, ViachecksDboReturnchecksIncremental"
+    Default: "EnvioFraudFraudVectorsV21Incremental, EnvioFraudMlFraudScoreIncremental, EnvioLoyaltyAccountingCustomerledgerIncremental, EnvioLoyaltyAccountingJournalIncremental, EnvioLoyaltyAccountingSubmittransactionIncremental, EnvioLoyaltyCustomersCustomerIncremental, EnvioCrmReceiverGpComponentsIncremental, EnvioDbaAuditRateGroupAgentIncremental, EnvioDbaBranchIncremental, EnvioDbaComisionAgentModoPagoGrupoIncremental, EnvioDbaForexFeedMarketIncremental, EnvioDbaHistoryInventoryMarketIncremental, EnvioDbaRateGroupAgentIncremental, EnvioDbaReceiverIncremental, EnvioDbaSenderIncremental, EnvioDbaTransaccionDiariaBancoPayeeIncremental, EnvioDbaTransaccionDiariaPayeeIncremental, EnvioDbaVcwBillpaymentSalesIncremental, EnvioDbaVcwBillpaymentViaoneSalesIncremental, EnvioDbaVcwMoneyordersSalesIncremental, EnvioDbaVcwSalesProductsIncremental, EnvioDbaVcwStatesPricingIncremental, ViachecksViacheckCheckverificationIncremental, ViachecksViacheckHistoricalonholdreleaseIncremental, ViachecksViacheckViacheckfeaturemetricsIncremental, ViachecksDboCheckreaderScoreIncremental, ViachecksDboBatchtableIncremental, ViachecksDboChecktableIncremental, ViachecksDboReturnchecksIncremental, EnvioDbaSfSafeTransactionsIncremental"
   # The name of the IAM role that the job assumes. It must have access to data, script, temporary directory
   VIAIAMRoleName:
     Type: String
@@ -1066,9 +1076,9 @@ Parameters:
   VIADatabaseName:
     Type: String
     Default: viamericas
-  VIACrawlerRolArn:
+  VIACrawlerRolName:
     Type: String
-    Default: arn:aws:iam::283731589572:role/sdlf-lakeformation-admin
+    Default: sdlf-lakeformation-admin
   # State machine
   VIARolStateMachineName:
     Type: String
@@ -1087,12 +1097,145 @@ Parameters:
   VIASnsTopicProtocol:
     Type: String
     Default: EMAIL
-
-
+  GlueConnSG:
+    Type: String
+    Default: sg-001a77a2b3f0f928a
+  GlueConnSubNet:
+    Type: String
+    Default: subnet-060e0a2d52965b904
 #
 #
 # Resources section defines metadata for the Data Catalog
 Resources:
+  DataLakeAdminRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref VIACrawlerRolName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 
+              - "lambda.amazonaws.com"
+          Action: 
+            - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "DataLakeAdminPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action:
+              - "logs:AssociateKmsKey"
+              - "logs:CreateLogGroup"
+              Resource:
+              - "arn:aws:logs:us-east-1:283731589572:log-group:sdlf-*"
+              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/lambda/sdlf-*"
+              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/codebuild/sdlf-*"
+            - Effect: Allow
+              Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+              Resource:
+              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/lambda/sdlf-*"
+              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/glue/*"
+            - Effect: Allow
+              Action:
+              - "dynamodb:BatchGetItem"
+              - "dynamodb:BatchWriteItem"
+              - "dynamodb:DeleteItem"
+              - "dynamodb:DescribeTable"
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:PutItem"
+              - "dynamodb:Scan"
+              - "dynamodb:UpdateItem"
+              Resource: "arn:aws:dynamodb:us-east-1:283731589572:table/octagon-*"
+            - Effect: Allow
+              Action:
+              - "ssm:GetParameter"
+              - "ssm:GetParameters"
+              Resource: "arn:aws:ssm:us-east-1:283731589572:parameter/SDLF/IAM/DataLakeAdminRoleArn"
+  
+  FullAccessPolicy:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref VIAIAMRoleName
+      Description: "IAM role for Glue Jobs"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+                - "states.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action:
+                - "glue:*"
+                - "logs:*"
+                - "sns:*"
+                - "kms:*"
+                - "states:*"
+                - "cloudwatch:GenerateQuery"
+                - "s3:PutObject"
+                - "s3:GetObjet"
+                - "s3:PutAccountPublicAccessBlock"
+                - "s3:PutBucketPublicAccessBlock"
+                - "s3:PutBucketAcl"
+                - "s3:PutBucketPolicy"
+                - "s3:CreateBucket"
+                - "s3:PutAccessPointPolicy"
+                - "s3:PutObjectAcl"
+                - "ec2:*"
+              Resource: 
+                - "*"
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+
+  GlueConnection:
+    Type: AWS::Glue::Connection
+    Properties: 
+      CatalogId: !Ref AWS::AccountId
+      ConnectionInput: 
+        ConnectionProperties: 
+          JDBC_CONNECTION_URL: '{{resolve:secretsmanager:SQLSERVER-CREDENTIALS:SecretString:connectionString}}'
+          USERNAME: '{{resolve:secretsmanager:SQLSERVER-CREDENTIALS:SecretString:username}}'
+          PASSWORD: '{{resolve:secretsmanager:SQLSERVER-CREDENTIALS:SecretString:password}}'
+          JDBC_ENFORCE_SSL: False
+        ConnectionType: JDBC
+        PhysicalConnectionRequirements: 
+          SecurityGroupIdList: 
+            - !Ref GlueConnSG
+          SubnetId: !Ref GlueConnSubNet
+        Name: !Ref VIAConnectionName
+  GlueViamericasDatabase:
+    Type: AWS::Glue::Database
+    Properties: 
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput: 
+        Name: viamericas
+  GlueStageDatabase:
+    Type: AWS::Glue::Database
+    Properties: 
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput: 
+        Name: stage
+  GlueAnalyticsDatabase:
+    Type: AWS::Glue::Database
+    Properties: 
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput: 
+        Name: analytics
   # Create jobs to run script which accesses JDBC viamericas db via a connection and write to S3 file as parquet.
   Fn::ForEach::GlueJob:
     - GlueJobItem # identificador
@@ -1144,7 +1287,7 @@ Resources:
             Connections:
               - !Ref VIAConnectionName
           #MaxRetries: Double
-          Description: "Job created with CloudFormation using existing script"
+          Description: "Job created with CloudFormation using existing scripts"
           #LogUri: String
           Command:
             Name: "glueetl"
@@ -1176,7 +1319,7 @@ Resources:
         Properties:
           Name:
             Fn::FindInMap: ["GlueObjects", !Ref GlueCrawlerItem, "CrawlerName"]
-          Role: !Ref VIACrawlerRolArn
+          Role: !GetAtt DataLakeAdminRole.Arn
           #Classifiers: none, use the default classifier
           Description: "AWS Glue crawler to crawl viamericas data"
           #Schedule: none, use default run-on-demand

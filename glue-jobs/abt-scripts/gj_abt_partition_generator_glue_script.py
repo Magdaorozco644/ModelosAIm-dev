@@ -13,6 +13,11 @@ import logging
 import sys
 import holidays
 from awsglue.utils import getResolvedOptions
+from awsglue.transforms import *
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+from awsglue.dynamicframe import DynamicFrame
 
 # UNIVERSE ARGS
 MIN_AGE_PAYER = 3
@@ -160,7 +165,7 @@ class ABT:
             try:
                 partition_dt = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
             except ValueError:
-                self.logger("Invalid format date.")
+                self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
                     f"The variable 'process_date' must be in the format YYYY-MM-DD or 'None', please correct it."
                 )
@@ -298,8 +303,12 @@ class ABT:
         date_range = pd.date_range(start=start_date, end=end_date)
 
         # Obtener el rango de fechas mínimo y máximo para cada 'payer_country'
+        #'payer_country','id_country','id_main_branch'
+
         payer_country_ranges = (
-            df.groupby("payer_country")["date"].agg(["min", "max"]).reset_index()
+            df.groupby(["payer_country", "id_country", "id_main_branch"])["date"]
+            .agg(["min", "max"])
+            .reset_index()
         )
         payer_country_ranges["min"] = payer_country_ranges["min"].fillna(
             pd.to_datetime(start_date)
@@ -314,6 +323,8 @@ class ABT:
             payer_country = row["payer_country"]
             start_payer = row["min"]
             end_payer = row["max"]
+            payer_id_country = row["id_country"]
+            payer_id_main_branch = row["id_main_branch"]
 
             # Filtrar el DataFrame original por 'payer_country'
             df_payer = df[df["payer_country"] == payer_country]
@@ -321,26 +332,40 @@ class ABT:
             # Rellenar valores faltantes en el rango de fechas del 'payer_country'
             date_range_payer = pd.date_range(start=start_payer, end=end_payer)
             date_combinations = pd.DataFrame(
-                {"date": date_range_payer, "payer_country": payer_country}
+                {
+                    "date": date_range_payer,
+                    "payer_country": payer_country,
+                    "id_country": payer_id_country,
+                    "id_main_branch": payer_id_main_branch,
+                }
             )
             df_combined = pd.merge(
                 date_combinations, df_payer, on=["date", "payer_country"], how="left"
             )
-
             # Rellenar valores faltantes con cero
             numeric_columns = ["amount", "coupon_count", "tx", "gp", "margin"]
             df_combined[numeric_columns] = df_combined[numeric_columns].fillna(0)
 
             # Rellenar valores faltantes en las columnas 'payer' y 'country' utilizando el método ffill
-            df_combined[["payer", "country"]] = df_combined[
-                ["payer", "country"]
-            ].ffill()
+            df_combined[["payer", "country", "id_country", "id_main_branch"]] = (
+                df_combined[
+                    ["payer", "country", "id_country_x", "id_main_branch_x"]
+                ].ffill()
+            )
 
             # Rellenar valores faltantes en la columna 'day' con los valores de la columna 'date' cuando sea NaN
             df_combined["day"] = df_combined["day"].fillna(df_combined["date"])
 
             df_filled = pd.concat([df_filled, df_combined], ignore_index=True)
 
+        df_filled = df_filled.drop(
+            columns=[
+                "id_country_x",
+                "id_country_y",
+                "id_main_branch_x",
+                "id_main_branch_y",
+            ]
+        )
         return df_filled
 
     def create_last_daily_forex(self):
@@ -810,6 +835,8 @@ class ABT:
             "day_y",
             "day_x",
             "id_country",
+            "id_country_y",
+            "id_country_x",
             "id_main_branch",
         ]
         ## Fill nan numeric values with 0
@@ -819,14 +846,26 @@ class ABT:
         # Filling NaN in exogenous and lags
         # df = df.fillna(0, inplace=True)
 
-        wr.s3.to_parquet(
-            df=df,
-            path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
-            dataset=True,
-            index=False,
-            mode="overwrite_partitions",
-            compression="snappy",
+        df = df.drop(
+            columns=[
+                "id_country_y"
+                ]
         )
+        ## Fill nan numeric values with 0
+        df = self.fill_missing_with_zeros(df)
+        self.logger.info(df.info())
+        self.logger.info(df.columns)
+        #TODO: descomentar
+        #wr.s3.to_parquet(
+        #    df=df,
+        #    path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
+        #    dataset=True,
+        #    index=False,
+        #    mode="overwrite_partitions",
+        #    compression="snappy",
+        #)
+
+        return df
 
 
 ##########################################
@@ -845,9 +884,17 @@ if __name__ == "__main__":
         "bucket_name": "__required__",
         "start_date": "__required__",
         "end_date": "__required__",
+        "database": "__required__",
+        "schema": "__required__",
+        "table_name": "__required__",
+        "temp_s3_dir": "__required__",
         "process_date": "None",
         "date_lag": DATE_LAG,
     }
+    sc = SparkContext()
+    glueContext = GlueContext(sc)
+    spark = glueContext.spark_session
+    job = Job(glueContext)
 
     parser = ArgsGet(my_default_args)
     args = parser.loaded_args
@@ -857,22 +904,59 @@ if __name__ == "__main__":
     # Create abt partition (df)
     abt_partition = abt.create_partition()
     # Save partition
-    abt.save_partition(df=abt_partition)
+    df = abt.save_partition(df=abt_partition)
+    # Create SparkDataframe
+    df_final = spark.createDataFrame(df)
+    # Detect numeric columns
+    numeric_cols = [c[0] for c in df_final.dtypes if c[1] in ['bigint','double','float']]
+    # Fill numeric values in spark dataframe
+    df_filled = df_final.fillna(0, subset=numeric_cols)
 
-
-"""
-#Write table in parquet
-df_final = df_final.astype(str)
-wr_response =  wr.s3.to_parquet(
-df=df_final,
-path=f's3://viamericas-datalake-dev-us-east-1-283731589572-raw/test_abt/',
-dataset=True,
-mode='overwrite_partitions',
-database='viamericas',
-table=f'test_abt',
-partition_cols=['day'],
-concurrent_partitioning=True,
-index=False,
-schema_evolution=True,
-compression = 'snappy')
-"""
+    # Convert to Frame to upload to Redshift
+    df_final_frame = DynamicFrame.fromDF(df_filled, glueContext, "df_final")
+    # Redshift connection
+    rds_conn = "via-redshift-connection"
+    # Create stage temp table with schema.
+    pre_query = """
+    CREATE TABLE if not exists {database}.{schema}.{table_name}  (LIKE public.stage_table_temporary_abt);
+    """
+    # TODO:    CHEQUEAR EL DELETE, SI AGREGAMOS UNA FECHA DE PROCESO O QUE, POR SI SE CORRE 2 VECES, QUE NO SE DUPLIQUEN.
+    # post_query = """
+    # begin;
+    # delete from {database}.{schema}.{table_name} using public.stage_table_temporary_abt where public.stage_table_temporary_abt.processing_date = {database}.{schema}.{table_name}.processing_date;
+    # insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_abt;
+    # drop table public.stage_table_temporary_abt;
+    # end;
+    # """
+    post_query = """
+    begin;
+    insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_abt;
+    drop table public.stage_table_temporary_abt;
+    end;
+    """
+    pre_query = pre_query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name"],
+    )
+    post_query = post_query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name"],
+    )
+    print(f"Pre query : {pre_query}")
+    print(f"Post query : {post_query}")
+    # Send data to Redshift
+    glueContext.write_dynamic_frame.from_jdbc_conf(
+        frame=df_final_frame,
+        catalog_connection=rds_conn,
+        connection_options={
+            "database": args["database"],
+            "dbtable": f"public.stage_table_temporary_abt",
+            "preactions": pre_query,
+            "postactions": post_query,
+        },
+        redshift_tmp_dir=args["temp_s3_dir"],
+        transformation_ctx="upsert_to_redshift",
+    )
+    job.commit()
