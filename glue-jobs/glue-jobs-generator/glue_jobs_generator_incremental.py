@@ -118,7 +118,7 @@ region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
 jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
-qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} WHERE convert(date, [{update_field}]) >= '{{today}}') x"
+qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} WHERE  [{update_field}] >= '{{today}} 00:00:00') x"
 
 jdbcDF = spark.read.format('jdbc')\\
         .option('url', jdbc_viamericas)\\
@@ -190,7 +190,7 @@ for index, row in dict_df.iterrows():
             os.makedirs(output_directory)
 
         # Escribir el script en un archivo
-        output_file = f"{output_directory}/{database}_{schema}_{table}_incremental_glue_script.py"
+        output_file = f"{output_directory}/gjdev_incremental_{database}_{schema}_{table}_glue_script.py"
         with open(output_file, 'w') as f:
             f.write(glue_script)
 
