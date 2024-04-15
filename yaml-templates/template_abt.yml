@@ -23,7 +23,6 @@ Mappings:
       #TODO: CHANGE SCRIPT LOCATION
       ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_inference_script.py"
 
-
   # Crawler objects
   CrawlerObjects:
     LastDailyForex:
@@ -132,6 +131,12 @@ Parameters:
   VIAConnectionName:
     Type: String
     Default: via-redshift-connection
+  GlueConnSG:
+    Type: String
+    Default: sg-0383ae40fcb40f359
+  GlueConnSubNet:
+    Type: String
+    Default: subnet-060e0a2d52965b904
 
 Resources:
   ##### Glue Jobs #####
@@ -142,8 +147,8 @@ Resources:
       Role: !Ref VIAIAMRoleName
       # Connection to Redshift
       Connections:
-            Connections:
-              - !Ref VIAConnectionName
+        Connections:
+          - !Ref VIAConnectionName
       #MaxRetries: Number
       Description: "Job created with CloudFormation using existing script. Abt Partition Generator."
       #LogUri: String
@@ -167,11 +172,11 @@ Resources:
         "--end_date": "2023-12-31"
         "--process_date": "None"
         "--start_date": "2021-01-01"
-        "--database" : "dev"
-        "--schema" : "viamericas"
-        "--table_name" : "monitoring_test"
+        "--database": "dev"
+        "--schema": "viamericas"
+        "--table_name": "monitoring_test"
         # TODO: CHANGE S3 BUCKET.
-        "--temp_s3_dir" : "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
+        "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -210,7 +215,6 @@ Resources:
         "process": "abt"
       WorkerType: "G.1X"
 
-
   # Spark etl Inference Prediction
   VIAGlueInference:
     Type: AWS::Glue::Job
@@ -218,8 +222,8 @@ Resources:
       Role: !Ref VIAIAMRoleName
       # Connection to Redshift
       Connections:
-            Connections:
-              - !Ref VIAConnectionName
+        Connections:
+          - !Ref VIAConnectionName
       #MaxRetries: Number
       Description: "Job created with CloudFormation using existing script. Inference model prediction."
       #LogUri: String
@@ -238,21 +242,21 @@ Resources:
         "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/alembic/alembic-1.13.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/colorama/colorama-0.4.6-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/colorlog/colorlog-6.8.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/cython/Cython-3.0.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/greenlet/greenlet-3.0.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/joblib/joblib-1.3.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/mako/Mako-1.3.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/markupsafe/MarkupSafe-2.1.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/optuna/optuna-3.4.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/patsy/patsy-0.5.6-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pmdarima/pmdarima-2.0.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyyaml/PyYAML-6.0.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/scikit-learn/scikit_learn-1.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/scipy/scipy-1.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/setuptools/setuptools-69.2.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/skforecast/skforecast-0.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/sqlalchemy/SQLAlchemy-2.0.29-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/statsmodels/statsmodels-0.14.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/threadpoolctl/threadpoolctl-3.4.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/tqdm/tqdm-4.66.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/tzdata/tzdata-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl"
         # Enable Use Glue data catalog as the Hive metastore
         "--enable-glue-datacatalog": true
-        "--arn_report" : !Ref VIASnsTopicInference
+        "--arn_report": !Ref VIASnsTopicInference
         "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
-        "--model_2d_prefix" : "MODEL_2d_"
-        "--model_8d_prefix" : "MODEL_7d"
-        "--prefix_abt_name" : "abt_parquet"
-        "--prefix_inference_name" : "inference_prediction/"
-        "--prefix_model_name_2d" : "ABTv3/Tableau/"
-        "--prefix_model_name_8d" : "ABTv3/Last_releases_7d_8lags/"
+        "--model_2d_prefix": "MODEL_2d_"
+        "--model_8d_prefix": "MODEL_7d"
+        "--prefix_abt_name": "abt_parquet"
+        "--prefix_inference_name": "inference_prediction/"
+        "--prefix_model_name_2d": "ABTv3/Tableau/"
+        "--prefix_model_name_8d": "ABTv3/Last_releases_7d_8lags/"
         "--process_date": "None"
-        "--database" : "dev"
-        "--schema" : "viamericas"
-        "--table_name_2d" : "predict_2d_test"
-        "--table_name_8d" : "predict_8d_test"
+        "--database": "dev"
+        "--schema": "viamericas"
+        "--table_name_2d": "predict_2d_test"
+        "--table_name_8d": "predict_8d_test"
         # TODO: CHANGE S3 BUCKET.
-        "--temp_s3_dir" : "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
+        "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -261,8 +265,25 @@ Resources:
       Timeout: 30
       WorkerType: "G.1X"
       Name:
-        Fn::FindInMap:
-          ["GlueObjects", !Ref VIAGlueObjectInference, "JobName"]
+        Fn::FindInMap: ["GlueObjects", !Ref VIAGlueObjectInference, "JobName"]
+
+  ### Connection Redshift ###
+  GlueConnection:
+    Type: AWS::Glue::Connection
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      ConnectionInput:
+        ConnectionProperties:
+          JDBC_CONNECTION_URL: "{{resolve:secretsmanager:REDSHIFT-CREDENTIALS:SecretString:connectionString}}"
+          USERNAME: "{{resolve:secretsmanager:REDSHIFT-CREDENTIALS:SecretString:username}}"
+          PASSWORD: "{{resolve:secretsmanager:REDSHIFT-CREDENTIALS:SecretString:password}}"
+          JDBC_ENFORCE_SSL: False
+        ConnectionType: JDBC
+        PhysicalConnectionRequirements:
+          SecurityGroupIdList:
+            - !Ref GlueConnSG
+          SubnetId: !Ref GlueConnSubNet
+        Name: !Ref VIAConnectionName
 
   ##### Crawlers #####
   # Create crawlers that create the schema in the database
