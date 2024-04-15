@@ -226,8 +226,8 @@ class Inference:
         self.logger.info(f"DF 8d: {df_final_8d.shape}")
         self.logger.info(f"DF 2d: {df_final_2d.shape}")
 
-        self.save_df(df=df_final_2d, name=f"{self.process_date}/predictions_2d/")
-        self.save_df(df=df_final_8d, name=f"{self.process_date}/predictions_8d/")
+        self.save_df(df=df_final_2d, name=f"day={self.process_date}/predictions_2d/")
+        self.save_df(df=df_final_8d, name=f"day={self.process_date}/predictions_8d/")
 
         return failed_payers, df_final_2d, df_final_8d
 
