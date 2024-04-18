@@ -117,7 +117,8 @@ secret_name = "SQLSERVER-CREDENTIALS"
 region_name = "us-east-1"
 secret = get_secret(secret_name, region_name)
 
-jdbc_viamericas = "jdbc:sqlserver://172.17.13.45:1433;database=Envio"
+
+jdbc_viamericas = f"jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
 qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} WHERE  [{update_field}] >= '{{today}} 00:00:00') x"
 
 jdbcDF = spark.read.format('jdbc')\\
