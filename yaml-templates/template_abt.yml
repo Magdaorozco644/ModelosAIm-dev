@@ -124,6 +124,9 @@ Parameters:
   VIASnsTopicEndpoint:
     Type: String
     Default: lautaro.gramuglia@strata-analytics.us
+  VIASnsTopicEndpoint2:
+    Type: String
+    Default: mauricio.caggia@strata-analytics.us
   VIASnsTopicProtocol:
     Type: String
     Default: EMAIL
@@ -183,7 +186,7 @@ Resources:
         # TODO: CHANGE S3 BUCKET.
         "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
         "--date_lag": "1"
-        "--end_date": "2023-12-31"
+        "--end_date": "None"
         "--process_date": "None"
         "--start_date": "2021-01-01"
         "--database": "dev"
@@ -517,6 +520,8 @@ Resources:
     Properties:
       Subscription:
         - Endpoint: !Ref VIASnsTopicEndpoint
+          Protocol: !Ref VIASnsTopicProtocol
+        - Endpoint: !Ref VIASnsTopicEndpoint2
           Protocol: !Ref VIASnsTopicProtocol
       Tags:
         - Key: "map-migrated"
