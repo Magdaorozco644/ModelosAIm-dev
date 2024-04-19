@@ -7,7 +7,6 @@
 ################################################
 
 import awswrangler as wr
-import warnings
 import pandas as pd
 
 # Spark uses .items
@@ -17,12 +16,12 @@ import logging
 import sys
 import boto3
 from io import BytesIO
-import joblib
 from awsglue.utils import getResolvedOptions
 from awsglue.transforms import *
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
+from awsglue.dynamicframe import DynamicFrame
 
 
 # check input variables
@@ -169,6 +168,8 @@ class MonitoringRules:
         file_name = f"day={df_monitoring['last_check_date'].iloc[0]}/"
         # Save dataframe
         self.save_df(df=df_monitoring, name=file_name)
+
+        return df_monitoring
 
     def actions_recommended(self, row):
         if  row['CONDITION1'] == True and row['CONDITION2']==True and row['CONDITION3']==False:
@@ -395,6 +396,69 @@ if __name__ == "__main__":
     # Object Monitoring
     monitoring = MonitoringRules(args=args)
 
-    monitoring.recommended_actions()
+    df = monitoring.recommended_actions()
+    # TODO: Implement this to send to Redshift (check if needed).
+    if df is not None and df.shape[0] != 0:
+
+        # Pandas DataFrame to Spark DataFrame
+        df_final_2d_spark = spark.createDataFrame(df)
+
+        print(df_final_2d_spark.printSchema())
+        print(df_final_2d_spark.show())
+
+        # Converto to Frame to upload to Redshift
+        df_final_2d_frame = DynamicFrame.fromDF(
+            df_final_2d_spark, glueContext, "df_final"
+        )
+        # Redshift connection
+        rds_conn = "via-redshift-connection"
+        # Create stage temp table with schema.
+        pre_query = """
+        CREATE TABLE if not exists {database}.{schema}.{table_name} (
+            processing_date date ENCODE az64,
+            pred_date date ENCODE az64,
+            pred double precision ENCODE raw,
+            payer_country character varying(100) ENCODE lzo,
+            id_main_branch character varying(100) ENCODE lzo,
+            id_country character varying(100) ENCODE lzo,
+            amount double precision ENCODE raw,
+            abs_error double precision ENCODE raw,
+            MAPE double precision ENCODE raw
+            );
+        """
+        post_query = """
+        begin;
+        delete from {database}.{schema}.{table_name} using public.stage_table_temporary_mape where public.stage_table_temporary_mape.processing_date = {database}.{schema}.{table_name}.processing_date;
+        insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_mape;
+        drop table public.stage_table_temporary_mape;
+        end;
+        """
+
+        pre_query_2d = pre_query.format(
+            database=args["database_redshift"],
+            schema=args["schema"],
+            table_name=args["table_name_redshift"],
+        )
+        post_query_2d = post_query.format(
+            database=args["database_redshift"],
+            schema=args["schema"],
+            table_name=args["table_name_redshift"],
+        )
+        print(f"Pre query 2d: {pre_query_2d}")
+        print(f"Post query 2d: {post_query_2d}")
+
+        glueContext.write_dynamic_frame.from_jdbc_conf(
+            frame=df_final_2d_frame,
+            catalog_connection=rds_conn,
+            connection_options={
+                "database": args["database_redshift"],
+                "dbtable": f"public.stage_table_temporary_mape",
+                "preactions": pre_query_2d,
+                "postactions": post_query_2d,
+            },
+            redshift_tmp_dir=args["temp_s3_dir"],
+            transformation_ctx="upsert_to_redshift_2d",
+        )
 
     job.commit()
+
