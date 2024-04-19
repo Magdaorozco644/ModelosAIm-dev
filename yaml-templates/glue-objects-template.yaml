@@ -1127,12 +1127,12 @@ Resources:
             Statement:
             - Effect: Allow
               Action:
-              - "logs:AssociateKmsKey"
-              - "logs:CreateLogGroup"
+              - "logs:*"
               Resource:
               - "arn:aws:logs:us-east-1:283731589572:log-group:sdlf-*"
               - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/lambda/sdlf-*"
               - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/codebuild/sdlf-*"
+              - "arn:aws:logs:us-east-1:793340735293:log-group:/aws-glue/crawlers:log-stream:*"
             - Effect: Allow
               Action:
               - "logs:CreateLogStream"
@@ -1157,6 +1157,22 @@ Resources:
               - "ssm:GetParameter"
               - "ssm:GetParameters"
               Resource: "arn:aws:ssm:us-east-1:283731589572:parameter/SDLF/IAM/DataLakeAdminRoleArn"
+            - Effect: Allow
+              Action:
+              - "s3:*"
+              Resource: 
+              - "arn:aws:s3:::via-sftp-datalake"
+              - "arn:aws:s3:::via-sftp-datalake/*"
+              - "arn:aws:s3:::viamericas-datalake-prod-us-east-1-793340735293-raw"
+              - "arn:aws:s3:::viamericas-datalake-prod-us-east-1-793340735293-raw/*"
+            - Effect: Allow
+              Action:
+              - "kms:*"
+              Resource: "arn:aws:kms:us-east-1:793340735293:key/e35c1ef9-df30-4eb9-ac0f-b21382c08ea7"
+            - Effect: Allow
+              Action:
+              - "glue:*"
+              Resource: "arn:aws:glue:us-east-1:793340735293:*"
   
   FullAccessPolicy:
     Type: AWS::IAM::Role
@@ -1196,6 +1212,7 @@ Resources:
                 - "s3:PutAccessPointPolicy"
                 - "s3:PutObjectAcl"
                 - "ec2:*"
+                - "secretsmanager:GetSecretValue"
               Resource: 
                 - "*"
       Tags:
