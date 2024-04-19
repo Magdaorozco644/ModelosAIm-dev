@@ -351,7 +351,7 @@ Resources:
           SecurityGroupIdList:
             - !Ref GlueConnSG
           SubnetId: !Ref GlueConnSubNet
-        Name: !Ref VIAConnectionNameOld
+        Name: !Ref VIAConnectionName
 
   ##### Crawlers #####
   # Create crawlers that create the schema in the database
