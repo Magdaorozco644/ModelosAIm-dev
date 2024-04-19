@@ -856,14 +856,14 @@ class ABT:
         self.logger.info(df.info())
         self.logger.info(df.columns)
         #TODO: descomentar
-        #wr.s3.to_parquet(
-        #    df=df,
-        #    path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
-        #    dataset=True,
-        #    index=False,
-        #    mode="overwrite_partitions",
-        #    compression="snappy",
-        #)
+        wr.s3.to_parquet(
+            df=df,
+            path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
+            dataset=True,
+            index=False,
+            mode="overwrite_partitions",
+            compression="snappy",
+        )
 
         return df
 
@@ -920,7 +920,7 @@ if __name__ == "__main__":
     pre_query = """
     CREATE TABLE if not exists {database}.{schema}.{table_name}  (LIKE public.stage_table_temporary_abt);
     """
-    # TODO:    CHEQUEAR EL DELETE, SI AGREGAMOS UNA FECHA DE PROCESO O QUE, POR SI SE CORRE 2 VECES, QUE NO SE DUPLIQUEN.
+    # TODO: revisar delete query.
     # post_query = """
     # begin;
     # delete from {database}.{schema}.{table_name} using public.stage_table_temporary_abt where public.stage_table_temporary_abt.processing_date = {database}.{schema}.{table_name}.processing_date;

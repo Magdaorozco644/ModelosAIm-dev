@@ -244,7 +244,6 @@ class Inference:
         response = wr.s3.to_parquet(df, path=path_s3, dataset=True, index=False,mode="overwrite_partitions",compression="snappy",)
         self.logger.info(f"Response: {response}")
 
-    # TODO: check si tomo la ultima particion o que.
     def read_daily_check_gp(self):
         self.logger.info("Reading from daily_check_gp...")
         # DB Setting
