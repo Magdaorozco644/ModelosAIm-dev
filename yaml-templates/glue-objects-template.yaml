@@ -943,12 +943,12 @@ Mappings:
       CrawlerName: "sdlf_crw_envio_dba_history_inventory_market"
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/history_inventory_market"
       StateMachineName: "sdlf_sm_incremental_envio_dba_history_inventory_market"
-    EnvioDbaRateGroupAgentIncremental:
-      JobName: "sdlf_gj_incremental_envio_dba_rate_group_agent"
-      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_rate_group_agent_glue_script.py"
-      CrawlerName: "sdlf_crw_envio_dba_rate_group_agent"
-      Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/rate_group_agent"
-      StateMachineName: "sdlf_sm_incremental_envio_dba_rate_group_agent"
+    # EnvioDbaRateGroupAgentIncremental:
+    #   JobName: "sdlf_gj_incremental_envio_dba_rate_group_agent"
+    #   ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_rate_group_agent_glue_script.py"
+    #   CrawlerName: "sdlf_crw_envio_dba_rate_group_agent"
+    #   Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-raw/envio/dba/rate_group_agent"
+    #   StateMachineName: "sdlf_sm_incremental_envio_dba_rate_group_agent"
     EnvioDbaReceiverIncremental:
       JobName: "sdlf_gj_incremental_envio_dba_receiver"
       ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/incremental/scripts/gjdev_incremental_envio_dba_receiver_glue_script.py"
@@ -1064,7 +1064,7 @@ Parameters:
     Default: "EnvioCatalogVcwDeliverytimeContractProvider, EnvioFraudFraudVectorsV21, EnvioFraudMlFraudScore, EnvioLoyaltyAccountingCustomerledger, EnvioLoyaltyAccountingJournal, EnvioLoyaltyAccountingSubmittransaction, EnvioLoyaltyCoreProduct, EnvioLoyaltyCustomersCustomer, EnvioSalesTerritory, EnvioSalesZone, EnvioCrmBankCost, EnvioCrmReceiverGpComponents, EnvioDbaAgent, EnvioDbaAgentPosition, EnvioDbaAuditRateGroupAgent, EnvioDbaBanco, EnvioDbaBranch, EnvioDbaBranchAgent, EnvioDbaBranchInstallation, EnvioDbaBranchOwnerChange, EnvioDbaBranchOwnerInformation, EnvioDbaBranchPrefix, EnvioDbaBranchRelations, EnvioDbaCancelationRequests, EnvioDbaCashier, EnvioDbaChain, EnvioDbaCity, EnvioDbaComision, EnvioDbaComisionAgentModoPagoGrupo, EnvioDbaComisionDelivery, EnvioDbaCompany, EnvioDbaConceptoContable, EnvioDbaCountry, EnvioDbaCuentaBanco, EnvioDbaCurrency, EnvioDbaCurrencyPurchase, EnvioDbaDepositCodes, EnvioDbaFlagBranch, EnvioDbaFlagReceiver, EnvioDbaForexFeedMarket, EnvioDbaFundsOrigin, EnvioDbaGroupBranch, EnvioDbaGroupBranchPhase, EnvioDbaGroupType, EnvioDbaHistoryInventoryMarket, EnvioDbaLocation, EnvioDbaModificationReasons, EnvioDbaModificationRequests, EnvioDbaModoPago, EnvioDbaModPayCurrency, EnvioDbaPayment, EnvioDbaRateGroupAgent, EnvioDbaRateGroupStateDelivery, EnvioDbaRateType, EnvioDbaReceiptDisclaimers, EnvioDbaReceiver, EnvioDbaReceiverFraud, EnvioDbaReceiverSource, EnvioDbaRecipiente, EnvioDbaSender, EnvioDbaSfArmoredCar, EnvioDbaSfProvider, EnvioDbaSfSafesBranches, EnvioDbaSfVault, EnvioDbaStandar, EnvioDbaState, EnvioDbaTipoTransmision, EnvioDbaTipoTransmisionAgencia, EnvioDbaTrader, EnvioDbaTraderGroup, EnvioDbaTransaccionDiariaBancoPayee, EnvioDbaTransaccionDiariaPayee, EnvioDbaTypeBranch, EnvioDbaTypeIdSender, EnvioDbaVappApplication, EnvioDbaVappTypeapplications, EnvioDbaVcwBiller, EnvioDbaVcwBillpaymentSales, EnvioDbaVcwBillpaymentViaoneSales, EnvioDbaVcwCarriers, EnvioDbaVcwCarriersByProviders, EnvioDbaVcwCategory, EnvioDbaVcwCostGateway, EnvioDbaVcwDeliverytimeProvider, EnvioDbaVcwDeliveryTime, EnvioDbaVcwEmployees, EnvioDbaVcwEmployeesByBranch, EnvioDbaVcwExclusionPricing, EnvioDbaVcwMoneyordersSales, EnvioDbaVcwPriceExclusion, EnvioDbaVcwPriceStandard, EnvioDbaVcwProducts, EnvioDbaVcwProductType, EnvioDbaVcwProviders, EnvioDbaVcwSalesProducts, EnvioDbaVcwSalesStatus, EnvioDbaVcwStandardPricing, EnvioDbaVcwStatesPricing, EnvioVonDbaCashier, ViachecksViacheckCheckonholdreasons, ViachecksViacheckCheckverification, ViachecksViacheckCheckverifyServicescodes, ViachecksViacheckChecksontemporaryaccounts, ViachecksViacheckHistoricalonholdrelease, ViachecksViacheckOnholdcategories, ViachecksViacheckOnholdcategoriesandgroups, ViachecksViacheckRulesgroup, ViachecksViacheckViacheckfeaturemetrics, ViachecksViacheckViacheckfeaturemodules, ViachecksViacheckVoidreason, ViachecksViacheckVoidsubtypereason, ViachecksDboCheckproperty, ViachecksDboCheckreaderScore, ViachecksDboReprocessedChecks, ViachecksDboTvcpParamAgencias, ViachecksDboBatchtable, ViachecksDboCheckstatustable, ViachecksDboChecktable, ViachecksDboCustomerLocation, ViachecksDboReturnchecks, ViachecksDboReturncodes, EnvioDbaSfSafeTransactions"
   VIAGlueObjectsNamesIncremental:
     Type: CommaDelimitedList
-    Default: "EnvioFraudFraudVectorsV21Incremental, EnvioFraudMlFraudScoreIncremental, EnvioLoyaltyAccountingCustomerledgerIncremental, EnvioLoyaltyAccountingJournalIncremental, EnvioLoyaltyAccountingSubmittransactionIncremental, EnvioLoyaltyCustomersCustomerIncremental, EnvioCrmReceiverGpComponentsIncremental, EnvioDbaAuditRateGroupAgentIncremental, EnvioDbaBranchIncremental, EnvioDbaComisionAgentModoPagoGrupoIncremental, EnvioDbaForexFeedMarketIncremental, EnvioDbaHistoryInventoryMarketIncremental, EnvioDbaRateGroupAgentIncremental, EnvioDbaReceiverIncremental, EnvioDbaSenderIncremental, EnvioDbaTransaccionDiariaBancoPayeeIncremental, EnvioDbaTransaccionDiariaPayeeIncremental, EnvioDbaVcwBillpaymentSalesIncremental, EnvioDbaVcwBillpaymentViaoneSalesIncremental, EnvioDbaVcwMoneyordersSalesIncremental, EnvioDbaVcwSalesProductsIncremental, EnvioDbaVcwStatesPricingIncremental, ViachecksViacheckCheckverificationIncremental, ViachecksViacheckHistoricalonholdreleaseIncremental, ViachecksViacheckViacheckfeaturemetricsIncremental, ViachecksDboCheckreaderScoreIncremental, ViachecksDboBatchtableIncremental, ViachecksDboChecktableIncremental, ViachecksDboReturnchecksIncremental, EnvioDbaSfSafeTransactionsIncremental"
+    Default: "EnvioFraudFraudVectorsV21Incremental, EnvioFraudMlFraudScoreIncremental, EnvioLoyaltyAccountingCustomerledgerIncremental, EnvioLoyaltyAccountingJournalIncremental, EnvioLoyaltyAccountingSubmittransactionIncremental, EnvioLoyaltyCustomersCustomerIncremental, EnvioCrmReceiverGpComponentsIncremental, EnvioDbaAuditRateGroupAgentIncremental, EnvioDbaBranchIncremental, EnvioDbaComisionAgentModoPagoGrupoIncremental, EnvioDbaForexFeedMarketIncremental, EnvioDbaHistoryInventoryMarketIncremental, EnvioDbaReceiverIncremental, EnvioDbaSenderIncremental, EnvioDbaTransaccionDiariaBancoPayeeIncremental, EnvioDbaTransaccionDiariaPayeeIncremental, EnvioDbaVcwBillpaymentSalesIncremental, EnvioDbaVcwBillpaymentViaoneSalesIncremental, EnvioDbaVcwMoneyordersSalesIncremental, EnvioDbaVcwSalesProductsIncremental, EnvioDbaVcwStatesPricingIncremental, ViachecksViacheckCheckverificationIncremental, ViachecksViacheckHistoricalonholdreleaseIncremental, ViachecksViacheckViacheckfeaturemetricsIncremental, ViachecksDboCheckreaderScoreIncremental, ViachecksDboBatchtableIncremental, ViachecksDboChecktableIncremental, ViachecksDboReturnchecksIncremental, EnvioDbaSfSafeTransactionsIncremental"
   # The name of the IAM role that the job assumes. It must have access to data, script, temporary directory
   VIAIAMRoleName:
     Type: String
@@ -1103,6 +1103,15 @@ Parameters:
   GlueConnSubNet:
     Type: String
     Default: subnet-060e0a2d52965b904
+
+  Environment:
+    Type: String
+    Default: dev
+
+    # External python function
+  ViaExternalPythonFunctions:
+    Type: String
+    Default: s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/Codes.zip
 #
 #
 # Resources section defines metadata for the Data Catalog
@@ -1118,6 +1127,7 @@ Resources:
           Principal:
             Service: 
               - "lambda.amazonaws.com"
+              - "glue.amazonaws.com"
           Action: 
             - "sts:AssumeRole"
       Policies:
@@ -1129,17 +1139,17 @@ Resources:
               Action:
               - "logs:*"
               Resource:
-              - "arn:aws:logs:us-east-1:283731589572:log-group:sdlf-*"
-              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/lambda/sdlf-*"
-              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/codebuild/sdlf-*"
-              - "arn:aws:logs:us-east-1:793340735293:log-group:/aws-glue/crawlers:log-stream:*"
+              - !Sub "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:sdlf-*"
+              - !Sub "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/lambda/sdlf-*"
+              - !Sub "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/codebuild/sdlf-*"
+              - !Sub "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws-glue/crawlers:log-stream:*"
             - Effect: Allow
               Action:
               - "logs:CreateLogStream"
               - "logs:PutLogEvents"
               Resource:
-              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/lambda/sdlf-*"
-              - "arn:aws:logs:us-east-1:283731589572:log-group:/aws/glue/*"
+              - !Sub "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/lambda/sdlf-*"
+              - !Sub "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/glue/*"
             - Effect: Allow
               Action:
               - "dynamodb:BatchGetItem"
@@ -1151,28 +1161,28 @@ Resources:
               - "dynamodb:PutItem"
               - "dynamodb:Scan"
               - "dynamodb:UpdateItem"
-              Resource: "arn:aws:dynamodb:us-east-1:283731589572:table/octagon-*"
+              Resource: !Sub "arn:aws:dynamodb:us-east-1:${AWS::AccountId}:table/octagon-*"
             - Effect: Allow
               Action:
               - "ssm:GetParameter"
               - "ssm:GetParameters"
-              Resource: "arn:aws:ssm:us-east-1:283731589572:parameter/SDLF/IAM/DataLakeAdminRoleArn"
+              Resource: !Sub "arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/SDLF/IAM/DataLakeAdminRoleArn"
             - Effect: Allow
               Action:
               - "s3:*"
               Resource: 
-              - "arn:aws:s3:::via-sftp-datalake"
-              - "arn:aws:s3:::via-sftp-datalake/*"
-              - "arn:aws:s3:::viamericas-datalake-prod-us-east-1-793340735293-raw"
-              - "arn:aws:s3:::viamericas-datalake-prod-us-east-1-793340735293-raw/*"
+              - !Sub "arn:aws:s3:::viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-sftp"
+              - !Sub "arn:aws:s3:::viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-sftp/*"
+              - !Sub "arn:aws:s3:::viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-raw"
+              - !Sub "arn:aws:s3:::viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-raw/*"
             - Effect: Allow
               Action:
               - "kms:*"
-              Resource: "arn:aws:kms:us-east-1:793340735293:key/e35c1ef9-df30-4eb9-ac0f-b21382c08ea7"
+              Resource: !Sub "arn:aws:kms:us-east-1:${AWS::AccountId}:key/e35c1ef9-df30-4eb9-ac0f-b21382c08ea7"
             - Effect: Allow
               Action:
               - "glue:*"
-              Resource: "arn:aws:glue:us-east-1:793340735293:*"
+              Resource: !Sub "arn:aws:glue:us-east-1:${AWS::AccountId}:*"
   
   FullAccessPolicy:
     Type: AWS::IAM::Role
@@ -1202,17 +1212,11 @@ Resources:
                 - "kms:*"
                 - "states:*"
                 - "cloudwatch:GenerateQuery"
-                - "s3:PutObject"
-                - "s3:GetObjet"
-                - "s3:PutAccountPublicAccessBlock"
-                - "s3:PutBucketPublicAccessBlock"
-                - "s3:PutBucketAcl"
-                - "s3:PutBucketPolicy"
-                - "s3:CreateBucket"
-                - "s3:PutAccessPointPolicy"
-                - "s3:PutObjectAcl"
+                - "s3:*"
                 - "ec2:*"
                 - "secretsmanager:GetSecretValue"
+                - "athena:*"
+                - "lakeformation:*"
               Resource: 
                 - "*"
       Tags:
@@ -1278,7 +1282,7 @@ Resources:
             Fn::FindInMap: ["GlueObjects", !Ref GlueJobItem, "NumberOfWorkers"]
           GlueVersion: "4.0"
           DefaultArguments:
-            "--conf": "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+            "--conf": !Sub "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-athena/gluetmp/"
             "----write-shuffle-files-to-s3": "true"
             "--write-shuffle-spills-to-s3": "true"
             '--enable-metrics': 'true'
@@ -1311,14 +1315,16 @@ Resources:
             PythonVersion: "3"
             ScriptLocation:
               Fn::FindInMap: ["GlueObjectsIncremental", !Ref GlueJobItem, "ScriptLocation"]
-          NumberOfWorkers: 10
+          NumberOfWorkers: 4
           GlueVersion: "4.0"
           DefaultArguments:
-            "--conf": "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-dev-us-east-1-283731589572-athena/gluetmp/"
+            "--conf": !Sub "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-athena/gluetmp/"
             "----write-shuffle-files-to-s3": "true"
             "--write-shuffle-spills-to-s3": "true"
-            "--additional-python-modules": "awswrangler==2.14.0"
             '--enable-metrics': 'true'
+            "--additional-python-modules": "awswrangler==2.14.0"
+            '--enable-glue-datacatalog': 'true'
+            '--extra-py-files': !Ref ViaExternalPythonFunctions
           Tags:
             "map-migrated": "mig42454"
           ExecutionProperty:
@@ -1326,6 +1332,7 @@ Resources:
           Name:
             Fn::FindInMap: ["GlueObjectsIncremental", !Ref GlueJobItem, "JobName"]
           WorkerType: "G.1X"
+          Timeout: 330
 
   # Create crawlers that create the schema in the database
   Fn::ForEach::GlueCrawlers:
@@ -1530,21 +1537,6 @@ Resources:
                             "Next": "SNS Publish",
                           },
                         ],
-                      "Next": "RunCrawler",
-                    },
-                  "RunCrawler":
-                    {
-                      "Parameters":
-                        {
-                          "Name":
-                            !FindInMap [
-                              "GlueObjectsIncremental",
-                              !Ref StateMachineItem,
-                              "CrawlerName",
-                            ],
-                        },
-                      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
-                      "Type": "Task",
                       "End": true,
                     },
                   "SNS Publish":
