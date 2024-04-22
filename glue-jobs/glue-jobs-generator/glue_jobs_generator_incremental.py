@@ -45,17 +45,16 @@ from awsglue.context import GlueContext
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, current_date, date_format
+from pyspark.sql.functions import col, current_date, date_format, lit
 import awswrangler as wr
 from datetime import date
 from botocore.exceptions import ClientError
+from Codes.check_partitions import *
 
 # Contexto
-sc = SparkContext()
-spark = SparkSession(sc)
-glueContext = GlueContext(spark)
-
-today = date.today()
+#sc = SparkContext()
+#spark = SparkSession(sc)
+#glueContext = GlueContext(spark)
 
 spark.conf.set("spark.sql.sources.partitionOverwriteMode","dynamic")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -63,10 +62,30 @@ spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite", "CORRECTED")
 
+client = boto3.client('glue')
+
+def get_partitions(input_schema, input_table ):
+		response = client.get_partitions(DatabaseName= input_schema, TableName= input_table)
+		results = response['Partitions']
+		while "NextToken" in response:
+			response = client.get_partitions(DatabaseName= input_schema, TableName= input_table, NextToken=response["NextToken"])
+			results.extend(response["Partitions"])
+		partitionvalues = [tuple(x['Values']) for x in results]
+		partitionvalues.sort(reverse=True)
+		return partitionvalues
+
+max_date = get_partitions('viamericas','{table}')[0][0]
+print("Max date in partitions is:", max_date)
+
 # Get max date in athena
-df = wr.athena.read_sql_query(sql="select coalesce(cast(max({update_field}) as varchar), cast(date_add('hour', -5, from_unixtime(cast(to_unixtime(current_timestamp) AS bigint))) as varchar)) as max_date from viamericas.{table}", database="viamericas")
+
+df = wr.athena.read_sql_query(sql=f"select coalesce(cast(max({update_field}) as varchar), substring(cast(at_timezone(current_timestamp,'America/Bogota') as varchar(100)),1,23)) as max_date from viamericas.{table} where day = '{{max_date}}' and {update_field} <= cast(substring(cast(at_timezone(current_timestamp,'America/Bogota') as varchar(100)),1,23) as timestamp)", database="viamericas")
+
+
 
 athena_max_date = df['max_date'].tolist()[0]
+athena_max_day = athena_max_date[0:10]
+print("athena_max_date is:", athena_max_date)
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -98,41 +117,58 @@ secret_name = "BUCKET_NAMES"
 region_name = "us-east-1"
 secret_bucket_names = get_secret(secret_name, region_name)
 
-
 jdbc_viamericas = f"jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
-qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} WHERE  [{update_field}] >= '{{today}} 00:00:00') x"
+
+qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} WHERE [{update_field}] >= '{{athena_max_date}}') x"
+
 
 jdbcDF = spark.read.format('jdbc')\\
-        .option('url', jdbc_viamericas)\\
-        .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\\
-        .option('dbtable', qryStr )\\
-        .option("user", secret['username'])\\
-        .option("password", secret['password'])\\
-        .option('partitionColumn', '{update_field}')\\
-        .option("lowerBound", f'{{today}} 00:00:00')\\
-        .option("upperBound", f'{{today}} 23:59:59')\\
-        .option("numPartitions", 10)\\
-        .option("fetchsize", 1000)\\
-        .load()
+    .option('url', jdbc_viamericas)\\
+    .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\\
+    .option('dbtable', qryStr )\\
+    .option('user', secret['username'])\\
+    .option('password', secret['password'])\\
+    .option('partitionColumn', '{update_field}')\\
+    .option('lowerBound', f'{{athena_max_day}} 00:00:00')\\
+    .option('upperBound', f'{{athena_max_day}} 23:59:59')\\
+    .option('numPartitions', 10)\\
+    .option('fetchsize', 1000)\\
+    .load()
+
+
+jdbcDF.createOrReplaceTempView('jdbcDF')
+
+jdbcDF.persist()
 
 number_of_rows = jdbcDF.count()
 
-print(f'number of rows obtained for date higher than {{today}}: {{number_of_rows}}')
-
-# jdbcDF = jdbcDF.withColumn('day', date_format('{update_field}', 'yyyy-MM-dd'))
-
-if number_of_rows > 0: 
-    # Definir la ruta de salida en S3
-    s3_output_path = f"s3://{{secret_bucket_names['BUCKET_RAW']}}/{database}/{schema}/{table}/"
-
-    # Escribir el DataFrame en formato Parquet en S3
-    jdbcDF.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")
-    
-    print(f'Data for the day: {{today}} written succesfully')
+print(f'number of rows obtained for date(s) higher than {{athena_max_date}}: {{number_of_rows}}')
+if number_of_rows > 0:
+    days_count = spark.sql(f'select day, count(*) as count from jdbcDF group by day')
+    days_count.createOrReplaceTempView('days_count')
+    thelist=[]
+    for i in days_count.collect():
+        pretup = (i[0],i[1])
+        thelist.append(pretup)
+    for day, count in thelist:
+        if count > 0:
+            #Conciliar para evitar posibles duplicados en la bajada
+            dfincremental = jdbcDF.filter(col("day") == lit(day))
+            totaldfpre = spark.sql(f" select t2.* from viamericas.{table} t2 where day = '{{day}}'")
+            totaldfpre.unionByName(dfincremental).dropDuplicates()
+  
+            # Definir la ruta de salida en S3
+            
+            s3_output_path = f"s3://{{secret_bucket_names['BUCKET_RAW']}}/{database}/{schema}/{table}/"
+            # Escribir el DataFrame en formato Parquet en S3
+            totaldfpre.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")    
+            print(f'Data for: {{day}} written succesfully')
+            partition_creator_v2('viamericas','{table}', {{'df': None, 'PartitionValues': tuple([str({{day}})])}})
+            abcdefg
 else:
-    print(f'No data for the date: {{today}}')
+    print(f'No data for dates beyond: {{athena_max_date}}')
     """
-
+    
     return glue_script
 
 
@@ -173,13 +209,16 @@ def main():
     frequency = pd.read_csv(update_file)
     # frequency = frequency[frequency['Table'] == 'SF_SAFE_TRANSACTIONS']
     frequency = frequency[(frequency['USE?'] != 'Old/Not Used/Needed') & (frequency['extraction_load_type'] == 'incremental_load')]
+    
+    frequency['Campo de actualización'] = frequency['Campo de actualización'].fillna('')
 
     jobs = []
     incremental_updates = [
         'checkreader_score', 'receiver', 'checktable', 'ml_fraud_score', 'audit_rate_group_agent', 'transaccion_diaria_payee', 'sender', 'fraud_vectors_v2_1', 'transaccion_diaria_banco_payee', 'batchtable', 'history_inventory_market', 'historicalonholdrelease', 'accounting_journal', 'accounting_customerledger',
         'accounting_submittransaction', 'vcw_billpayment_sales', 
         'comision_agent_modo_pago_grupo',
-        'forex_feed_market', 'vcw_moneyorders_sales', 'vcw_billpayment_viaone_sales', 'vcw_sales_products', 'vcw_states_pricing', 'receiver_gp_components', 'checkverification', 'customers_customer', 'viacheckfeaturemetrics', 'rate_group_agent', 'branch', 'returnchecks', 'sf_safe_transactions'
+        'forex_feed_market', 'vcw_moneyorders_sales', 'vcw_billpayment_viaone_sales', 'vcw_sales_products', 'vcw_states_pricing', 'receiver_gp_components', 'checkverification', 'customers_customer', 'viacheckfeaturemetrics', # 'rate_group_agent', 
+        'branch', 'returnchecks', 'sf_safe_transactions'
     ]
     
 
@@ -191,6 +230,7 @@ def main():
     # Getting fields will be works to get incremental data
     update_field = {}
         
+    print(frequency[['Campo de actualización']])
     for index, row in frequency.iterrows():
         table = row['Table'].lower()
         update_field_name = row['Campo de actualización'].strip()
