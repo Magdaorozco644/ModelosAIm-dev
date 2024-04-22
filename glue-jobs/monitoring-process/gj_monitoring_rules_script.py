@@ -164,8 +164,10 @@ class MonitoringRules:
         df_monitoring['RECOMMENDED_ACTIONS'] = df_monitoring.apply(self.actions_recommended, axis=1)
         # Define date
         df_monitoring['last_check_date'] = df_monitoring['last_check_date'].dt.strftime('%Y%m%d')
+        # Date
+        date = df_monitoring['last_check_date'].iloc[0]
         # Define file_name
-        file_name = f"day={df_monitoring['last_check_date'].iloc[0]}/"
+        file_name = f"day={date[:4]}-{date[4:6]}-{date[6:]}/"
         # Save dataframe
         self.save_df(df=df_monitoring, name=file_name)
 
@@ -219,13 +221,11 @@ class MonitoringRules:
         else:
             return False
 
-    # TODO: Change DATES
     ### CONDITION2: THE MAPE OF THE LAST WEEK IS NOT GREATER THAN THE MAXIMUM 7-DAY MOVING AVERAGE HISTORICAL MAXIMUM OF THE TEST PERIOD
     def condition_two(self, df):
         mape_max_period=df[(df['date'] >= '2023-06-22') & (df['date'] <= '2023-12-18')].groupby('folder_name')['mape_7_days_avg'].max()
         return mape_max_period
 
-    # TODO: Change DATES
     ### CONDITION 1: THAT THE 7-DAY MOVING AVERAGE OF THE LAST TWO MONDAYS GROWS:
     def condition_one(self, df):
         #MAPE AVERAGE IN TEST
@@ -289,6 +289,8 @@ class MonitoringRules:
             + "/"
             + name
         )
+        # last_check_date to datetime
+        df["last_check_date"] = pd.to_datetime(df["last_check_date"])
         self.logger.info(f"Save inference in: {path_s3}")
         # Guarda el DataFrame en formato Parquet en S3
         response = wr.s3.to_parquet(df, path=path_s3, dataset=True, index=False,mode="overwrite_partitions",compression="snappy",)
@@ -297,8 +299,9 @@ class MonitoringRules:
     def consolidate_df(self):
         # I call function to read xlsx and consolidate into one DF
         df_top15 = self.read_files(bucket_name=self.args['bucket_name'], prefix=self.args['prefix_name_xlsx'])
-        ##DATE OF ANALYSIS #TODO: Change DATE.
-        df_top15=df_top15.loc[df_top15.date<'2024-02-01']
+        ##DATE OF ANALYSIS
+        date = datetime.today().strftime('%Y-%m-%d')
+        df_top15=df_top15.loc[df_top15.date<date]
         # Cast to date
         df_top15['date'] = pd.to_datetime(df_top15['date'])
         ##WE REPLACE THE NEGATIVE PREDICTED VALUES
@@ -311,7 +314,10 @@ class MonitoringRules:
 
     def read_files(self, bucket_name, prefix):
         dfs = []
+        self.logger.info(f'Bucket: {bucket_name}')
+        self.logger.info(f'Prefix: {prefix}')
         folders_v3 = self.get_all_files(bucket_name=bucket_name,prefix=prefix)
+        self.logger.info(f'Folder: {folders_v3}')
         # Iterar sobre cada carpeta
         for folder_name in folders_v3:
             # Obtener la lista de objetos en la carpeta
@@ -362,7 +368,7 @@ class MonitoringRules:
         for page in paginator.paginate(
             Bucket=bucket_name, Prefix=prefix, Delimiter="/"
         ):
-            files.append([prefix['Prefix'].split('/')[-2] for prefix in page.get('CommonPrefixes', [])])
+            files.extend([prefix['Prefix'].split('/')[-2] for prefix in page.get('CommonPrefixes', [])])
 
         return files
 
@@ -383,6 +389,10 @@ if __name__ == "__main__":
         "bucket_name": "__required__",
         "prefix_name_xlsx": "__required__",
         "prefix_name_save": "__required__",
+        "database_redshift": "__required__",
+        "table_name_redshift": "__required__",
+        "schema": "__required__",
+        "temp_s3_dir" : "__required__",
         "process_date": "None",
     }
     sc = SparkContext()
@@ -397,7 +407,7 @@ if __name__ == "__main__":
     monitoring = MonitoringRules(args=args)
 
     df = monitoring.recommended_actions()
-    # TODO: Implement this to send to Redshift (check if needed).
+    # Send to Redshift
     if df is not None and df.shape[0] != 0:
 
         # Pandas DataFrame to Spark DataFrame
@@ -415,22 +425,23 @@ if __name__ == "__main__":
         # Create stage temp table with schema.
         pre_query = """
         CREATE TABLE if not exists {database}.{schema}.{table_name} (
-            processing_date date ENCODE az64,
-            pred_date date ENCODE az64,
-            pred double precision ENCODE raw,
-            payer_country character varying(100) ENCODE lzo,
-            id_main_branch character varying(100) ENCODE lzo,
-            id_country character varying(100) ENCODE lzo,
-            amount double precision ENCODE raw,
-            abs_error double precision ENCODE raw,
-            MAPE double precision ENCODE raw
+            last_check_date date ENCODE az64,
+            folder_name character varying(100) ENCODE lzo,
+            mape_last_monday double precision ENCODE raw,
+            mape_previous_monday double precision ENCODE raw,
+            mape_previous_previous_monday double precision ENCODE raw,
+            condition1 boolean ENCODE raw,
+            mape_7_days_avg_mobile_max	double precision ENCODE raw,
+            condition2	boolean ENCODE raw,
+            condition3	boolean ENCODE raw,
+            recommended_actions character varying(100) ENCODE lzo
             );
         """
         post_query = """
         begin;
-        delete from {database}.{schema}.{table_name} using public.stage_table_temporary_mape where public.stage_table_temporary_mape.processing_date = {database}.{schema}.{table_name}.processing_date;
-        insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_mape;
-        drop table public.stage_table_temporary_mape;
+        delete from {database}.{schema}.{table_name} using public.stage_table_monitoring_rules_temp where public.stage_table_monitoring_rules_temp.last_check_date = {database}.{schema}.{table_name}.last_check_date;
+        insert into {database}.{schema}.{table_name} select * from public.stage_table_monitoring_rules_temp;
+        drop table public.stage_table_monitoring_rules_temp;
         end;
         """
 
@@ -452,7 +463,7 @@ if __name__ == "__main__":
             catalog_connection=rds_conn,
             connection_options={
                 "database": args["database_redshift"],
-                "dbtable": f"public.stage_table_temporary_mape",
+                "dbtable": f"public.stage_table_monitoring_rules_temp",
                 "preactions": pre_query_2d,
                 "postactions": post_query_2d,
             },
