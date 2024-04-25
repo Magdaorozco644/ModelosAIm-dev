@@ -1,3 +1,71 @@
+#Libraries
+from pyathena import connect
+import pandas as pd
+import datetime as dt
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from datetime import datetime
+from sklearn import preprocessing
+from sklearn.preprocessing import LabelBinarizer 
+
+
+#IMPORT PRECENTILE DATA DIRECTLY FROM DATABASE OR FROM CSV?
+
+def scale_percentils(data, Pmin, Pmax, calculo):
+    """
+    Define scale function
+
+    Parameters:
+    - data: Column to be scale.
+    - calculo: Whether data is scale using min and max value or predefined value
+    - Pmin: Value for inferior limit when calculo=0 or percentil for inferior limit when calculo=1 
+    - Pmax: Value for superior limit when calculo=0 or percentil for superior limit when calculo=1 
+    - calculo = 1 data is scaled using specified percentiles, Pmin & Pmax, as minimun and maximun
+    - calculo = 0 data is scaled using values given by Pmin and Pmax values
+
+    Returns:
+    - dataN: scaled data
+    """
+    m = data.min()
+    M = data.max()
+    if calculo==1:
+        Qmin = Pmin
+        Qmax = Pmax
+        q0 = data.quantile(Qmin)
+        q1 = data.quantile(Qmax)
+    elif calculo==0:
+            q0=Pmin
+            q1=Pmax
+    data_std = (data - q0) / (q1 - q0)
+    dataN =  data_std.to_numpy()
+    #Set limits for outliers
+    dataN = np.clip(dataN,0,1)
+    return dataN
+
+
+def create_dummies(df, todummy_list):
+    """
+    Create dummies from todummy_list list of variables
+
+    Parameters:
+    - df: dataframe with variables
+    - todummy_list: list of variable names that will be converted to dummies
+
+    Returns:
+    - df: dataframe with new created columns
+    - names: names of new columns that were created
+    """
+    df0 = df.copy()
+    for x in todummy_list:
+        dummies = pd.get_dummies(df[x], prefix=x, dummy_na=False)
+        df = df.drop(x, axis = 1)
+        df = pd.concat([df, dummies], axis=1)
+        df = pd.DataFrame(df)
+    return df, df.columns.difference(df0.columns)
+
+#PREPROCESING OF VARIABLES FOR THE MODEL
+
 #Create variables from date_receiver
 df_ABT['mes'] = df_ABT['date_receiver'].dt.month
 df_ABT['hour_receiver'] = df_ABT['date_receiver'].dt.hour
