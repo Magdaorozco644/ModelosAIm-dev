@@ -1,0 +1,267 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: "AWS::LanguageExtensions"
+# Sample YAML to demonstrate creating a job using a ORACLE JDBC DB with the viamericas data to an S3 file
+#
+#
+# Mappings
+# here we define some required data for glue jobs and glue crawlers
+Mappings:
+  GlueObjects:
+    MonitoringRules:
+      JobName: "sdlf_gj_monitoring_rules"
+      #TODO: CHANGE SCRIPT LOCATION
+      ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/monitoring/scripts/gj_monitoring_rules_script.py"
+#
+#
+# Parameters section contains names that are substituted in the Resources section
+# These parameters are the names the resources created in the Data Catalog
+Parameters:
+  #Glue Job
+  VIAGlueObjectMonitoringRules:
+    Type: String
+    Default: "MonitoringRules"
+
+  VIAIAMRoleName:
+    Type: String
+    Default: GlueRolFullAccess
+
+  # Connections
+  VIAConnectionName:
+    Type: String
+    Default: via-redshift-connection
+
+  VIASnsTopicNameRules:
+    Type: String
+    Default: sdlf-monitoring-rules
+  # TODO: Change CONTROL/ALERT EMAIL.
+  VIASnsTopicEndpoint:
+    Type: String
+    Default: lautaro.gramuglia@strata-analytics.us
+  VIASnsTopicEndpoint2:
+    Type: String
+    Default: mauricio.caggia@strata-analytics.us
+  VIASnsTopicProtocol:
+    Type: String
+    Default: EMAIL
+
+  # Event Rule Role
+  ViaEventBridgeRuleRoleName:
+    Type: String
+    Default: role_rule_monitoring_rules_sm
+  # Event Rule Name
+  ViaEventBridgeMonitoringName:
+    Type: String
+    Default: rule_trigger_monitoring_rules
+
+  # State Machine Role Name
+  VIAStateMachineMonitoringRulesRoleName:
+    Type: String
+    Default: sdlf_state_machine_monitoring_rules
+
+  # State Machine name
+  VIAStateMachineMonitoringRule:
+    Type: String
+    Default: sdlf_state_machine_monitoring_rules
+  VIAStateMachineType:
+    Type: String
+    Default: STANDARD
+
+Resources:
+  ##### Glue Jobs #####
+  # Spark etl Monitoring rules
+  VIAGlueMonitoringRule:
+    Type: AWS::Glue::Job
+    Properties:
+      Role: !Ref VIAIAMRoleName
+      # Connection to Redshift
+      Connections:
+        Connections:
+          - !Ref VIAConnectionName
+      #MaxRetries: Number
+      Description: "Job created with CloudFormation using existing script. Monitoring Rules Job."
+      #LogUri: String
+      Command:
+        Name: "glueetl"
+        PythonVersion: "3"
+        ScriptLocation:
+          Fn::FindInMap:
+            ["GlueObjects", !Ref VIAGlueObjectMonitoringRules, "ScriptLocation"]
+      NumberOfWorkers: 3
+      GlueVersion: "4.0"
+      DefaultArguments:
+        "--LOG_LEVEL": "INFO"
+        "--JOB_NAME": "sdlf_gj_monitoring_rules"
+        # TODO: libreria cargada en s3. CHANGE S3 BUCKET.
+        "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/alembic/alembic-1.13.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/colorama/colorama-0.4.6-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/colorlog/colorlog-6.8.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/cython/Cython-3.0.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/greenlet/greenlet-3.0.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/joblib/joblib-1.3.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/mako/Mako-1.3.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/markupsafe/MarkupSafe-2.1.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/optuna/optuna-3.4.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/patsy/patsy-0.5.6-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pmdarima/pmdarima-2.0.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyyaml/PyYAML-6.0.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/scikit-learn/scikit_learn-1.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/scipy/scipy-1.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/setuptools/setuptools-69.2.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/skforecast/skforecast-0.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/sqlalchemy/SQLAlchemy-2.0.29-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/statsmodels/statsmodels-0.14.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/threadpoolctl/threadpoolctl-3.4.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/tqdm/tqdm-4.66.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/tzdata/tzdata-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/openpyxl/openpyxl-3.1.2-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/et-xmlfile/et_xmlfile-1.1.0-py3-none-any.whl"
+        # Enable Use Glue data catalog as the Hive metastore
+        "--enable-glue-datacatalog": true
+        # TODO: CHANGE S3 BUCKET.
+        "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
+        "--database_redshift": "dev"
+        "--prefix_name_save": "monitoring_rules"
+        "--prefix_name_xlsx": "ABTv3_update/top_payers_abt_v3update/"
+        "--process_date": "None"
+        "--schema": "viamericas"
+        "--table_name_redshift": "monitoring_rules_test"
+        "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
+
+      Tags:
+        "map-migrated": "mig42454"
+        "process": "abt"
+      ExecutionProperty:
+        MaxConcurrentRuns: 1
+      Timeout: 30
+      WorkerType: "G.1X"
+      Name:
+        Fn::FindInMap:
+          ["GlueObjects", !Ref VIAGlueObjectMonitoringRules, "JobName"]
+
+  ##### SNS #####
+  # Sns topic
+  VIASnsTopicRules:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref VIASnsTopicEndpoint
+          Protocol: !Ref VIASnsTopicProtocol
+        - Endpoint: !Ref VIASnsTopicEndpoint2
+          Protocol: !Ref VIASnsTopicProtocol
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+        - Key: "process"
+          Value: "inference"
+      DisplayName: "Error - Monitoring Rules SM."
+      TopicName: !Ref VIASnsTopicNameRules
+
+  ##### Event Rule Role #####
+  VIAEventBridgeRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref ViaEventBridgeRuleRoleName
+      Description: "IAM role for event rule"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "states:StartExecution"
+                Resource:
+                  - "*"
+
+  ##### Rol State Machine #####
+  # Role pipeline orchestrator
+  VIAStateMachineAbtRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref VIAStateMachineMonitoringRulesRoleName
+      Description: "IAM role for step functions"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "states.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                  - "states:*"
+                  - "glue:*"
+                  - "sns:*"
+                Resource:
+                  - "*"
+
+  ##### State Machine #####
+  VIAStateMachineMonitoring:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      Definition:
+        {
+          "Comment": "A description of my state machine",
+          "StartAt": "MonitoringRuleGlue",
+          "States":
+            {
+              "MonitoringRuleGlue":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Parameters":
+                    {
+                      "JobName":
+                        !FindInMap [
+                          "GlueObjects",
+                          "MonitoringRules",
+                          "JobName",
+                        ],
+                    },
+                  "Next": "Success",
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.Timeout", "States.TaskFailed"],
+                        "Next": "ErrorAlert",
+                        "ResultPath": "$.Error",
+                      },
+                    ],
+                },
+              "ErrorAlert":
+                {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::sns:publish",
+                  "Parameters":
+                    {
+                      "Message.$": "$.Error",
+                      "TopicArn": !Ref VIASnsTopicRules,
+                    },
+                  "Next": "Fail",
+                },
+              "Fail": { "Type": "Fail" },
+              "Success": { "Type": "Succeed" },
+            },
+        }
+      RoleArn: !GetAtt VIAStateMachineAbtRole.Arn
+      StateMachineName: !Ref VIAStateMachineMonitoringRule
+      StateMachineType: !Ref VIAStateMachineType
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+        - Key: "process"
+          Value: "monitoring_rules"
+      #  - TagsEntry
+      #TracingConfiguration:
+      #  TracingConfiguration
+
+  ##### Event Rule  #####
+
+  VIAEventRuleMonitoringExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeMonitoringName
+      Description: Executes Monitoring Rule SM.
+      # TODO: change cron schedule expression to change time execution. Now run all the thursday at 10 AM.
+      ScheduleExpression: cron(0 10 ? * 5 *)
+      # TODO: enable this
+      State: DISABLED
+      Targets:
+        - Arn: !Ref VIAStateMachineMonitoring
+          Id: VIAStateMachineMonitoring
+          RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn

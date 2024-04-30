@@ -403,6 +403,7 @@ def create_daily_check_gp():
 				""")
 
 				df = df.repartition("day")
+				print("Total rows >>>>>>>>>>>> ", df.count())
 
 
 				df \
@@ -677,6 +678,7 @@ def create_daily_sales_count_cancelled_v2():
 				""")
 
 				df = df.repartition("day")
+				print("Total rows >>>>>>>>>>>> ", df.count())
 
 				df \
 					.write.mode('overwrite') \
