@@ -79,7 +79,7 @@ print("Max date in partitions is:", max_date)
 
 # Get max date in athena
 
-df = wr.athena.read_sql_query(sql=f"select coalesce(cast(max({update_field}) as varchar), substring(cast(at_timezone(current_timestamp,'America/Bogota') as varchar(100)),1,23)) as max_date from viamericas.{table} where day = '{{max_date}}' and {update_field} <= cast(substring(cast(at_timezone(current_timestamp,'America/Bogota') as varchar(100)),1,23) as timestamp)", database="viamericas")
+df = wr.athena.read_sql_query(sql=f"select coalesce(cast(max({update_field}) as varchar), substring(cast(at_timezone(current_timestamp,'US/Eastern') as varchar(100)),1,23)) as max_date from viamericas.{table} where day = '{{max_date}}' and {update_field} <= cast(substring(cast(at_timezone(current_timestamp,'US/Eastern') as varchar(100)),1,23) as timestamp)", database="viamericas")
 
 
 
@@ -119,7 +119,7 @@ secret_bucket_names = get_secret(secret_name, region_name)
 
 jdbc_viamericas = f"jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
 
-qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} WHERE [{update_field}] >= '{{athena_max_date}}') x"
+qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} with(nolock) WHERE [{update_field}] >= '{{athena_max_date}}') x"
 
 
 jdbcDF = spark.read.format('jdbc')\\
@@ -128,10 +128,6 @@ jdbcDF = spark.read.format('jdbc')\\
     .option('dbtable', qryStr )\\
     .option('user', secret['username'])\\
     .option('password', secret['password'])\\
-    .option('partitionColumn', '{update_field}')\\
-    .option('lowerBound', f'{{athena_max_day}} 00:00:00')\\
-    .option('upperBound', f'{{athena_max_day}} 23:59:59')\\
-    .option('numPartitions', 10)\\
     .option('fetchsize', 1000)\\
     .load()
 
@@ -163,8 +159,7 @@ if number_of_rows > 0:
             # Escribir el DataFrame en formato Parquet en S3
             totaldfpre.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")    
             print(f'Data for: {{day}} written succesfully')
-            partition_creator_v2('viamericas','{table}', {{'df': None, 'PartitionValues': tuple([str({{day}})])}})
-            abcdefg
+            partition_creator_v2('viamericas','{table}', {{'df': None, 'PartitionValues': tuple([str(day)])}})
 else:
     print(f'No data for dates beyond: {{athena_max_date}}')
     """
