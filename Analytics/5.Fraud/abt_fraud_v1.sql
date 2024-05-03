@@ -8,26 +8,26 @@ create table analytics.source_fraud_m18 as (
         trim(trans.id_location) as id_location,
         id_payer,
         try(cast(trim(trans.id_sender_global) as integer)) as id_sender_global,
-        net_amount_receiver,
+        try(cast(net_amount_receiver as double)) as net_amount_receiver,
         id_payout,
         status,
         was_fraud,
-        cast(receiver_transaction_count as integer) as receiver_transaction_count,
+        try(cast(receiver_transaction_count as integer)) as receiver_transaction_count,
         receiver_date_first_transaction,
         receiver_date_last_transaction,
         id_country_receiver_claim,
         id_state_receiver_claim,
         id_state,
-        branch_working_days,
-        sender_sending_days,
-        sender_days_to_last_transaction,
+        try(cast(branch_working_days as integer)) as branch_working_days,
+        try(cast(sender_sending_days as integer)) as sender_sending_days,
+        try(cast(sender_days_to_last_transaction as integer)) as sender_days_to_last_transaction,
         id_country,
         fraud_classification,
-        sender_minutes_since_last_transaction,
-        branch_minutes_since_last_transaction,
-        sender_days_since_last_transaction
+        try(cast(sender_minutes_since_last_transaction as integer)) as sender_minutes_since_last_transaction,
+        try(cast(branch_minutes_since_last_transaction as integer)) as branch_minutes_since_last_transaction,
+        try(cast(sender_days_since_last_transaction as integer)) as sender_days_since_last_transaction
     FROM
-        viamericas.source_fraud trans
+        viamericas.source_fraud_v2 trans
     where try(cast(trans.DATE_RECEIVER as timestamp)) >= cast('2023-01-01' as timestamp)--date_add( 'month', -18, current_date)
 );
 

@@ -86,7 +86,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, current_date, date_format
 from datetime import datetime, date
-from awsglue.utils import getResolvedOptions
+from awsglue.utils import getResolvedOptionss
 
 # Contexto
 sc = SparkContext()
@@ -216,6 +216,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, current_date
+from botocore.exceptions import ClientError
 
 # Contexto
 sc = SparkContext()
@@ -299,7 +300,7 @@ def main():
     # df = df[df['Table'] == 'SF_SAFE_TRANSACTIONS'] 
 
     df['Column'] = df.apply(
-        lambda row: f"trim([{row['Column']}]) as {row['Column']}"
+        lambda row: f"rtrim([{row['Column']}]) as {row['Column']}"
         if
         row['Data_Type'] == 'nchar'
         or row['Data_Type'] == 'nvarchar'

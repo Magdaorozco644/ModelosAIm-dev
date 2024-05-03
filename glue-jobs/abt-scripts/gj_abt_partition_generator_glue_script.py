@@ -8,7 +8,7 @@
 
 import awswrangler as wr
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import sys
 import holidays
@@ -150,27 +150,31 @@ class ABT:
         self.args = args
         self.logger = LoggerInit(args["LOG_LEVEL"]).logger
         self.logger.info("Init ABT Generation")
-        self.partition_dt = self.check_date()
+        self.partition_dt = self.check_date(key='process_date')
+        self.args['end_date'] = self.check_date(key='end_date')
         self.logger.info(f"Process date: {self.partition_dt}")
 
-    def check_date(self):
+    def check_date(self, key):
         """Validate input process date.
 
         Raises:
             InputVaribleRequired: process date must be None or in format YYYY-MM-DD
         """
-        if self.args["process_date"].upper() == "NONE":
-            partition_dt = datetime.now().strftime("%Y-%m-%d")
+        if self.args[key].upper() == "NONE":
+            if key == 'process_date':
+                date = datetime.now().strftime("%Y-%m-%d")
+            elif key == 'end_date':
+                date = (datetime.now() - timedelta(days=DATE_LAG)).strftime("%Y-%m-%d")
         else:
             try:
-                partition_dt = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
+                date = datetime.strptime(self.args[key], "%Y-%m-%d")
             except ValueError:
                 self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
-                    f"The variable 'process_date' must be in the format YYYY-MM-DD or 'None', please correct it."
+                    f"The variable '{key}' must be in the format YYYY-MM-DD or 'None', please correct it."
                 )
 
-        return partition_dt
+        return date
 
     def create_partition(self):
         # Create daily check dataframe
@@ -856,14 +860,14 @@ class ABT:
         self.logger.info(df.info())
         self.logger.info(df.columns)
         #TODO: descomentar
-        #wr.s3.to_parquet(
-        #    df=df,
-        #    path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
-        #    dataset=True,
-        #    index=False,
-        #    mode="overwrite_partitions",
-        #    compression="snappy",
-        #)
+        wr.s3.to_parquet(
+            df=df,
+            path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
+            dataset=True,
+            index=False,
+            mode="overwrite_partitions",
+            compression="snappy",
+        )
 
         return df
 
@@ -918,16 +922,11 @@ if __name__ == "__main__":
     rds_conn = "via-redshift-connection"
     # Create stage temp table with schema.
     pre_query = """
+    begin;
+    DROP TABLE if exists {database}.{schema}.{table_name};
     CREATE TABLE if not exists {database}.{schema}.{table_name}  (LIKE public.stage_table_temporary_abt);
+    end;
     """
-    # TODO:    CHEQUEAR EL DELETE, SI AGREGAMOS UNA FECHA DE PROCESO O QUE, POR SI SE CORRE 2 VECES, QUE NO SE DUPLIQUEN.
-    # post_query = """
-    # begin;
-    # delete from {database}.{schema}.{table_name} using public.stage_table_temporary_abt where public.stage_table_temporary_abt.processing_date = {database}.{schema}.{table_name}.processing_date;
-    # insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_abt;
-    # drop table public.stage_table_temporary_abt;
-    # end;
-    # """
     post_query = """
     begin;
     insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_abt;
