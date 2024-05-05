@@ -6,6 +6,7 @@ from awsglue.context import GlueContext
 from awsglue.job import Job
 import awswrangler as wr
 import os
+from datetime import datetime
 ## @params: [JOB_NAME]
 args = getResolvedOptions(sys.argv, ['JOB_NAME'])
 
@@ -35,9 +36,11 @@ def create_last_daily_forex():
 			print(f"Target table '{target_table}' exist, non calculated partitions will be created")
 			current_target_partitions = list(wr.catalog.get_partitions(database=target_db, table=target_table).values())
 			list_current_target_partitions = [f[0] for f in current_target_partitions]
+			list_current_target_partitions = [fecha for fecha in list_current_target_partitions if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and datetime.strptime(fecha, '%Y-%m-%d')]
 			list_current_target_partitions.sort(reverse=True)
 			current_input_partitions = list(wr.catalog.get_partitions(database=input_db, table=input_table).values())
 			list_current_input_partitions = [f[0] for f in current_input_partitions]
+			list_current_input_partitions = [fecha for fecha in list_current_input_partitions if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and datetime.strptime(fecha, '%Y-%m-%d')]
 			list_current_input_partitions.sort(reverse=True)
 			#list_current_input_partitions = spark.sql(f""" select distinct day from {input_db}.{input_table} """).rdd.map(lambda x: x[0]).collect()
 			#list_current_input_partitions.sort(reverse=True)
@@ -328,10 +331,12 @@ def create_daily_check_gp():
 			print(f"Target table '{target_table}' exist, non calculated partitions will be created")
 			current_target_partitions = list(wr.catalog.get_partitions(database=target_db, table=target_table).values())
 			list_current_target_partitions = [f[0] for f in current_target_partitions]
+			list_current_target_partitions = [fecha for fecha in list_current_target_partitions if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and datetime.strptime(fecha, '%Y-%m-%d')]
 			list_current_target_partitions = list(filter(lambda x: int(x.replace("-","")) > 20201231, list_current_target_partitions))
 			list_current_target_partitions.sort(reverse=True)
 			current_input_partitions = list(wr.catalog.get_partitions(database=input_db, table=input_table).values())
 			list_current_input_partitions = [f[0] for f in current_input_partitions]
+			list_current_input_partitions = [fecha for fecha in list_current_input_partitions if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and datetime.strptime(fecha, '%Y-%m-%d')]
 			list_current_input_partitions = list(filter(lambda x: int(x.replace("-","")) > 20201231, list_current_input_partitions))
 			list_current_input_partitions.sort(reverse=True)
 			#list_current_input_partitions = spark.sql(f""" select distinct day from {input_db}.{input_table} """).rdd.map(lambda x: x[0]).collect()
@@ -633,10 +638,12 @@ def create_daily_sales_count_cancelled_v2():
 			print(f"Target table '{target_table}' exist, non calculated partitions will be created")
 			current_target_partitions = list(wr.catalog.get_partitions(database=target_db, table=target_table).values())
 			list_current_target_partitions = [f[0] for f in current_target_partitions]
+			list_current_target_partitions = [fecha for fecha in list_current_target_partitions if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and datetime.strptime(fecha, '%Y-%m-%d')]
 			list_current_target_partitions = list(filter(lambda x: int(x.replace("-","")) > 20201231, list_current_target_partitions))
 			list_current_target_partitions.sort(reverse=True)
 			current_input_partitions = list(wr.catalog.get_partitions(database=input_db, table=input_table).values())
 			list_current_input_partitions = [f[0] for f in current_input_partitions]
+			list_current_input_partitions = [fecha for fecha in list_current_input_partitions if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and datetime.strptime(fecha, '%Y-%m-%d')]
 			list_current_input_partitions = list(filter(lambda x: int(x.replace("-","")) > 20201231, list_current_input_partitions))
 			list_current_input_partitions.sort(reverse=True)
 			#list_current_input_partitions = spark.sql(f""" select distinct day from {input_db}.{input_table} """).rdd.map(lambda x: x[0]).collect()
