@@ -97,12 +97,12 @@ Resources:
         "--enable-glue-datacatalog": true
         # TODO: CHANGE S3 BUCKET.
         "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
-        "--database_redshift": "dev"
+        "--database_redshift": "viamericas"
         "--prefix_name_save": "monitoring_rules"
         "--prefix_name_xlsx": "ABTv3_update/top_payers_abt_v3update/"
         "--process_date": "None"
-        "--schema": "viamericas"
-        "--table_name_redshift": "monitoring_rules_test"
+        "--schema": "forecast"
+        "--table_name_redshift": "rules_monitoring"
         "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
 
       Tags:
@@ -259,7 +259,6 @@ Resources:
       Description: Executes Monitoring Rule SM.
       # TODO: change cron schedule expression to change time execution. Now run all the thursday at 10 AM.
       ScheduleExpression: cron(0 10 ? * 5 *)
-      # TODO: enable this
       State: DISABLED
       Targets:
         - Arn: !Ref VIAStateMachineMonitoring
