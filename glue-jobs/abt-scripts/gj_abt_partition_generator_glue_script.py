@@ -34,12 +34,23 @@ MARGIN_LAGS = 10
 
 # Date ARGS
 DATE_LAG = 1
+MAX_DAYS_PREDICT = 8
 WINDOW = 30
-HOLIDAYS_TO_EXCLUDE = ["07-04", "12-25", "01-01"]  # Formato mes-día
+HOLIDAYS_TO_EXCLUDE = [
+    "is_fourth_of_july",
+    "christmas_day",
+    "new_year_day",
+    "thanksgiving_day",
+]
 
 
 # check input variables
 class InputVaribleRequired(Exception):
+    pass
+
+
+# empty universe
+class EmptyUniverse(Exception):
     pass
 
 
@@ -150,9 +161,12 @@ class ABT:
         self.args = args
         self.logger = LoggerInit(args["LOG_LEVEL"]).logger
         self.logger.info("Init ABT Generation")
-        self.partition_dt = self.check_date(key='process_date')
-        self.args['end_date'] = self.check_date(key='end_date')
+        self.partition_dt = self.check_date(key="process_date")
+        self.args["end_date"] = self.check_date(key="end_date")
         self.logger.info(f"Process date: {self.partition_dt}")
+        self.logger.info(
+            f"Window time: {self.args['start_date']} - {self.args['end_date']}"
+        )
 
     def check_date(self, key):
         """Validate input process date.
@@ -161,13 +175,20 @@ class ABT:
             InputVaribleRequired: process date must be None or in format YYYY-MM-DD
         """
         if self.args[key].upper() == "NONE":
-            if key == 'process_date':
+            if key == "process_date":
                 date = datetime.now().strftime("%Y-%m-%d")
-            elif key == 'end_date':
-                date = (datetime.now() - timedelta(days=DATE_LAG)).strftime("%Y-%m-%d")
+            elif key == "end_date":
+                date = (
+                    datetime.now()
+                    - timedelta(days=DATE_LAG)
+                    + timedelta(days=MAX_DAYS_PREDICT)
+                ).strftime("%Y-%m-%d")
         else:
             try:
+                # CHeck format
                 date = datetime.strptime(self.args[key], "%Y-%m-%d")
+                # return as string
+                date = date.strftime("%Y-%m-%d")
             except ValueError:
                 self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
@@ -180,13 +201,20 @@ class ABT:
         # Create daily check dataframe
         self.logger.info("Create daily check")
         df = self.create_daily_check()
+        self.logger.info(f"Daily check shape: {df.shape}")
         # Read last daily forex
         self.logger.info("Create last daily forex")
         rates = self.create_last_daily_forex()
-
+        self.logger.info(f"Rates shape: {rates.shape}")
         # Filtering 'payer_country' based on Aging notebook
         self.logger.info("Filtering aging")
         df_aging = self.aging_filter(df)
+        self.logger.info(f"DFF AGING shape: {df_aging.shape}")
+        if df_aging.shape[0] == 0:
+            self.logger.info("WARNING!!! EMPTY UNIVERSE!.")
+            raise EmptyUniverse(
+                "Warning! After apply aging_filter, the universe is empty."
+            )
         # Applying aging filters
         df_filtered = df[df["payer_country"].isin(df_aging["payer_country"])]
         df_filtered["day"] = pd.to_datetime(df_filtered["day"])
@@ -200,10 +228,12 @@ class ABT:
         self.logger.info(rates.columns)
         self.logger.info("Other dict \n")
         self.logger.info(df_filtered.columns)
+        self.logger.info(f"Df Filtered shape: {df_filtered.shape}")
 
         # First df: rates df with universe filtered.
-        self.logger.info("Mege")
+        self.logger.info("Merge")
         df1 = pd.merge(df_filtered, rates, on=["day", "country"], how="left")
+        self.logger.info(f"Df merge1 shape: {df1.shape}")
         df1["date"] = pd.to_datetime(df1["date"])
         # Coupon ratio
         df1["ratio_coupon_tx"] = df1.coupon_count / df1.tx
@@ -219,9 +249,12 @@ class ABT:
         self.logger.info("Generate margin lags")
         df1 = self.generate_margin_lags(df1, MARGIN_LAGS)
 
+        self.logger.info(f"Df with lags shape: {df1.shape}")
+
         # Second df
         self.logger.info("Create canceled transactions")
         df2 = self.create_canceled_transactions()
+        self.logger.info(f"Df canceled transactions shape: {df2.shape}")
 
         # Merge df1 with df2
         self.logger.info("Final merge")
@@ -232,6 +265,7 @@ class ABT:
             how="inner",
         )
         df_final["date"] = pd.to_datetime(df_final["date"])
+        self.logger.info(f"Df final shape: {df_final.shape}")
 
         # Applying holiday function
         df_final = self.mark_us_holidays(df_final)
@@ -248,13 +282,24 @@ class ABT:
         df_final = self.mark_special_day(df_final, 1, 1, "new_year_day")
         # Post Holidays
         df_final = self.mark_post_holiday(df_final)
+        # Thanksgiving day
+        df_final = self.mark_thanksgiving_day(df_final)
+
+        # Mark Day of the Dead MEXICO
+        # Create a boolean mask to filter by country and date
+        mask = (
+            (df_final["country"] == "MEXICO")
+            & (df_final["date"].dt.month == 11)
+            & (df_final["date"].dt.day == 2)
+        )
+        # Mark the Day of the Dead according to the mask
+        df_final["day_of_the_dead"] = 0  # Initialize with 0
+        df_final.loc[mask, "day_of_the_dead"] = 1  # Mark as 1 where the mask is True
 
         # Aplicar la función
         df_final = self.correcting_holidays(df_final, HOLIDAYS_TO_EXCLUDE)
 
-        self.logger.info(
-            f"Holydays: {df_final[df_final['is_holiday'] == 1]['date'].unique()}"
-        )
+        self.logger.info(f"Df final shape: {df_final.shape}")
 
         return df_final
 
@@ -288,7 +333,7 @@ class ABT:
         )
         return df_filled
 
-    def fill_missing_dates_daily_check(self, df, start_date, end_date):
+    def fill_missing_dates_daily_check_old_version(self, df, start_date, end_date):
         """
         Fill missing dates in the DataFrame with zero values and ensure all date ranges are covered.
 
@@ -368,8 +413,77 @@ class ABT:
                 "id_country_y",
                 "id_main_branch_x",
                 "id_main_branch_y",
-            ]
+            ],
+            errors="ignore",
         )
+        return df_filled
+
+    def fill_missing_dates_daily_check(self, df, start_date, end_date):
+        """
+        Fill missing dates in the DataFrame with zero values and ensure all date ranges are covered.
+
+        Args:
+            df (pandas.DataFrame): Input DataFrame with columns 'date', 'amount', 'tx_cancelled', 'payer_country', etc.
+            start_date (str or datetime.date): Start date of the desired date range.
+            end_date (str or datetime.date): End date of the desired date range.
+
+        Returns:
+            pandas.DataFrame: DataFrame with missing dates filled and all date ranges covered.
+        """
+        # Convertir la columna 'date' a tipo datetime si aún no lo está
+        df["date"] = pd.to_datetime(df["date"])
+
+        # Definir el rango de fechas deseado
+        date_range = pd.date_range(start=start_date, end=end_date)
+
+        # Obtener el rango de fechas mínimo y máximo para cada 'payer_country'
+        payer_country_ranges = (
+            df.groupby("payer_country")["date"].agg(["min", "max"]).reset_index()
+        )
+        payer_country_ranges["min"] = payer_country_ranges["min"].fillna(
+            pd.to_datetime(start_date)
+        )
+        payer_country_ranges["max"] = payer_country_ranges["max"].fillna(
+            pd.to_datetime(end_date)
+        )
+
+        # Combinar el DataFrame original con el DataFrame de todas las combinaciones de fechas
+        df_filled = pd.DataFrame()
+        for index, row in payer_country_ranges.iterrows():
+            payer_country = row["payer_country"]
+            start_payer = row["min"]
+            ##APLICAR CAMBIO AL PIPELINE!!
+            # end_payer = row['max']
+            end_payer = end_date
+
+            # Filtrar el DataFrame original por 'payer_country'
+            df_payer = df[df["payer_country"] == payer_country]
+
+            # Rellenar valores faltantes en el rango de fechas del 'payer_country'
+            date_range_payer = pd.date_range(start=start_payer, end=end_payer)
+            date_combinations = pd.DataFrame(
+                {"date": date_range_payer, "payer_country": payer_country}
+            )
+            df_combined = pd.merge(
+                date_combinations, df_payer, on=["date", "payer_country"], how="left"
+            )
+
+            # Rellenar valores faltantes con cero
+            numeric_columns = ["amount", "coupon_count", "tx", "gp", "margin"]
+            df_combined[numeric_columns] = df_combined[numeric_columns].fillna(0)
+
+            # Rellenar valores faltantes en las columnas 'payer' y 'country' utilizando el método ffill
+            df_combined[["payer", "country"]] = df_combined[
+                ["payer", "country"]
+            ].ffill()
+
+            # Agrego una columna extra que mantenga el ultimo dia en que opero ese payer
+            # APLICAR CAMBIO AL PIPELINE!!
+            df_combined["max_day"] = df_combined.day.max()
+            # Rellenar valores faltantes en la columna 'day' con los valores de la columna 'date' cuando sea NaN
+            df_combined["day"] = df_combined["day"].fillna(df_combined["date"])
+            df_filled = pd.concat([df_filled, df_combined], ignore_index=True)
+
         return df_filled
 
     def create_last_daily_forex(self):
@@ -379,7 +493,8 @@ class ABT:
         df_rates = wr.athena.read_sql_table(table=forex_table, database=database_name)
         # FOREX - Selecting columns & renaming
         df_rates["day"] = pd.to_datetime(df_rates["day"])
-        df_rates = df_rates[["day", "country", "max_feed_price", "id_country"]]
+        # df_rates = df_rates[["day", "country", "max_feed_price", "id_country"]]
+        df_rates = df_rates[["day", "country", "max_feed_price"]]
         return df_rates.sort_values(["country", "day"])
 
     def aging_filter(self, df):
@@ -403,7 +518,9 @@ class ABT:
             df.groupby("payer_country")
             .agg(
                 first_date=("day", "min"),
-                last_date=("day", "max"),
+                ## APLICAR CAMBIO AL PIPELINE!!
+                last_date=("max_day", "max"),
+                # last_date=('day', 'max'),
                 total_amount=("amount", "sum"),
                 total_transactions=("tx", "sum"),
             )
@@ -626,7 +743,6 @@ class ABT:
             # Calculate the difference between consecutive lag columns
             df[col_name] = df[f"tx_cancelled_lag_{i}"] - df[f"tx_cancelled_lag_{i + 1}"]
 
-        # df = df.fillna(0)
         return df
 
     def mark_us_holidays(self, df):
@@ -763,6 +879,70 @@ class ABT:
 
         return df
 
+    def thanksgiving_date(self, year):
+        """
+        Calcula la fecha de Acción de Gracias para un año dado.
+
+        Args:
+        year (int): El año para el que se quiere calcular la fecha de Acción de Gracias.
+
+        Returns:
+        datetime: La fecha de Acción de Gracias para el año dado.
+        """
+        # Se sabe que Acción de Gracias es el cuarto jueves de noviembre
+        # Se determina el día del primer jueves de noviembre
+        first_of_november = datetime(year, 11, 1)
+        while first_of_november.weekday() != 3:  # 3 representa el jueves
+            first_of_november += timedelta(days=1)
+
+        # Luego se suma 3 semanas (21 días) para obtener el cuarto jueves
+        thanksgiving = first_of_november + timedelta(weeks=3)
+        return thanksgiving
+
+    def mark_thanksgiving_day(self, df):
+        """
+        Marca el Día de Acción de Gracias en el DataFrame.
+
+        Esta función identifica el Día de Acción de Gracias en noviembre para cada año presente en el DataFrame
+        y lo marca en el DataFrame.
+
+        Args:
+        df (DataFrame): El DataFrame que contiene la columna de fecha.
+
+        Returns:
+        DataFrame: El DataFrame con el Día de Acción de Gracias marcado.
+
+        Raises:
+        ValueError: Si el DataFrame no contiene una columna 'date'.
+        """
+        # Verificar si la columna 'date' existe en el DataFrame
+        if "date" not in df.columns:
+            raise ValueError("El DataFrame debe contener una columna 'date'.")
+
+        # Crear una nueva columna para marcar el Día de Acción de Gracias
+        df["thanksgiving_day"] = 0
+
+        # Iterar sobre cada año presente en el DataFrame
+        for year in df["date"].dt.year.unique():
+            # Calcular la fecha de Acción de Gracias para el año actual
+            thanksgiving = self.thanksgiving_date(year)
+            # Marcar filas correspondientes a Acción de Gracias para el año actual
+            df.loc[
+                (df["date"].dt.year == year)
+                & (df["date"].dt.month == 11)
+                & (df["date"].dt.day == thanksgiving.day),
+                "thanksgiving_day",
+            ] = 1
+            # Marcar 'is_holiday' como 0 cuando se marca 1 en 'thanksgiving_day'
+            df.loc[
+                (df["date"].dt.year == year)
+                & (df["date"].dt.month == 11)
+                & (df["date"].dt.day == thanksgiving.day),
+                "is_holiday",
+            ] = 0
+
+        return df
+
     def mark_post_holiday(self, df):
         """
         Mark days after holidays. Usually post holiday days tend to rise sales
@@ -787,36 +967,42 @@ class ABT:
 
         return df
 
-    def correcting_holidays(self, df, holidays_to_exclude):
+    def correcting_holidays(self, df_final, holidays_to_exclude):
         """
-        Marca como no festivos los días especificados en la lista de fechas.
+        Corrects the holiday markings in the DataFrame and adjusts the 'is_holiday' column based on exceptions.
 
         Args:
-            df (DataFrame): DataFrame que contiene una columna 'is_holiday' indicando los días festivos.
-            holidays_to_exclude (list): Lista de fechas en formato mes-año que se deben marcar como no festivas.
+            df_final (DataFrame): DataFrame containing a 'date' column in datetime format and the 'is_holiday' column.
+            separate_flags (list): List of column names where an exception should be considered.
 
         Returns:
-            DataFrame: DataFrame modificado con los días marcados como no festivos en la columna 'is_holiday'.
+            DataFrame: DataFrame with 'is_holiday' adjusted according to exceptions.
         """
-        # Convertir las fechas a formato mes-día (mm-dd) para comparación
-        df["month_day"] = df["date"].dt.strftime("%m-%d")
+        # Check if the 'date' column exists in the DataFrame
+        if "date" not in df_final.columns:
+            raise ValueError("The DataFrame must contain a 'date' column.")
 
-        # Marcar como no festivo (0) los días que están en la lista de fechas a excluir
-        df.loc[df["month_day"].isin(holidays_to_exclude), "is_holiday"] = 0
+        # Iterate over the holiday columns where exceptions should be considered
+        for flag in holidays_to_exclude:
+            if flag not in df_final.columns:
+                raise ValueError(
+                    f"The column '{flag}' does not exist in the DataFrame."
+                )
 
-        # Eliminar la columna 'month_day' temporal
-        df.drop(columns=["month_day"], inplace=True)
+            # If the holiday column has a value of 1, mark 'is_holiday' as 0 for the same row
+            df_final.loc[df_final[flag] == 1, "is_holiday"] = 0
 
-        return df
+        return df_final
 
     # Fill missing values with zeros in numeric columns
     # Completa los valores faltantes con ceros de las columnas numericas
-    def fill_missing_with_zeros(self, df):
+    def fill_missing_with_zeros(self, df, to_exclude):
         # Obtén una lista de las columnas numéricas
         numeric_columns = df.select_dtypes(include="number").columns
-
+        # Filter
+        numeric_columns_filtered = list(set(numeric_columns) - set(to_exclude))
         # Completa los valores faltantes con ceros
-        df[numeric_columns] = df[numeric_columns].fillna(0)
+        df[numeric_columns_filtered] = df[numeric_columns_filtered].fillna(value=0)
 
         return df
 
@@ -836,30 +1022,29 @@ class ABT:
             "payer_country",
             "payer",
             "country",
+            "id_main_branch",
+            "id_country",
             "day_y",
             "day_x",
-            "id_country",
             "id_country_y",
             "id_country_x",
-            "id_main_branch",
         ]
         ## Fill nan numeric values with 0
-        df = self.fill_missing_with_zeros(df)
+        df = self.fill_missing_with_zeros(df, exclude_convert)
         ## Convert to numeric
         df = self.convert_to_numeric(df, exclude_convert)
         # Filling NaN in exogenous and lags
         # df = df.fillna(0, inplace=True)
 
-        df = df.drop(
-            columns=[
-                "id_country_y"
-                ]
-        )
+        df = df.drop(columns=["id_country_y"], errors="ignore")
         ## Fill nan numeric values with 0
-        df = self.fill_missing_with_zeros(df)
+        df = self.fill_missing_with_zeros(df, exclude_convert)
+        for str_col in ['payer_country','payer','country','id_main_branch','id_country']:
+            df[str_col] = df[str_col].fillna(value='')
+        self.logger.info("fil missing to numeric")
+        self.logger.info(df[df["max_feed_price"] != 0.0]["country"].unique())
         self.logger.info(df.info())
         self.logger.info(df.columns)
-        #TODO: descomentar
         wr.s3.to_parquet(
             df=df,
             path=f"s3://{self.args['bucket_name']}/abt_parquet/dt={self.partition_dt}",
@@ -912,7 +1097,9 @@ if __name__ == "__main__":
     # Create SparkDataframe
     df_final = spark.createDataFrame(df)
     # Detect numeric columns
-    numeric_cols = [c[0] for c in df_final.dtypes if c[1] in ['bigint','double','float']]
+    numeric_cols = [
+        c[0] for c in df_final.dtypes if c[1] in ["bigint", "double", "float"]
+    ]
     # Fill numeric values in spark dataframe
     df_filled = df_final.fillna(0, subset=numeric_cols)
 
