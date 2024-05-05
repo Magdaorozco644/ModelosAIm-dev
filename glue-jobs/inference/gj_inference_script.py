@@ -9,6 +9,7 @@
 import awswrangler as wr
 import warnings
 import pandas as pd
+import traceback
 
 # Spark uses .items
 pd.DataFrame.iteritems = pd.DataFrame.items
@@ -153,6 +154,7 @@ class Inference:
         else:
             try:
                 partition_dt = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
+                partition_dt = partition_dt.strftime("%Y-%m-%d")
             except ValueError:
                 self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
@@ -334,6 +336,9 @@ class Inference:
             except:
                 # If an exception occurs, set predictions to zero
                 self.logger.info(f"Error processing {payer_country}")
+                self.logger.info(traceback.format_exc())
+                self.logger.info("End log error.")
+
                 predictions = [0] * days
                 date_range = pd.date_range(start=test_date, periods=days)
                 df_temp = pd.DataFrame(
