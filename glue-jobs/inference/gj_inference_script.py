@@ -10,6 +10,7 @@ import awswrangler as wr
 import warnings
 import pandas as pd
 import traceback
+import numpy as np
 
 # Spark uses .items
 pd.DataFrame.iteritems = pd.DataFrame.items
@@ -165,6 +166,18 @@ class Inference:
     def process_payer(self):
         # Abt partition
         data = self.load_abt_df()
+        # Marcar con 1 en 'day_of_the_dead' cuando 'date' sea 2 de noviembre
+        data["date"] = pd.to_datetime(data["date"])
+        data.loc[
+            data["date"].dt.month.eq(11) & data["date"].dt.day.eq(2), "day_of_the_dead"
+        ] = 1
+        for c in data.columns:
+            # Convert Object Int64 to primitive type int64
+            if pd.api.types.is_integer_dtype(data[c]):
+                # convert
+                data[c] = data[c].astype('int64')
+            elif pd.api.types.is_float_dtype(data[c]):
+                data[c] = data[c].astype('float64')
         self.logger.info("Data loaded.")
         # Failed Predicts
         failed_payers = []
@@ -176,11 +189,6 @@ class Inference:
         failed_payers.extend(failed_list)
         # Process 8d
         self.logger.info("Processing 8d model.")
-        # Marcar con 1 en 'day_of_the_dead' cuando 'date' sea 2 de noviembre
-        data["date"] = pd.to_datetime(data["date"])
-        data.loc[
-            data["date"].dt.month.eq(11) & data["date"].dt.day.eq(2), "day_of_the_dead"
-        ] = 1
         df_8d, failed_list = self.process_model_ndays(
             days=8, prefix=self.args["model_8d_prefix"], data=data
         )
@@ -280,7 +288,9 @@ class Inference:
         # Iterate over pkl files
         for file_key in pkl_files:
             # Extract payer_country from file_key
-            payer_country = file_key.split("/")[2]
+            payer_country = file_key.split("/")[3]
+            if payer_country == 'top_15_payers_abt':
+                payer_country = file_key.split("/")[4]
             self.logger.info(
                 f"Payer country: {payer_country}, Bucket Name: {self.args['bucket_name']}, Prefix: {file_key}"
             )
@@ -306,7 +316,7 @@ class Inference:
             test_date = pd.Timestamp(
                 self.process_date
             )  # The first test day would be the day to predict
-
+            #test_date = forecaster.last_window.index[-1] + pd.Timedelta(days=41)
             # Extract data for last window and test period. LastDayModel_Today()-1
             data_last_window = datos.loc[
                 last_window_date : test_date - pd.Timedelta(days=1)
@@ -315,7 +325,7 @@ class Inference:
                 forecaster.exog_col_names
             ].fillna(0)
             data_test = datos.loc[
-                test_date : test_date + pd.Timedelta(days=days - 1)
+                test_date : test_date + pd.Timedelta(days=days)
             ].copy()
             data_test[forecaster.exog_col_names] = data_test[
                 forecaster.exog_col_names
@@ -325,7 +335,7 @@ class Inference:
                     warnings.filterwarnings("ignore")
                 # Make predictions
                 predictions = forecaster.predict(
-                    steps=days - 1,
+                    steps=days, # Days to predict
                     exog=data_test[forecaster.exog_col_names],
                     last_window=data_last_window["amount"],
                     last_window_exog=data_last_window[forecaster.exog_col_names],
