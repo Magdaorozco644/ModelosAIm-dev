@@ -306,7 +306,7 @@ class Mape:
                 df_merged.to_excel(excel_buffer, index=False)
                 excel_buffer.seek(0)
                 # Name S3
-                file_name = f'{self.args['top_payers_abt_key']}{file_name}_archivo_final.xlsx'
+                file_name = object['Key']
                 self.s3_client.upload_fileobj(excel_buffer, self.args['bucket_name'], file_name)
 
 ##########################################
