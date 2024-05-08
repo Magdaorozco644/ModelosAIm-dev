@@ -222,6 +222,8 @@ Resources:
       GlueVersion: "4.0"
       DefaultArguments:
         "--additional-python-modules": "awswrangler==2.14.0"
+        # Enable Use Glue data catalog as the Hive metastore
+        "--enable-glue-datacatalog": true
       ExecutionProperty:
         MaxConcurrentRuns: 1
       Name:
