@@ -262,10 +262,10 @@ drop table analytics.abt_fraud_temp;
 --Creo nueva tabla receiver con datos actualizado
 create table analytics.receiver_large as
 select id_receiver, id_branch, date_receiver, id_sender, net_amount_receiver, mode_pay_receiver, id_country_receiver, id_state_receiver, id_payment, id_city_receiver, bank_receiver
-from viamericas.receiver where date_receiver between cast('2023-01-01' as timestamp) and cast('2024-02-01' as timestamp) 
+from viamericas.receiver where date_receiver between cast('2023-01-01' as timestamp) and cast('2024-02-01' as timestamp)
 union
-select try(cast(trim(id_receiver) as integer)), id_branch, try(cast(trim(date_receiver) as timestamp)) , try(cast(trim(id_sender) as integer)), 
-        try(cast(trim(net_amount_receiver) as integer)) , mode_pay_receiver, id_country_receiver, id_state_receiver, id_payment, id_city_receiver, bank_receiver
+select try(cast(trim(id_receiver) as integer)), id_branch, try(cast(trim(date_receiver) as timestamp)) , try(cast(trim(id_sender) as integer)),
+        try(cast(trim(net_amount_receiver) as double)) , mode_pay_receiver, id_country_receiver, id_state_receiver, id_payment, id_city_receiver, bank_receiver
 from viamericas.test_receiver;
 
 --Creo nueva tabla receiver_fraud con datos actualizado
@@ -275,6 +275,22 @@ from viamericas.receiver_fraud
 union
 select try(cast(trim(id_receiver) as integer)), id_branch, fraud_classification, fraud_type
 from viamericas.test_receiver_fraud;
+
+--Creo nueva tabla sender con datos actualizado
+create table analytics.sender_large as
+select id_sender, id_sender_global, state_sender, id_country, id_branch, id_state, day
+from viamericas.sender
+union
+select try(cast(id_sender as integer)), try(cast(id_sender_global as integer)), state_sender, id_country, id_branch, id_state, last_updated
+from viamericas.test_sender;
+
+--Creo nueva tabla branch con datos actualizado
+create table analytics.branch_large as
+select trim(id_branch), id_location, id_state, id_country
+from viamericas.branch
+union
+select trim(id_branch), id_location, id_state, id_country
+from viamericas.test_branch;
 
 -- Creo nueva tabla analytics.source_fraud_2024
 create table analytics.source_fraud_2024 as
@@ -303,14 +319,14 @@ create table analytics.source_fraud_2024 as
     left join analytics.receiver_fraud_large fr
     on try(cast((trans.id_receiver) as integer)) = try(cast((fr.id_receiver) as integer)) and trim(trans.id_branch) = trim(fr.id_branch),
         (select updt.*, br.id_location, br.id_state, br.id_country, sd.id_sender_global
-        from analytics.receiver_large updt, viamericas.branch br, viamericas.sender sd
-        where trim(updt.id_branch) = br.id_branch and br.id_branch=sd.id_branch
+        from analytics.receiver_large updt, analytics.branch_large br, analytics.sender_large sd
+        where trim(updt.id_branch) = trim(br.id_branch) and trim(br.id_branch)= trim(sd.id_branch)
         and updt.id_sender = sd.id_sender) rc
     where try(cast((trans.id_receiver) as integer)) = try(cast((rc.id_receiver) as integer)) and trim(trans.id_branch) = trim(rc.id_branch)
     ;
 
-
-
+-- viamericas.branch ---> branch_large
+-- viamericas.sender ---> sender_large
 --receiver se reemplaza con receiver_large
 --receiver_fraud se reemplaza con receiver_fraud_large
 --source_fraud_m18 se reemplaza con source_fraud_2024
@@ -442,8 +458,8 @@ create table analytics.abt_fraud_temp as (
             analytics.source_fraud_2024 trans
             left join
             (select fr.*, trim(br.id_location) as id_location
-                from receiver_fraud_fecha fr join viamericas.branch br
-                on fr.id_branch = br.id_branch) brfr
+                from receiver_fraud_fecha fr join analytics.branch_large br
+                on fr.id_branch = trim(br.id_branch)) brfr
             on trans.id_location = brfr.id_location and brfr.date_receiver < trans.DATE_RECEIVER
             and brfr.fraud_classification = 'Real'
             group by trans.id_location, trans.id_receiver, trans.id_branch
@@ -453,12 +469,12 @@ create table analytics.abt_fraud_temp as (
             from
             (select trans.*, sd.id_sender
                 from analytics.source_fraud_2024 trans join
-                viamericas.sender sd on trans.id_sender_global = try(cast(sd.id_sender_global as integer))
-                and trans.id_branch = sd.id_branch) sdtrans left join
+                analytics.sender_large sd on trans.id_sender_global = try(cast(sd.id_sender_global as integer))
+                and trans.id_branch = trim(sd.id_branch)) sdtrans left join
             (select rc.*, sd.id_sender_global
                 from analytics.receiver_large rc join
-                viamericas.sender sd
-                on trim(rc.id_branch) = sd.id_branch and try(cast(rc.id_sender as integer)) = try(cast(sd.id_sender as integer))) sdrc
+                analytics.sender_large sd
+                on trim(rc.id_branch) = trim(sd.id_branch) and try(cast(rc.id_sender as integer)) = try(cast(sd.id_sender as integer))) sdrc
             on  sdtrans.id_sender_global = try(cast(sdrc.id_sender_global as integer))
             and sdrc.date_receiver between date_add('month',-3, sdtrans.DATE_RECEIVER) and  sdtrans.DATE_RECEIVER
             group by sdtrans.id_sender_global, sdtrans.id_branch, sdtrans.id_receiver
@@ -469,8 +485,8 @@ create table analytics.abt_fraud_temp as (
             analytics.source_fraud_2024 trans
             left join
             (select fr.*, sd.id_sender_global
-                from receiver_fraud_fecha fr join viamericas.sender sd
-                on fr.id_branch = sd.id_branch and fr.id_sender=sd.id_sender) sdfr
+                from receiver_fraud_fecha fr join analytics.sender_large sd
+                on fr.id_branch = trim(sd.id_branch) and fr.id_sender=sd.id_sender) sdfr
             on sdfr.date_receiver < trans.DATE_RECEIVER
             and sdfr.fraud_classification = 'Real' and trans.id_sender_global = sdfr.id_sender_global
             group by trans.id_sender_global, trans.id_branch, trans.id_receiver
@@ -478,7 +494,7 @@ create table analytics.abt_fraud_temp as (
         sender_state_cte as (
             select distinct sd.id_sender_global, sd.id_state as sender_state, sd.day
             from analytics.source_fraud_2024 trans join
-                viamericas.sender sd on trans.id_sender_global = sd.id_sender_global
+                analytics.sender_large sd on trans.id_sender_global = sd.id_sender_global
         )
             select
                 sf.*,
@@ -520,12 +536,13 @@ create table analytics.abt_fraud_2024 as (
         select abt.*
         from analytics.abt_fraud_temp abt inner join
             (   select id_receiver, id_branch, max(cast(day as timestamp)) last
-                from analytics.abt_fraud_temp where date_receiver >= cast(day as timestamp)
+                from analytics.abt_fraud_temp where date_receiver >= try(cast(day as timestamp))
                 group by id_receiver, id_branch
             ) ult_st
         on abt.id_receiver = ult_st.id_receiver and abt.id_branch = ult_st.id_branch
-        and cast(abt.day as timestamp) = ult_st.last
+        and try(cast(abt.day as timestamp)) = ult_st.last
 );
+
 --- DROP TABLES AUXS
 drop table analytics.source_fraud_2024;
 drop table analytics.branch_trans_40min_cte_lg;
@@ -541,7 +558,7 @@ drop table analytics.branch_trans_3m_distinct_cte_2024_lg;
 
 
 ------ ABT_v2 UNION ABT_2024
-create table analytics.abt_v3 as (
+create table analytics.abt_v4 as (
         select *
         from analytics.abt_fraud_2024
         union
