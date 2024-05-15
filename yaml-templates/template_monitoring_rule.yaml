@@ -99,7 +99,7 @@ Resources:
         "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
         "--database_redshift": "viamericas"
         "--prefix_name_save": "monitoring_rules"
-        "--prefix_name_xlsx": "ABTv3_update/top_payers_abt_v3update/"
+        "--prefix_name_xlsx": "models/models_2d/dt=2024-05-06/top_15_payers_abt/"
         "--process_date": "None"
         "--schema": "forecast"
         "--table_name_redshift": "rules_monitoring"

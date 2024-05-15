@@ -299,7 +299,7 @@ class MonitoringRules:
     def consolidate_df(self):
         # I call function to read xlsx and consolidate into one DF
         df_top15 = self.read_files(bucket_name=self.args['bucket_name'], prefix=self.args['prefix_name_xlsx'])
-        ##DATE OF ANALYSIS #TODO: Change DATE. dia de ejecucion
+        ##DATE OF ANALYSIS
         date = datetime.today().strftime('%Y-%m-%d')
         df_top15=df_top15.loc[df_top15.date<date]
         # Cast to date
