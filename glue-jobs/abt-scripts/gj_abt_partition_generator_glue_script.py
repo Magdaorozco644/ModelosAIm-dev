@@ -43,6 +43,12 @@ HOLIDAYS_TO_EXCLUDE = [
     "thanksgiving_day",
 ]
 
+# TABLE NAMES
+#TODO: change table name to prod.
+DAILY_CHECK_GP = '20240513_daily_check_gp' #daily_check_gp
+LAST_DAILY_FOREX = '20240513_last_daily_forex_country' #last_daily_forex_country
+DAILY_SALES_CANCELLED = '20240513daily_sales_count_cancelled' #daily_sales_count_cancelled_v2
+
 
 # check input variables
 class InputVaribleRequired(Exception):
@@ -306,7 +312,7 @@ class ABT:
     def create_daily_check(self):
         # Create Daily check dataframe
         database_name = "analytics"
-        table_name = "daily_check_gp"
+        table_name = DAILY_CHECK_GP
         df = wr.athena.read_sql_table(table=table_name, database=database_name)
         # Convert the 'date' column to datetime format
         df["day"] = pd.to_datetime(df["day"])
@@ -489,7 +495,7 @@ class ABT:
     def create_last_daily_forex(self):
         # Read last_daily_forex
         database_name = "analytics"
-        forex_table = "last_daily_forex_country"
+        forex_table = LAST_DAILY_FOREX
         df_rates = wr.athena.read_sql_table(table=forex_table, database=database_name)
         # FOREX - Selecting columns & renaming
         df_rates["day"] = pd.to_datetime(df_rates["day"])
@@ -650,7 +656,7 @@ class ABT:
         ### EFFECT OF CANCELED TRANSACTIONS ###
         ##WE LOAD THE BASE WITH CANCELLATIONS
         database_name = "analytics"
-        table2_name = "daily_sales_count_cancelled_v2"
+        table2_name = DAILY_SALES_CANCELLED
 
         df2 = wr.athena.read_sql_table(table=table2_name, database=database_name)
         df2["date"] = pd.to_datetime(df2["date"])
@@ -1094,6 +1100,8 @@ if __name__ == "__main__":
     abt_partition = abt.create_partition()
     # Save partition
     df = abt.save_partition(df=abt_partition)
+    print('Partition saved.')
+    #df = wr.s3.read_parquet('s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/abt_parquet/dt=2024-05-08/5830aff9a4c94cd6b88641d29d3ccd36.snappy.parquet')
     # Create SparkDataframe
     df_final = spark.createDataFrame(df)
     # Detect numeric columns
@@ -1110,8 +1118,8 @@ if __name__ == "__main__":
     # Create stage temp table with schema.
     pre_query = """
     begin;
-    DROP TABLE if exists {database}.{schema}.{table_name};
     CREATE TABLE if not exists {database}.{schema}.{table_name}  (LIKE public.stage_table_temporary_abt);
+    TRUNCATE TABLE {database}.{schema}.{table_name};
     end;
     """
     post_query = """

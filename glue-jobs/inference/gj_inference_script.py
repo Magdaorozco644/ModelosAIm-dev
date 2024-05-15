@@ -27,6 +27,9 @@ from awsglue.context import GlueContext
 from awsglue.job import Job
 from awsglue.dynamicframe import DynamicFrame
 
+# TABLE NAMES
+#TODO: change table name to prod.
+DAILY_CHECK_GP = '20240513_daily_check_gp' #daily_check_gp
 
 # check input variables
 class InputVaribleRequired(Exception):
@@ -258,7 +261,7 @@ class Inference:
         self.logger.info("Reading from daily_check_gp...")
         # DB Setting
         database_name = "analytics"
-        table_name = "daily_check_gp"
+        table_name = DAILY_CHECK_GP
         df = wr.athena.read_sql_table(
             table=table_name,
             database=database_name,
@@ -404,7 +407,10 @@ class Inference:
 
     def load_abt_df(self):
         self.logger.info("Reading last abt partition.")
-        prefix = self.last_abt_partition()
+        if self.args['process_date'] == "None":
+            prefix = self.last_abt_partition()
+        else:
+            prefix = f'{self.args["prefix_abt_name"]}/dt={self.process_date}/'
         bucket = self.args["bucket_name"]
         df = wr.s3.read_parquet(path=f"s3://{bucket}/{prefix}")
         df["date"] = pd.to_datetime(df["date"]).dt.date

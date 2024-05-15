@@ -187,8 +187,18 @@ class Mape:
         save_prefix = self.args['save_prefix']
 
         # Setting processing_date
-        processing_date = self.process_date
-        previous_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        if self.args["process_date"].upper() == "NONE":
+            processing_date = self.process_date
+            previous_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        else:
+            try:
+                processing_date = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
+                previous_date = (processing_date - timedelta(days=1)).strftime('%Y-%m-%d')
+            except ValueError:
+                self.logger.info("Invalid format date.")
+                raise InputVaribleRequired(
+                    f"The variable 'process_date' must be in the format YYYY-MM-DD or 'None', please correct it."
+                )
 
         self.logger.info(f'Processing date: {processing_date}')
         self.logger.info(f'Previous date: {previous_date}')
