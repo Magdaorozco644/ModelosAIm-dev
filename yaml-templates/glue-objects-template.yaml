@@ -1093,7 +1093,7 @@ Parameters:
     Default: sdlf-email-notifications
   VIASnsTopicEndpoint:
     Type: String
-    Default: your.main@domain.us
+    Default: giovanni.posada@strata-analytics.us
   VIASnsTopicProtocol:
     Type: String
     Default: EMAIL
@@ -1244,19 +1244,19 @@ Resources:
     Properties: 
       CatalogId: !Ref AWS::AccountId
       DatabaseInput: 
-        Name: viamericas
+        Name: viamericas-2
   GlueStageDatabase:
     Type: AWS::Glue::Database
     Properties: 
       CatalogId: !Ref AWS::AccountId
       DatabaseInput: 
-        Name: stage
+        Name: stage-2
   GlueAnalyticsDatabase:
     Type: AWS::Glue::Database
     Properties: 
       CatalogId: !Ref AWS::AccountId
       DatabaseInput: 
-        Name: analytics
+        Name: analytics-2
   # Create jobs to run script which accesses JDBC viamericas db via a connection and write to S3 file as parquet.
   Fn::ForEach::GlueJob:
     - GlueJobItem # identificador
@@ -1390,6 +1390,7 @@ Resources:
                   - "glue:*"
                   - "logs:*"
                   - "sns:*"
+                  - "states:*"
                 Resource:
                   - "*"
       Tags:

@@ -137,7 +137,7 @@ Resources:
           NumberOfWorkers: 5
           GlueVersion: "4.0"
           DefaultArguments:
-            "--conf": !Sub "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-{Environment}-us-east-1-{AWS::AccountId}-athena/gluetmp/"
+            "--conf": !Sub "spark.shuffle.glue.s3ShuffleBucket=s3://viamericas-datalake-${Environment}-us-east-1-${AWS::AccountId}-athena/gluetmp/"
             "----write-shuffle-files-to-s3": "true"
             "--write-shuffle-spills-to-s3": "true"
             "--additional-python-modules": "awswrangler==2.14.0"

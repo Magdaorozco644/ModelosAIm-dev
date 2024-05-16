@@ -36,7 +36,7 @@ def upload_file(body, database, schema, table):
         print(f"Ocurrió un error al subir el script a S3: {str(e)}")
 
 
-def build_script(database, schema, table, columns, update_field):
+def build_script(database, schema, table, columns, update_field, partition_field):
     columns = list(set(columns))
     
     glue_script = f"""
@@ -45,16 +45,14 @@ from awsglue.context import GlueContext
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, current_date, date_format, lit
+from pyspark.sql.functions import col, lit
 import awswrangler as wr
 from datetime import date
 from botocore.exceptions import ClientError
 from Codes.check_partitions import *
+from concurrent.futures import ThreadPoolExecutor
+from timeit import default_timer as timer
 
-# Contexto
-#sc = SparkContext()
-#spark = SparkSession(sc)
-#glueContext = GlueContext(spark)
 
 spark.conf.set("spark.sql.sources.partitionOverwriteMode","dynamic")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -74,18 +72,6 @@ def get_partitions(input_schema, input_table ):
 		partitionvalues.sort(reverse=True)
 		return partitionvalues
 
-max_date = get_partitions('viamericas','{table}')[0][0]
-print("Max date in partitions is:", max_date)
-
-# Get max date in athena
-
-df = wr.athena.read_sql_query(sql=f"select coalesce(cast(max({update_field}) as varchar), substring(cast(at_timezone(current_timestamp,'US/Eastern') as varchar(100)),1,23)) as max_date from viamericas.{table} where day = '{{max_date}}' and {update_field} <= cast(substring(cast(at_timezone(current_timestamp,'US/Eastern') as varchar(100)),1,23) as timestamp)", database="viamericas")
-
-
-
-athena_max_date = df['max_date'].tolist()[0]
-athena_max_day = athena_max_date[0:10]
-print("athena_max_date is:", athena_max_date)
 
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
@@ -107,61 +93,112 @@ def get_secret(secret_name, region_name):
     secret_=json.loads(secret)
     return secret_
 
-# Obtener credenciales para SQL Server
-secret_name = "SQLSERVER-CREDENTIALS"
-region_name = "us-east-1"
-secret = get_secret(secret_name, region_name)
 
-# Bucket
-secret_name = "BUCKET_NAMES"
-region_name = "us-east-1"
-secret_bucket_names = get_secret(secret_name, region_name)
-
-jdbc_viamericas = f"jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
-
-qryStr = f"(SELECT {','.join(columns)}, convert(date, [{update_field}]) as day FROM {database}.{schema}.{table} with(nolock) WHERE [{update_field}] >= '{{athena_max_date}}') x"
-
-
-jdbcDF = spark.read.format('jdbc')\\
-    .option('url', jdbc_viamericas)\\
-    .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\\
-    .option('dbtable', qryStr )\\
-    .option('user', secret['username'])\\
-    .option('password', secret['password'])\\
-    .option('fetchsize', 1000)\\
-    .load()
-
-
-jdbcDF.createOrReplaceTempView('jdbcDF')
-
-jdbcDF.persist()
-
-number_of_rows = jdbcDF.count()
-
-print(f'number of rows obtained for date(s) higher than {{athena_max_date}}: {{number_of_rows}}')
-if number_of_rows > 0:
-    days_count = spark.sql(f'select day, count(*) as count from jdbcDF group by day')
-    days_count.createOrReplaceTempView('days_count')
-    thelist=[]
-    for i in days_count.collect():
-        pretup = (i[0],i[1])
-        thelist.append(pretup)
-    for day, count in thelist:
-        if count > 0:
-            #Conciliar para evitar posibles duplicados en la bajada
-            dfincremental = jdbcDF.filter(col("day") == lit(day))
-            totaldfpre = spark.sql(f" select t2.* from viamericas.{table} t2 where day = '{{day}}'")
-            totaldfpre.unionByName(dfincremental).dropDuplicates()
-  
-            # Definir la ruta de salida en S3
+def thread_function(args):
+    df, s3_output_path, date = args
+    
+    print(f"INFO --- writing data for date: {{date}}")
+    
+    #Conciliar para evitar posibles duplicados en la bajada
+    dfincremental = df.filter(col("day") == lit(date))
             
-            s3_output_path = f"s3://{{secret_bucket_names['BUCKET_RAW']}}/{database}/{schema}/{table}/"
-            # Escribir el DataFrame en formato Parquet en S3
-            totaldfpre.write.partitionBy("day").parquet(s3_output_path, mode="overwrite")    
-            print(f'Data for: {{day}} written succesfully')
-            partition_creator_v2('viamericas','{table}', {{'df': None, 'PartitionValues': tuple([str(day)])}})
-else:
-    print(f'No data for dates beyond: {{athena_max_date}}')
+    print(f'Number of records for day: {{date}} is : {{dfincremental.count()}}')
+        
+    # Escribir el DataFrame en formato Parquet en S3
+    dfincremental.write.partitionBy("day").parquet(s3_output_path, mode="append")    
+    print(f'Data for: {{date}} written succesfully')
+    
+    partition_creator_v2('viamericas','{table}', {{'df': None, 'PartitionValues': tuple([str(date)])}})
+
+
+def main():
+    
+    max_date = get_partitions('viamericas','{table}')[0][0]
+    print("Max date in partitions is:", max_date)
+
+    # Get max date in athena
+    df = wr.athena.read_sql_query(sql=f"select coalesce(cast(max({update_field}) as varchar), substring(cast(at_timezone(current_timestamp,'US/Eastern') as varchar(100)),1,23)) as max_date from viamericas.{table} where day = '{{max_date}}' and {update_field} <= cast(substring(cast(at_timezone(current_timestamp,'US/Eastern') as varchar(100)),1,23) as timestamp)", database="viamericas")
+
+    athena_max_date = df['max_date'].tolist()[0]
+    athena_max_day = athena_max_date[0:10]
+    print("athena_max_date is:", athena_max_date)
+    
+    # Obtener credenciales para SQL Server
+    secret_name = "SQLSERVER-CREDENTIALS"
+    region_name = "us-east-1"
+    secret = get_secret(secret_name, region_name)
+
+    # Bucket
+    secret_name = "BUCKET_NAMES"
+    region_name = "us-east-1"
+    secret_bucket_names = get_secret(secret_name, region_name)
+
+    # Definir la ruta de salida en S3
+    s3_output_path = f"s3://{{secret_bucket_names['BUCKET_RAW']}}/{database}/{schema}/{table}/"
+    
+    # SQLServer string connection
+    jdbc_viamericas = f"jdbc:{{secret['engine']}}://{{secret['host']}}:{{secret['port']}};database={{secret['dbname']}}"
+    
+    qryStr = f"(SELECT {','.join(columns)}, convert(date, [{partition_field}]) as day FROM {database}.{schema}.{table} with(nolock) WHERE [{update_field}] >= '{{athena_max_date}}') x"
+    
+    start = timer()
+    
+    jdbcDF = spark.read.format('jdbc')\\
+        .option('url', jdbc_viamericas)\\
+        .option('driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver')\\
+        .option('dbtable', qryStr )\\
+        .option('user', secret['username'])\\
+        .option('password', secret['password'])\\
+        .option('fetchsize', 1000)\\
+        .load()
+    
+    end = timer()
+    
+    print("Time taken to read data from database ",end-start)
+    
+    jdbcDF.createOrReplaceTempView('jdbcDF')
+
+    jdbcDF.persist()
+
+    number_of_rows = jdbcDF.count()
+
+    print(f'number of rows obtained for date(s) higher than {{athena_max_date}}: {{number_of_rows}}')
+    if number_of_rows > 0:
+        days_count = spark.sql(f'select day, count(*) as count from jdbcDF group by day')
+        days_count.createOrReplaceTempView('days_count')
+        print('df preview')
+        print(days_count.show())
+        thelist=[]
+        for i in days_count.collect():
+            pretup = (i[0],i[1])
+            thelist.append(pretup)
+            
+        start = timer()    
+        with ThreadPoolExecutor(max_workers=18) as executor:
+                futures = []
+                
+                for day, _ in thelist:
+            
+                    args = (jdbcDF, s3_output_path, day)
+                    
+                    # create threads
+                    future = executor.submit(thread_function, args)
+                    # append thread to the list of threads
+                    futures.append(future)
+                
+                for i in range(len(futures)):
+                    print(f"INFO --- running thread number: {{i + 1}}")
+                    # execute threads
+                    futures[i].result()  
+        end = timer()
+        
+        print("Time taken with parallel execution is ",end-start)
+    else:
+        print(f'No data for dates beyond: {{athena_max_date}}')
+        
+
+if __name__ == "__main__":
+    main()
     """
     
     return glue_script
@@ -178,6 +215,7 @@ def main():
     
     # Generating files just for all database except EnvioDW.
     df = df[df['Database'] != 'EnvioDW']
+    df = df[df['Table'] != 'CHECKREADER_SCORE']
     
     # Ignore sysname, tAppName, and tSessionId because they are duplicates of other columns
     df = df[df['Data_Type'] != 'sysname']
@@ -206,6 +244,9 @@ def main():
     frequency = frequency[(frequency['USE?'] != 'Old/Not Used/Needed') & (frequency['extraction_load_type'] == 'incremental_load')]
     
     frequency['Campo de actualización'] = frequency['Campo de actualización'].fillna('')
+    
+    frequency['Important Columns'] = frequency['Important Columns'].fillna('')
+    
 
     jobs = []
     incremental_updates = [
@@ -224,14 +265,16 @@ def main():
 
     # Getting fields will be works to get incremental data
     update_field = {}
+    partition_field = {}
         
-    print(frequency[['Campo de actualización']])
     for index, row in frequency.iterrows():
         table = row['Table'].lower()
         update_field_name = row['Campo de actualización'].strip()
-            
+        partition_field_name = row['Important Columns'].strip()
+        
         update_field[table] = update_field_name  
-
+        partition_field[table] = partition_field_name
+        
     for index, row in dict_df.iterrows():
         database = row['Database'].lower()
         schema = row['Schema'].lower()
@@ -244,7 +287,7 @@ def main():
 
         # create script
         if table in incremental_updates:
-            glue_script = build_script(database, schema, table, columns, update_field[table])
+            glue_script = build_script(database, schema, table, columns, update_field[table], partition_field[table])
 
             # Crear un directorio para guardar los scripts si no existe
             output_directory = 'glue_scripts_incremental'

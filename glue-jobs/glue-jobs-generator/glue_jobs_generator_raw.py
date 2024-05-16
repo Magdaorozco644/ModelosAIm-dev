@@ -10,6 +10,7 @@ BUCKET = "viamericas-datalake-dev-us-east-1-283731589572-glue-jobs"
 PREFIX = "bulk/scripts"
 ROLE = "GlueRolFullAccess"
 ALLOCATED_CAPACITY = 10
+ENV = 'dev'
 
 
 def upload_file(body, database, schema, table):
@@ -18,7 +19,7 @@ def upload_file(body, database, schema, table):
     s3 = boto3.client('s3', region_name='us-east-1')
 
     # Nombre del archivo en S3
-    s3_key = f"{PREFIX}/gjdev_bulk_{database}_{schema}_{table}_glue_script.py"
+    s3_key = f"{PREFIX}/gj{ENV}_bulk_{database}_{schema}_{table}_glue_script.py"
 
     try:
         # Subir el script a S3
@@ -75,7 +76,7 @@ def build_script(database, schema, table, columns):
 
     tables_update_field = [*update_field.keys()]
 
-    if table in tables_update_field:
+    if table in tables_update_field :
         glue_script = f"""
 import boto3, json, sys
 from awsglue.context import GlueContext
@@ -296,8 +297,10 @@ def main():
     df = df[df['Data_Type'] != 'tAppName']
     df = df[df['Data_Type'] != 'tSessionId']
     
-    # Create script just for one table
-    # df = df[df['Table'] == 'SF_SAFE_TRANSACTIONS'] 
+    # Filter tables
+    df = df[df['Table'] != 'BRANCH']
+    df = df[df['Table'] != 'VCW_MONEYORDERS_SALES']
+    df = df[df['Table'] != 'SENDER']
 
     df['Column'] = df.apply(
         lambda row: f"rtrim([{row['Column']}]) as {row['Column']}"
