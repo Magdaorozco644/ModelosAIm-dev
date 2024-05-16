@@ -222,6 +222,8 @@ Resources:
       GlueVersion: "4.0"
       DefaultArguments:
         "--additional-python-modules": "awswrangler==2.14.0"
+        # Enable Use Glue data catalog as the Hive metastore
+        "--enable-glue-datacatalog": true
       ExecutionProperty:
         MaxConcurrentRuns: 1
       Name:
@@ -309,7 +311,7 @@ Resources:
         "--LOG_LEVEL": "INFO"
         "--JOB_NAME": "sdlf_gj_daily_mape"
         # TODO: libreria cargada en s3. # TODO: CHANGE S3 BUCKET.
-        "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl"
+        "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/openpyxl/openpyxl-3.1.2-py2.py3-none-any.whl"
         # Enable Use Glue data catalog as the Hive metastore
         "--enable-glue-datacatalog": true
         # TODO: CHANGE S3 BUCKET.
@@ -323,6 +325,7 @@ Resources:
         "--table_name_redshift" : "mape_monitoring"
         # TODO: CHANGE S3 BUCKET.
         "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
+        "--top_payers_abt_key" : "ABTv3_update/top_payers_abt_v3update/"
         "--process_date": "None"
       Tags:
         "map-migrated": "mig42454"

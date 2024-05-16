@@ -17,6 +17,7 @@ from datetime import datetime
 import logging
 import sys
 import boto3
+from io import BytesIO # Para el WA
 
 from awsglue.utils import getResolvedOptions
 from awsglue.transforms import *
@@ -29,7 +30,9 @@ from awsglue.dynamicframe import DynamicFrame
 # check input variables
 class InputVaribleRequired(Exception):
     pass
-
+# File not found
+class FileNotFound(Exception):
+    pass
 
 # Logging Class
 class LoggerInit:
@@ -153,6 +156,7 @@ class Mape:
         else:
             try:
                 partition_dt = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
+                partition_dt = partition_dt.strftime("%Y-%m-%d")
             except ValueError:
                 self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
@@ -167,7 +171,8 @@ class Mape:
         merged_df['abs_error'] = np.abs(merged_df['pred'] - merged_df['amount'])
 
         # ABS error
-        merged_df['MAPE'] = (merged_df['abs_error'] / merged_df['amount'])
+        merged_df['MAPE'] = (merged_df['abs_error'] / merged_df['amount']) * 100
+        merged_df['MAPE'] = merged_df['MAPE'].fillna(0)
 
         merged_df[merged_df['amount'] == 0]
         # Select columns
@@ -182,8 +187,18 @@ class Mape:
         save_prefix = self.args['save_prefix']
 
         # Setting processing_date
-        processing_date = self.process_date
-        previous_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        if self.args["process_date"].upper() == "NONE":
+            processing_date = self.process_date
+            previous_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        else:
+            try:
+                processing_date = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
+                previous_date = (processing_date - timedelta(days=1)).strftime('%Y-%m-%d')
+            except ValueError:
+                self.logger.info("Invalid format date.")
+                raise InputVaribleRequired(
+                    f"The variable 'process_date' must be in the format YYYY-MM-DD or 'None', please correct it."
+                )
 
         self.logger.info(f'Processing date: {processing_date}')
         self.logger.info(f'Previous date: {previous_date}')
@@ -203,7 +218,11 @@ class Mape:
         # Read predictions
         predict_path = f's3://{s3_bucket}/{inference_prefix}/day={previous_date}/predictions_2d/'
         self.logger.info(f'Read from: {predict_path}')
-        df_predict = wr.s3.read_parquet(predict_path)
+        try:
+            df_predict = wr.s3.read_parquet(predict_path)
+        except Exception as e:
+            self.logger.info('File not found.')
+            raise FileNotFound(f'Warning! File not found. Please check in s3 if file exist: {predict_path}')
         self.logger.info(f'Shape predict: {df_predict.shape}')
         self.logger.info(f'Types predict: {df_predict.dtypes}')
         self.logger.info(f'Types daily: {df_daily.dtypes}')
@@ -225,6 +244,80 @@ class Mape:
         wr.s3.to_parquet(df=mape_df,path=to_save, dataset=True, index=False,mode="overwrite_partitions",compression="snappy")
 
         return mape_df
+
+    def get_all_files(self, bucket_name: str, prefix: str) -> list:
+        """Get all objects key
+
+        Args:
+            bucket_name (str): bucket name
+            prefix (str): folder to read
+
+        Returns:
+            list: all the objects keys.
+        """
+        files = []
+        s3_client = boto3.client("s3")
+
+        # Configure paginator to list all objects
+        paginator = s3_client.get_paginator("list_objects_v2")
+
+        # Iterate
+        for page in paginator.paginate(
+            Bucket=bucket_name, Prefix=prefix, Delimiter="/"
+        ):
+            if "CommonPrefixes" in page:
+                for prefix in page["CommonPrefixes"]:
+                    files.append(prefix["Prefix"])
+
+        return files
+
+    def update_historical_data(self, df_preds):
+        # Iterarar sobre la carpeta de mapes historicos (15 top payers)
+        self.logger.info(f"Reading xlsx files from: s3://{self.args['bucket_name']}/{self.args['top_payers_abt_key']} ")
+        folder_list = self.get_all_files(bucket_name=self.args['bucket_name'], prefix=self.args['top_payers_abt_key'])
+        self.logger.info(folder_list)
+        for folder_name in folder_list:
+            # Obtener la lista de objetos en la carpeta
+            objects = self.s3_client.list_objects_v2(Bucket=self.args['bucket_name'], Prefix=folder_name)['Contents']
+            # Buscar archivos xlsx en la carpeta
+            excel_objects = [obj for obj in objects if obj['Key'].endswith('.xlsx') and '7d' not in obj['Key']]
+            # iterate through excel files and append prediction
+            for object in excel_objects:
+                self.logger.info(f'File: {object}')
+                payer_country = object['Key'].split('/')[-2]
+                file_name = object['Key'].split('/')[-1]
+                self.logger.info(f'Payer country: {payer_country}')
+                self.logger.info(f'File Name: {file_name}')
+                obj = self.s3_client.get_object(Bucket=self.args['bucket_name'], Key=object['Key'])
+                excel_data = obj['Body'].read()
+                df = pd.read_excel(BytesIO(excel_data))
+                self.logger.info(df_preds.head())
+                self.logger.info(df_preds['payer_country'].unique())
+
+                # Filter predictions
+                df_payer_country = df_preds[df_preds['payer_country'] == payer_country]
+                df_payer_country = df_payer_country.rename(columns={"pred_date": "date", "pred": "valor_predicho", "MAPE": "mape", "abs_error": "error_abs", "amount": "valor_real"})
+                self.logger.info(df_payer_country.head())
+                # Merge with predictions
+                df_merged = pd.merge(df, df_payer_country, how='outer', on='date', suffixes=('_df1', '_df2'))
+                df_merged['valor_real'] = df_merged['valor_real_df2'].fillna(df_merged['valor_real_df1'])
+                df_merged['valor_predicho'] = df_merged['valor_predicho_df2'].fillna(df_merged['valor_predicho_df1'])
+                df_merged['mape'] = df_merged['mape_df2'].fillna(df_merged['mape_df1'])
+                df_merged['error_abs'] = df_merged['error_abs_df2'].fillna(df_merged['error_abs_df1'])
+
+                # Get columns
+                df_merged.drop(['valor_real_df1', 'valor_real_df2', 'valor_predicho_df1', 'valor_predicho_df2',
+                'mape_df1', 'mape_df2', 'error_abs_df1', 'error_abs_df2', 'processing_date', 'payer_country',
+                'id_main_branch','id_country'], axis=1, inplace=True)
+
+
+                # Save s3
+                excel_buffer = BytesIO()
+                df_merged.to_excel(excel_buffer, index=False)
+                excel_buffer.seek(0)
+                # Name S3
+                file_name = object['Key']
+                self.s3_client.upload_fileobj(excel_buffer, self.args['bucket_name'], file_name)
 
 ##########################################
 ##########################################
@@ -248,6 +341,7 @@ if __name__ == "__main__":
         "table_name_athena": "__required__",
         "table_name_redshift": "__required__",
         "temp_s3_dir": "__required__",
+        "top_payers_abt_key": "__required__",
         "schema": "__required__"
     }
     sc = SparkContext()
@@ -262,6 +356,11 @@ if __name__ == "__main__":
     daily_mape = Mape(args=args)
 
     df_final_2d = daily_mape.create_df_mape()
+    print(df_final_2d.shape)
+    print(df_final_2d.info())
+
+    #Update historics top 15 payers
+    daily_mape.update_historical_data(df_preds=df_final_2d)
 
     if df_final_2d is None or df_final_2d.shape[0] == 0:
         print('Dataframe Empty.')
