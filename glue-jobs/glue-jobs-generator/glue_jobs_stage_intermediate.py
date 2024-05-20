@@ -8,7 +8,6 @@ from botocore.exceptions import NoCredentialsError
 # Constantes
 BUCKET = "viamericas-datalake-dev-us-east-1-283731589572-glue-jobs"
 PREFIX = "stage/intermediate"
-ROLE = "GlueRolFullAccess"
 ENV = 'dev'
 
 

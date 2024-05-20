@@ -8,8 +8,7 @@ from botocore.exceptions import NoCredentialsError
 # Constantes
 BUCKET = "viamericas-datalake-dev-us-east-1-283731589572-glue-jobs"
 PREFIX = "incremental/scripts"
-ROLE = "GlueRolFullAccess"
-ALLOCATED_CAPACITY = 10
+ENV = 'dev'
 
 
 def upload_file(body, database, schema, table):
@@ -18,7 +17,7 @@ def upload_file(body, database, schema, table):
     s3 = boto3.client('s3', region_name='us-east-1')
 
     # Nombre del archivo en S3
-    s3_key = f"{PREFIX}/gjdev_incremental_{database}_{schema}_{table}_glue_script.py"
+    s3_key = f"{PREFIX}/gj{ENV}_incremental_{database}_{schema}_{table}_glue_script.py"
 
     try:
         # Subir el script a S3
@@ -295,7 +294,7 @@ def main():
                 os.makedirs(output_directory)
 
             # Escribir el script en un archivo
-            output_file = f"{output_directory}/gjdev_incremental_{database}_{schema}_{table}_glue_script.py"
+            output_file = f"{output_directory}/gj{ENV}_incremental_{database}_{schema}_{table}_glue_script.py"
             with open(output_file, 'w') as f:
                 f.write(glue_script)
 

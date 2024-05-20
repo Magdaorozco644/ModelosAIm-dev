@@ -8,8 +8,6 @@ from botocore.exceptions import NoCredentialsError
 # Constantes
 BUCKET = "viamericas-datalake-dev-us-east-1-283731589572-glue-jobs"
 PREFIX = "bulk/scripts"
-ROLE = "GlueRolFullAccess"
-ALLOCATED_CAPACITY = 10
 ENV = 'dev'
 
 
@@ -87,7 +85,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, current_date, date_format
 from datetime import datetime, date
-from awsglue.utils import getResolvedOptionss
+from awsglue.utils import getResolvedOptions
 
 # Contexto
 sc = SparkContext()
@@ -138,7 +136,6 @@ def thread_function(args):
         .option('dbtable', query )\\
         .option("user", secret['username'])\\
         .option("password", secret['password'])\\
-        .option("numPartitions", 10)\\
         .option("fetchsize", 1000)\\
         .load()
     print(f"INFO --- number of rows for date: {{date}}: {{jdbcDF.count()}} ")
@@ -269,7 +266,6 @@ jdbcDF = spark.read.format('jdbc')\\
         .option('dbtable', qryStr )\\
         .option("user", secret['username'])\\
         .option("password", secret['password'])\\
-        .option("numPartitions", 10)\\
         .option("fetchsize", 1000)\\
         .load()
 
