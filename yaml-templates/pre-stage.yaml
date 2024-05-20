@@ -100,7 +100,7 @@ Parameters:
   # SNS
   VIASnsTopicArn:
     Type: String
-    Default: arn:aws:sns:us-east-1:283731589572:sdlf-email-test
+    Default: arn:aws:sns:us-east-1:283731589572:sdlf-email-notifications
 
   # External python function
   ViaExternalPythonFunctions:
