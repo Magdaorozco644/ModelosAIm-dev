@@ -439,6 +439,7 @@ Resources:
             "----write-shuffle-files-to-s3": "true"
             "--write-shuffle-spills-to-s3": "true"
             '--enable-metrics': 'true'
+            '--enable-job-insights': 'false'
           Tags:
             "map-migrated": "mig42454"
           ExecutionProperty:
@@ -476,6 +477,7 @@ Resources:
             "--write-shuffle-spills-to-s3": "true"
             '--enable-metrics': 'true'
             "--additional-python-modules": "awswrangler==2.14.0"
+            "--enable-job-insights": 'false'
             '--enable-glue-datacatalog': 'true'
             '--extra-py-files': !Ref ViaExternalPythonFunctions
           Tags:

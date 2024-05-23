@@ -1,6 +1,6 @@
-import pandas as pd
-import os
 import json
+import awswrangler as wr
+import os
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -69,14 +69,16 @@ def build_script(database, schema, table, columns):
         'rate_group_agent': 'date_upgrade', 
         # 'branch': 'date_inserted', 
         'returnchecks': 'inserteddate',
-        'sf_safe_transactions': 'transaction_date'
+        'sf_safe_transactions': 'transaction_date',
+        'audit_branch_status': 'date_audit',
+        'history_balance': 'date_balance',
+        'x9transactions': 'created',
     }
-
+    
     tables_update_field = [*update_field.keys()]
 
     if table in tables_update_field :
-        glue_script = f"""
-import boto3, json, sys
+        glue_script = f"""import boto3, json, sys
 from awsglue.context import GlueContext
 from concurrent.futures import ThreadPoolExecutor
 from botocore.exceptions import ClientError
@@ -89,6 +91,7 @@ from awsglue.utils import getResolvedOptions
 
 # Contexto
 sc = SparkContext()
+sc.setLogLevel("ERROR")
 spark = SparkSession(sc)
 
 spark.conf.set("spark.sql.sources.partitionOverwriteMode","dynamic")
@@ -138,6 +141,7 @@ def thread_function(args):
         .option("password", secret['password'])\\
         .option("fetchsize", 1000)\\
         .load()
+        
     print(f"INFO --- number of rows for date: {{date}}: {{jdbcDF.count()}} ")
     jdbcDF = jdbcDF.withColumn('day', date_format('{update_field[table]}', 'yyyy-MM-dd'))
     print(f"INFO --- variable 'day' for date: {{date}} obtained")
@@ -207,8 +211,7 @@ if __name__ == "__main__":
     main(dates)
     """
     else:
-        glue_script = f"""
-import boto3, json
+        glue_script = f"""import boto3, json
 from awsglue.context import GlueContext
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
@@ -218,6 +221,7 @@ from botocore.exceptions import ClientError
 
 # Contexto
 sc = SparkContext()
+sc.setLogLevel("ERROR")
 spark = SparkSession(sc)
 glueContext = GlueContext(spark)
 
@@ -276,18 +280,22 @@ s3_output_path = f"s3://{{secret_bucket_names['BUCKET_RAW']}}/{database}/{schema
 jdbcDF.write.parquet(s3_output_path, mode="overwrite")
     """
     return glue_script
-
-
+  
+    
 def main():
     # Leer el archivo Excel
-    excel_file = r'Data Dictionary Total.csv'
+    excel_file = 's3://viamericas-datalake-dev-us-east-1-283731589572-raw/Datadictionarytotal.csv'
 
-    df = pd.read_csv(excel_file)  # Read dataset
+    df = wr.s3.read_csv(excel_file)  # Read dataset
     df = df[df['USE?'].isnull()]  # Filter by columns that won't be used
 
     # Generating files just for all database except EnvioDW.
-    df = df[df['Database'] != 'EnvioDW']
-
+    #df = df[df['Database'] != 'EnvioDW']
+    
+    
+    df = df[df["AGREGAR"]=='SI']
+    #print(df[["Database","Schema","Table"]].head())
+    
     # Ignore sysname, tAppName, and tSessionId because they are duplicates of other columns
     df = df[df['Data_Type'] != 'sysname']
     df = df[df['Data_Type'] != 'tAppName']
@@ -329,9 +337,7 @@ def main():
         glue_script = build_script(database, schema, table, columns)
 
         # Crear un directorio para guardar los scripts si no existe
-        output_directory = 'glue_scripts'
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
+        output_directory = '/tmp'
 
         # Escribir el script en un archivo
         output_file = f"{output_directory}/{database}_{schema}_{table}_glue_script.py"
@@ -341,15 +347,14 @@ def main():
         # Subir script a aws
         upload_file(glue_script, database, schema, table)
 
-    print(jobs_str)
-    # Escribir el listado de trabajos en un archivo JSON
-    with open('jobs.json', 'w') as json_file:
-        jobs_json = json.dumps(jobs, indent=4)
-        json_file.write(jobs_json)
-
-    print("Archivo jobs.json generado exitosamente.")
     print("Scripts de Glue generados exitosamente.")
 
 
-if __name__ == "__main__":
+def lambda_handler(event, context):
+    
     main()
+    # TODO implement
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }

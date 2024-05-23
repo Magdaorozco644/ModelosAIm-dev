@@ -1,4 +1,5 @@
-import pandas as pd
+import json
+import awswrangler as wr
 import os
 import json
 import boto3
@@ -52,6 +53,8 @@ from Codes.check_partitions import *
 from concurrent.futures import ThreadPoolExecutor
 from timeit import default_timer as timer
 
+spark.sparkContext.setLogLevel('ERROR')
+client = boto3.client('glue')
 
 spark.conf.set("spark.sql.sources.partitionOverwriteMode","dynamic")
 spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInRead", "CORRECTED")
@@ -59,7 +62,6 @@ spark.conf.set("spark.sql.legacy.parquet.int96RebaseModeInWrite", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInRead", "CORRECTED")
 spark.conf.set("spark.sql.legacy.parquet.datetimeRebaseModeInWrite", "CORRECTED")
 
-client = boto3.client('glue')
 
 def get_partitions(input_schema, input_table ):
 		response = client.get_partitions(DatabaseName= input_schema, TableName= input_table)
@@ -205,15 +207,15 @@ if __name__ == "__main__":
 
 def main():
     # Leer el archivo Excel
-    excel_file = r'Data Dictionary Total.csv'
-    update_file = r'Frecuencia de Extraccion.csv'
+    excel_file = 's3://viamericas-datalake-dev-us-east-1-283731589572-raw/Datadictionarytotal.csv'
+    update_file = 's3://viamericas-datalake-dev-us-east-1-283731589572-raw/Frecuencia de Extraccion_v2.csv'
 
     # Dictionary
-    df = pd.read_csv(excel_file)
+    df = wr.s3.read_csv(excel_file)
     df = df[df['USE?'].isnull()]
     
     # Generating files just for all database except EnvioDW.
-    df = df[df['Database'] != 'EnvioDW']
+    #df = df[df['Database'] != 'EnvioDW']
     df = df[df['Table'] != 'CHECKREADER_SCORE']
     
     # Ignore sysname, tAppName, and tSessionId because they are duplicates of other columns
@@ -223,6 +225,11 @@ def main():
     
     # Create script just for one table
     # df = df[df['Table'] == 'SF_SAFE_TRANSACTIONS'] 
+    # df= df[df["AGREGAR"]=='SI']
+    
+    #print(df[['Database','Schema','Table']].head())
+    
+    #return
 
     df['Column'] = df.apply(
         lambda row: f"rtrim([{row['Column']}]) as {row['Column']}"
@@ -238,22 +245,34 @@ def main():
     dict_df = df.groupby(["Database", "Schema", "Table"]).agg(list).reset_index()
 
     # Update frequency
-    frequency = pd.read_csv(update_file)
+    frequency = wr.s3.read_csv(update_file,encoding = "ISO-8859-1")
+    
+    
+    #frequency= frequency[frequency["AGREGAR"]=='SI']
+    
+    #print(frequency[['Database','Schema','Table']].head())
+    #return
+    
     # frequency = frequency[frequency['Table'] == 'SF_SAFE_TRANSACTIONS']
     frequency = frequency[(frequency['USE?'] != 'Old/Not Used/Needed') & (frequency['extraction_load_type'] == 'incremental_load')]
     
     frequency['Campo de actualización'] = frequency['Campo de actualización'].fillna('')
     
     frequency['Important Columns'] = frequency['Important Columns'].fillna('')
+    #frequency= frequency[frequency["AGREGAR"]=='SI']
     
-
+    #print(frequency[['Database','Schema','Table']].head())
+    #return
+    
     jobs = []
     incremental_updates = [
-        'checkreader_score', 'receiver', 'checktable', 'ml_fraud_score', 'audit_rate_group_agent', 'transaccion_diaria_payee', 'sender', 'fraud_vectors_v2_1', 'transaccion_diaria_banco_payee', 'batchtable', 'history_inventory_market', 'historicalonholdrelease', 'accounting_journal', 'accounting_customerledger',
+        'checkreader_score', 'receiver', 'checktable', 'ml_fraud_score', 'audit_rate_group_agent', 'transaccion_diaria_payee', 'sender', 'fraud_vectors_v2_1',
+        'transaccion_diaria_banco_payee', 'batchtable', 'history_inventory_market', 'historicalonholdrelease', 'accounting_journal', 'accounting_customerledger',
         'accounting_submittransaction', 'vcw_billpayment_sales', 
         'comision_agent_modo_pago_grupo',
-        'forex_feed_market', 'vcw_moneyorders_sales', 'vcw_billpayment_viaone_sales', 'vcw_sales_products', 'vcw_states_pricing', 'receiver_gp_components', 'checkverification', 'customers_customer', 'viacheckfeaturemetrics', # 'rate_group_agent', 
-        'branch', 'returnchecks', 'sf_safe_transactions'
+        'forex_feed_market', 'vcw_moneyorders_sales', 'vcw_billpayment_viaone_sales', 'vcw_sales_products', 'vcw_states_pricing', 'receiver_gp_components', 'checkverification',
+        'customers_customer', 'viacheckfeaturemetrics', # 'rate_group_agent', 
+        'branch', 'returnchecks', 'sf_safe_transactions', 'audit_branch_status', 'history_balance', 'x9transactions'
     ]
     
 
@@ -289,9 +308,7 @@ def main():
             glue_script = build_script(database, schema, table, columns, update_field[table], partition_field[table])
 
             # Crear un directorio para guardar los scripts si no existe
-            output_directory = 'glue_scripts_incremental'
-            if not os.path.exists(output_directory):
-                os.makedirs(output_directory)
+            output_directory = '/tmp'
 
             # Escribir el script en un archivo
             output_file = f"{output_directory}/gj{ENV}_incremental_{database}_{schema}_{table}_glue_script.py"
@@ -301,15 +318,13 @@ def main():
             # Subir script a aws
             upload_file(glue_script, database, schema, table)
 
-    print(jobs_str)
-    # Escribir el listado de trabajos en un archivo JSON
-    with open('jobs.json', 'w') as json_file:
-        jobs_json = json.dumps(jobs, indent=4)
-        json_file.write(jobs_json)
-
-    print("Archivo jobs.json generado exitosamente.")
     print("Scripts de Glue generados exitosamente.")
     
-    
-if __name__ == "__main__":
+
+def lambda_handler(event, context):
     main()
+    # TODO implement
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
