@@ -1,0 +1,214 @@
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "Run Sources",
+    "States": {
+      "Run Sources": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.sources.execute",
+            "BooleanEquals": true,
+            "Next": "glue_run_analytics_inputs"
+          },
+          {
+            "Variable": "$.sources.execute",
+            "BooleanEquals": false,
+            "Next": "Run Abt"
+          }
+        ]
+      },
+      "Alert": {
+        "Next": "Fail",
+        "Parameters": {
+          "Message.$": "$.Error",
+          "TopicArn": "arn:aws:sns:us-east-1:283731589572:sdlf-abt-notifications"
+        },
+        "Resource": "arn:aws:states:::sns:publish",
+        "Type": "Task"
+      },
+      "Fail": {
+        "Type": "Fail"
+      },
+      "Map": {
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
+            ],
+            "Next": "Alert",
+            "ResultPath": "$.Error"
+          }
+        ],
+        "ItemProcessor": {
+          "ProcessorConfig": {
+            "Mode": "INLINE"
+          },
+          "StartAt": "sdlf_lambda_crawler",
+          "States": {
+            "sdlf_lambda_crawler": {
+              "End": true,
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "FunctionName": "arn:aws:lambda:us-east-1:283731589572:function:sdlf_lambda_crawler_init",
+                "Payload.$": "$"
+              },
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Retry": [
+                {
+                  "BackoffRate": 2,
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3
+                }
+              ],
+              "Type": "Task"
+            }
+          }
+        },
+        "ItemsPath": "$.input_analytics.Payload.CrawlerNames",
+        "Next": "Run Abt",
+        "Type": "Map",
+        "ResultPath": null
+      },
+      "Run Abt": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.abt.execute",
+            "BooleanEquals": true,
+            "Next": "glue_run_abt"
+          },
+          {
+            "Variable": "$.abt.execute",
+            "BooleanEquals": false,
+            "Next": "Success"
+          }
+        ]
+      },
+      "Success": {
+        "Type": "Succeed"
+      },
+      "abt_inference": {
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.Timeout",
+              "States.TaskFailed"
+            ],
+            "Next": "Alert",
+            "ResultPath": "$.Error"
+          }
+        ],
+        "Next": "Run Mape",
+        "Parameters": {
+          "JobName.$": "$.inference.job_name",
+          "Arguments.$": "$.inference.arguments"
+        },
+        "Resource": "arn:aws:states:::glue:startJobRun.sync",
+        "Type": "Task",
+        "ResultPath": null
+      },
+      "Run Mape": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.mape.execute",
+            "BooleanEquals": true,
+            "Next": "daily_mape"
+          },
+          {
+            "Variable": "$.mape.execute",
+            "BooleanEquals": false,
+            "Next": "Success"
+          }
+        ]
+      },
+      "daily_mape": {
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.Timeout",
+              "States.TaskFailed"
+            ],
+            "Next": "Alert",
+            "ResultPath": "$.Error"
+          }
+        ],
+        "Next": "Success",
+        "Parameters": {
+          "JobName.$": "$.mape.job_name",
+          "Arguments.$": "$.mape.arguments"
+        },
+        "Resource": "arn:aws:states:::glue:startJobRun.sync",
+        "Type": "Task"
+      },
+      "glue_run_abt": {
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed",
+              "States.Timeout"
+            ],
+            "Next": "Alert",
+            "ResultPath": "$.Error"
+          }
+        ],
+        "Next": "abt_inference",
+        "Parameters": {
+          "JobName.$": "$.abt.job_name",
+          "Arguments.$": "$.abt.arguments"
+        },
+        "Resource": "arn:aws:states:::glue:startJobRun.sync",
+        "Type": "Task",
+        "ResultPath": null
+      },
+      "glue_run_analytics_inputs": {
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed",
+              "States.Timeout"
+            ],
+            "Next": "Alert",
+            "ResultPath": "$.Error"
+          }
+        ],
+        "Next": "sdlf_input_analytics",
+        "Parameters": {
+          "JobName.$": "$.sources.job_name",
+          "Arguments.$": "$.sources.arguments"
+        },
+        "Resource": "arn:aws:states:::glue:startJobRun.sync",
+        "Type": "Task",
+        "ResultPath": null
+      },
+      "sdlf_input_analytics": {
+        "Next": "Map",
+        "Parameters": {
+          "FunctionName": "arn:aws:lambda:us-east-1:283731589572:function:sdlf_input_analytics_map",
+          "Payload.$": "$"
+        },
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Retry": [
+          {
+            "BackoffRate": 2,
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException",
+              "Lambda.TooManyRequestsException"
+            ],
+            "IntervalSeconds": 1,
+            "MaxAttempts": 3
+          }
+        ],
+        "Type": "Task",
+        "ResultPath": "$.input_analytics"
+      }
+    }
+  }
