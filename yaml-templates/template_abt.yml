@@ -9,37 +9,37 @@ Mappings:
   # GlueObjectsAbt
   GlueObjects:
     ABTPartitionGenerator:
-      JobName: "sdlf_gj_abt_partition_generator"
+      JobName: "sdlf_gj_abt_partition_generator-v2"
       #TODO: CHANGE SCRIPT LOCATION
       ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_abt_partition_generator_glue_script.py"
 
     ABTSourceGenerator:
-      JobName: "sdlf_gj_abt_source_generator"
+      JobName: "sdlf_gj_abt_source_generator-v2"
       #TODO: CHANGE SCRIPT LOCATION
       ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_abt_source_generator_glue_script.py"
 
     ModelInference:
-      JobName: "sdlf_gj_inference_predictions"
+      JobName: "sdlf_gj_inference_predictions-v2"
       #TODO: CHANGE SCRIPT LOCATION
       ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_inference_script.py"
 
     DailyMapeProcess:
-      JobName: "sdlf_gj_daily_mape"
+      JobName: "sdlf_gj_daily_mape-v2"
       #TODO: CHANGE SCRIPT LOCATION
       ScriptLocation: "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/scripts/gj_daily_mape_script.py"
 
   # Crawler objects
   CrawlerObjects:
     LastDailyForex:
-      CrawlerName: "sdlf_crw_abt_source_generator_last_daily_forex_country"
+      CrawlerName: "sdlf_crw_abt_source_generator_last_daily_forex_country-v2"
       #TODO: CHANGE S3 BUCKET
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/last_daily_forex_country/"
     DailyCheckGp:
-      CrawlerName: "sdlf_crw_abt_source_generator_daily_check_gp"
+      CrawlerName: "sdlf_crw_abt_source_generator_daily_check_gp-v2"
       #TODO: CHANGE S3 BUCKET
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/daily_check_gp/"
     DailySalesCountCancelled:
-      CrawlerName: "sdlf_crw_abt_source_generator_daily_sales_count_cancelled_v2"
+      CrawlerName: "sdlf_crw_abt_source_generator_daily_sales_count_cancelled_v2-v2"
       #TODO: CHANGE S3 BUCKET
       Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/daily_sales_count_cancelled_v2/"
 #
@@ -69,7 +69,7 @@ Parameters:
     Type: String
     Default: GlueRolFullAccess
   # The S3 path where the script for this job is located
-  #TODO: CHANGE ACCOUNT NUMBER
+  # TODO: change account id
   VIACrawlerRolArn:
     Type: String
     Default: arn:aws:iam::283731589572:role/sdlf-lakeformation-admin
@@ -87,28 +87,28 @@ Parameters:
   # Lambda Rol name
   VIALambdaRoleInputMapName:
     Type: String
-    Default: sdlf_lambda_role_input_map_name
+    Default: sdlf_lambda_role_input_map_name-v2
   VIALambdaRoleCrawler:
     Type: String
-    Default: sdlf_lambda_role_crawler
+    Default: sdlf_lambda_role_crawler-v2
 
   # Lambda Name
   VIALambdaInputMapName:
     Type: String
-    Default: sdlf_input_analytics_map
+    Default: sdlf_input_analytics_map-v2
   VIALambdaCrawlerName:
     Type: String
-    Default: sdlf_lambda_crawler_init
+    Default: sdlf_lambda_crawler_init-v2
 
   # State Machine Role Name
   VIAStateMachineABTRoleName:
     Type: String
-    Default: sdlf_state_machine_abt_role
+    Default: sdlf_state_machine_abt_role-v2
 
   # State Machine name
   VIAStateMachineABTName:
     Type: String
-    Default: sdlf_state_machine_abt
+    Default: sdlf_state_machine_abt-v2
 
   VIAStateMachineType:
     Type: String
@@ -116,17 +116,17 @@ Parameters:
   # SNS
   VIASnsTopicName:
     Type: String
-    Default: sdlf-abt-notifications
+    Default: sdlf-abt-notifications-v2
   VIASnsTopicNameInference:
     Type: String
-    Default: sdlf-inference-notifications
+    Default: sdlf-inference-notifications-v2
   # TODO: Change CONTROL/ALERT EMAIL.
   VIASnsTopicEndpoint:
     Type: String
     Default: lautaro.gramuglia@strata-analytics.us
   VIASnsTopicEndpoint2:
     Type: String
-    Default: mauricio.caggia@strata-analytics.us
+    Default: mauricio.caggiaa@strata-analytics.us
   VIASnsTopicProtocol:
     Type: String
     Default: EMAIL
@@ -134,25 +134,36 @@ Parameters:
   # Event Rule Role
   ViaEventBridgeRuleRoleName:
     Type: String
-    Default: role_rule_abt_execution_daily
+    Default: role_rule_abt_execution_daily-v2
   # Event Rule Name
   ViaEventBridgeRuleDailyName:
     Type: String
-    Default: rule_daily_abt_sm_execution
+    Default: rule_daily_abt_sm_execution-v2
 
   # Connections
   VIAConnectionName:
     Type: String
-    Default: via-redshift-connection
-  VIAConnectionNameOld:
-    Type: String
-    Default: via-redshift-connection2
+    Default: via-redshift-connection-v2
   GlueConnSG:
     Type: String
     Default: sg-0383ae40fcb40f359
   GlueConnSubNet:
     Type: String
     Default: subnet-060e0a2d52965b904
+
+  # TODO: change here bucket name
+  # Modules
+  PythonModules:
+    Type: String
+    Default: s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs
+  # Buckets
+  AnalyticsBucket:
+    Type: String
+    Default: viamericas-datalake-dev-us-east-1-283731589572-analytics
+  # Environment
+  Environment:
+    Type: String
+    Default: dev
 
 Resources:
   ##### Glue Jobs #####
@@ -177,23 +188,24 @@ Resources:
       NumberOfWorkers: 3
       GlueVersion: "4.0"
       DefaultArguments:
+        "--JOB_NAME": "sdlf_gj_abt_partition_generator-v2"
         "--LOG_LEVEL": "INFO"
-        "--JOB_NAME": "sdlf_gj_abt_partition_generator"
-        # TODO: libreria cargada en s3. CHANGE S3 BUCKET.
-        "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/holidays/holidays-0.43-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl"
+        # libreria cargada en s3.
+        "--additional-python-modules": !Sub "${PythonModules}/abt/package_v2/holidays/holidays-0.43-py3-none-any.whl,${PythonModules}/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl"
         # Enable Use Glue data catalog as the Hive metastore
         "--enable-glue-datacatalog": true
-        # TODO: CHANGE S3 BUCKET.
-        "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
+        "--bucket_name": !Sub "${AnalyticsBucket}"
+        "--database": "dev"
         "--date_lag": "1"
         "--end_date": "None"
+        "--endswith_equivalence_table": "PAYERS_EQUIVALENCE_TABLE.csv"
+        "--prefix_equivalence_table": "PAYERS_EQUIVALENCE_TABLE/"
         "--process_date": "None"
-        "--start_date": "2021-01-01"
-        "--database": "dev"
         "--schema": "viamericas"
+        "--start_date": "2021-01-01"
         "--table_name": "monitoring_test"
-        # TODO: CHANGE S3 BUCKET.
-        "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
+        "--temp_s3_dir": !Sub "s3://${AnalyticsBucket}/glue_abt/raw/tmp_dir/"
+        "--upload_redshift": "True"
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -224,11 +236,15 @@ Resources:
         "--additional-python-modules": "awswrangler==2.14.0"
         # Enable Use Glue data catalog as the Hive metastore
         "--enable-glue-datacatalog": true
+        "--date_from": "None"
+        "--date_to": "None"
+        "--env": !Sub "${Environment}"
+        "--reprocess": "False"
       ExecutionProperty:
         MaxConcurrentRuns: 1
       Name:
         Fn::FindInMap: ["GlueObjects", !Ref VIAGlueObjectABTSources, "JobName"]
-      Timeout: 30
+      Timeout: 60
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -256,27 +272,25 @@ Resources:
       GlueVersion: "4.0"
       DefaultArguments:
         "--LOG_LEVEL": "INFO"
-        "--JOB_NAME": "sdlf_gj_inference_predictions"
-        # TODO: libreria cargada en s3. # TODO: CHANGE S3 BUCKET.
-        "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/alembic/alembic-1.13.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/colorama/colorama-0.4.6-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/colorlog/colorlog-6.8.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/cython/Cython-3.0.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/greenlet/greenlet-3.0.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/joblib/joblib-1.3.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/mako/Mako-1.3.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/markupsafe/MarkupSafe-2.1.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/optuna/optuna-3.4.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/patsy/patsy-0.5.6-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pmdarima/pmdarima-2.0.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyyaml/PyYAML-6.0.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/scikit-learn/scikit_learn-1.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/scipy/scipy-1.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/setuptools/setuptools-69.2.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/skforecast/skforecast-0.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/sqlalchemy/SQLAlchemy-2.0.29-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/statsmodels/statsmodels-0.14.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/threadpoolctl/threadpoolctl-3.4.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/tqdm/tqdm-4.66.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/tzdata/tzdata-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl"
+        "--JOB_NAME": "sdlf_gj_inference_predictions-v2"
+        # libreria cargada en s3.
+        "--additional-python-modules": !Sub "${PythonModules}/abt/package_v2/alembic/alembic-1.13.1-py3-none-any.whl,${PythonModules}/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,${PythonModules}/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,${PythonModules}/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,${PythonModules}/abt/package_v2/colorama/colorama-0.4.6-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/colorlog/colorlog-6.8.2-py3-none-any.whl,${PythonModules}/abt/package_v2/cython/Cython-3.0.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/greenlet/greenlet-3.0.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,${PythonModules}/abt/package_v2/joblib/joblib-1.3.2-py3-none-any.whl,${PythonModules}/abt/package_v2/mako/Mako-1.3.2-py3-none-any.whl,${PythonModules}/abt/package_v2/markupsafe/MarkupSafe-2.1.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/optuna/optuna-3.4.0-py3-none-any.whl,${PythonModules}/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,${PythonModules}/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/patsy/patsy-0.5.6-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/pmdarima/pmdarima-2.0.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl,${PythonModules}/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/pyyaml/PyYAML-6.0.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,${PythonModules}/abt/package_v2/scikit-learn/scikit_learn-1.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/scipy/scipy-1.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/setuptools/setuptools-69.2.0-py3-none-any.whl,${PythonModules}/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/skforecast/skforecast-0.11.0-py3-none-any.whl,${PythonModules}/abt/package_v2/sqlalchemy/SQLAlchemy-2.0.29-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/statsmodels/statsmodels-0.14.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/threadpoolctl/threadpoolctl-3.4.0-py3-none-any.whl,${PythonModules}/abt/package_v2/tqdm/tqdm-4.66.2-py3-none-any.whl,${PythonModules}/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,${PythonModules}/abt/package_v2/tzdata/tzdata-2024.1-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl"
         # Enable Use Glue data catalog as the Hive metastore
         "--enable-glue-datacatalog": true
         "--arn_report": !Ref VIASnsTopicInference
-        # TODO: change bucket name.
-        "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
-        "--model_2d_prefix": "MODEL_2d_"
+        "--bucket_name": !Sub "${AnalyticsBucket}"
+        "--database": "dev"
+        "--model_2d_prefix": "MODEL_2d"
         "--model_8d_prefix": "MODEL_7d"
         "--prefix_abt_name": "abt_parquet"
         "--prefix_inference_name": "inference_prediction/"
-        "--prefix_model_name_2d": "ABTv3/Tableau/"
-        "--prefix_model_name_8d": "ABTv3/Last_releases_7d_8lags/"
+        "--prefix_model_name_2d": "models/models_2d/dt=2024-05-06/"
+        "--prefix_model_name_8d": "models/models_7d/dt=2024-05-06/"
         "--process_date": "None"
-        "--database": "dev"
         "--schema": "viamericas"
         "--table_name_2d": "predict_2d_test"
         "--table_name_8d": "predict_8d_test"
-        # TODO: CHANGE S3 BUCKET.
-        "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
+        "--temp_s3_dir": !Sub "s3://${AnalyticsBucket}/glue_abt/raw/tmp_dir/"
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -308,25 +322,23 @@ Resources:
       NumberOfWorkers: 3
       GlueVersion: "4.0"
       DefaultArguments:
+        "--JOB_NAME": "sdlf_gj_daily_mape-v2"
         "--LOG_LEVEL": "INFO"
-        "--JOB_NAME": "sdlf_gj_daily_mape"
-        # TODO: libreria cargada en s3. # TODO: CHANGE S3 BUCKET.
-        "--additional-python-modules": "s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl,s3://viamericas-datalake-dev-us-east-1-283731589572-glue-jobs/abt/package_v2/openpyxl/openpyxl-3.1.2-py2.py3-none-any.whl"
+        # libreria cargada en s3
+        "--additional-python-modules": !Sub "${PythonModules}/abt/package_v2/awswrangler/awswrangler-3.7.2-py3-none-any.whl,${PythonModules}/abt/package_v2/boto3/boto3-1.34.80-py3-none-any.whl,${PythonModules}/abt/package_v2/botocore/botocore-1.34.80-py3-none-any.whl,${PythonModules}/abt/package_v2/jmespath/jmespath-1.0.1-py3-none-any.whl,${PythonModules}/abt/package_v2/numpy/numpy-1.26.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/packaging/packaging-24.0-py3-none-any.whl,${PythonModules}/abt/package_v2/pandas/pandas-2.1.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/pyarrow/pyarrow-15.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl,${PythonModules}/abt/package_v2/python-dateutil/python_dateutil-2.9.0.post0-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/pytz/pytz-2024.1-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/s3transfer/s3transfer-0.10.1-py3-none-any.whl,${PythonModules}/abt/package_v2/six/six-1.16.0-py2.py3-none-any.whl,${PythonModules}/abt/package_v2/typing-extensions/typing_extensions-4.11.0-py3-none-any.whl,${PythonModules}/abt/package_v2/urllib3/urllib3-2.2.1-py3-none-any.whl,${PythonModules}/abt/package_v2/openpyxl/openpyxl-3.1.2-py2.py3-none-any.whl"
         # Enable Use Glue data catalog as the Hive metastore
         "--enable-glue-datacatalog": true
-        # TODO: CHANGE S3 BUCKET.
-        "--bucket_name": "viamericas-datalake-dev-us-east-1-283731589572-analytics"
+        "--bucket_name": !Sub "${AnalyticsBucket}"
         "--database_athena": "analytics"
         "--database_redshift": "dev"
-        "--prefix" : "inference_prediction"
-        "--save_prefix" : "mape_results"
-        "--schema": "viamericas"
-        "--table_name_athena" : "daily_check_gp"
-        "--table_name_redshift" : "mape_monitoring"
-        # TODO: CHANGE S3 BUCKET.
-        "--temp_s3_dir": "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/glue_abt/raw/tmp_dir/"
-        "--top_payers_abt_key" : "ABTv3_update/top_payers_abt_v3update/"
+        "--prefix": "inference_prediction"
         "--process_date": "None"
+        "--save_prefix": "mape_results"
+        "--schema": "viamericas"
+        "--table_name_athena": "daily_check_gp"
+        "--table_name_redshift": "mape_monitoring"
+        "--temp_s3_dir": !Sub "s3://${AnalyticsBucket}/glue_abt/raw/tmp_dir/"
+        "--top_payers_abt_key": "models/models_2d/dt=2024-05-06/top_15_payers_abt/"
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -336,7 +348,6 @@ Resources:
       WorkerType: "G.1X"
       Name:
         Fn::FindInMap: ["GlueObjects", !Ref VIAGlueObjectDailyMape, "JobName"]
-
 
   ### Connection Redshift ###
   GlueConnection:
@@ -362,7 +373,7 @@ Resources:
   VIACrawlerGlueABT:
     Type: AWS::Glue::Crawler
     Properties:
-      Name: "sdlf_crw_abt_partition_generator"
+      Name: "sdlf_crw_abt_partition_generator-v2"
       Role: !Ref VIACrawlerRolArn
       #Classifiers: none, use the default classifier
       Description: "AWS Glue crawler to crawl viamericas data"
@@ -370,9 +381,7 @@ Resources:
       DatabaseName: !Ref VIADatabaseName
       Targets:
         S3Targets:
-          # Private S3 path with the viamericas data
-          #TODO: CHANGE PATH LOCATION
-          - Path: "s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/abt/"
+          - Path: !Sub "s3://${AnalyticsBucket}/abt/"
       Tags:
         "map-migrated": "mig42454"
         "process": "abt"
@@ -489,8 +498,7 @@ Resources:
         - Key: "process"
           Value: "abt"
       Code:
-        # TODO: CHANGE S3 BUCKET.
-        S3Bucket: viamericas-datalake-dev-us-east-1-283731589572-analytics
+        S3Bucket: !Sub ${AnalyticsBucket}
         S3Key: Lambdas/scripts/sdlf_input_analytics_map.zip
       Description: List Amazon S3 buckets in us-east-1.
   # Lambda Crawler
@@ -511,8 +519,7 @@ Resources:
         - Key: "process"
           Value: "abt"
       Code:
-        # TODO: CHANGE S3 BUCKET.
-        S3Bucket: viamericas-datalake-dev-us-east-1-283731589572-analytics
+        S3Bucket: !Sub ${AnalyticsBucket}
         S3Key: Lambdas/scripts/sdlf_lambda_crawler_init.zip
       Description: List Amazon S3 buckets in us-east-1.
 
@@ -617,71 +624,45 @@ Resources:
       Definition:
         {
           "Comment": "A description of my state machine",
-          "StartAt": "glue_run_analytics_inputs",
+          "StartAt": "Run Sources",
           "States":
             {
-              "glue_run_analytics_inputs":
+              "Run Sources":
                 {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
-                  "Parameters":
-                    {
-                      "JobName":
-                        !FindInMap [
-                          "GlueObjects",
-                          "ABTSourceGenerator",
-                          "JobName",
-                        ],
-                    },
-                  "Next": "sdlf_input_analytics",
-                  "Catch":
+                  "Type": "Choice",
+                  "Choices":
                     [
                       {
-                        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
-                        "ResultPath": "$.Error",
-                        "Next": "Alert",
+                        "Variable": "$.sources.execute",
+                        "BooleanEquals": true,
+                        "Next": "glue_run_analytics_inputs",
+                      },
+                      {
+                        "Variable": "$.sources.execute",
+                        "BooleanEquals": false,
+                        "Next": "Run Abt",
                       },
                     ],
                 },
               "Alert":
                 {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::sns:publish",
+                  "Next": "Fail",
                   "Parameters":
                     { "Message.$": "$.Error", "TopicArn": !Ref VIASnsTopic },
-                  "Next": "Fail",
+                  "Resource": "arn:aws:states:::sns:publish",
+                  "Type": "Task",
                 },
               "Fail": { "Type": "Fail" },
-              "sdlf_input_analytics":
-                {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::lambda:invoke",
-                  "OutputPath": "$.Payload",
-                  "Parameters":
-                    {
-                      "Payload.$": "$",
-                      "FunctionName": !GetAtt VIALambdaInputMap.Arn,
-                    },
-                  "Retry":
-                    [
-                      {
-                        "ErrorEquals":
-                          [
-                            "Lambda.ServiceException",
-                            "Lambda.AWSLambdaException",
-                            "Lambda.SdkClientException",
-                            "Lambda.TooManyRequestsException",
-                          ],
-                        "IntervalSeconds": 1,
-                        "MaxAttempts": 3,
-                        "BackoffRate": 2,
-                      },
-                    ],
-                  "Next": "Map",
-                },
               "Map":
                 {
-                  "Type": "Map",
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.TaskFailed"],
+                        "Next": "Alert",
+                        "ResultPath": "$.Error",
+                      },
+                    ],
                   "ItemProcessor":
                     {
                       "ProcessorConfig": { "Mode": "INLINE" },
@@ -690,17 +671,18 @@ Resources:
                         {
                           "sdlf_lambda_crawler":
                             {
-                              "Type": "Task",
-                              "Resource": "arn:aws:states:::lambda:invoke",
+                              "End": true,
                               "OutputPath": "$.Payload",
                               "Parameters":
                                 {
                                   "FunctionName": !GetAtt VIALambdaCrawler.Arn,
                                   "Payload.$": "$",
                                 },
+                              "Resource": "arn:aws:states:::lambda:invoke",
                               "Retry":
                                 [
                                   {
+                                    "BackoffRate": 2,
                                     "ErrorEquals":
                                       [
                                         "Lambda.ServiceException",
@@ -710,90 +692,159 @@ Resources:
                                       ],
                                     "IntervalSeconds": 1,
                                     "MaxAttempts": 3,
-                                    "BackoffRate": 2,
                                   },
                                 ],
-                              "End": true,
+                              "Type": "Task",
                             },
                         },
                     },
-                  "ItemsPath": "$.CrawlerNames",
-                  "Next": "glue_run_abt",
-                  "Catch":
-                    [
-                      {
-                        "ErrorEquals": ["States.TaskFailed"],
-                        "ResultPath": "$.Error",
-                        "Next": "Alert",
-                      },
-                    ],
+                  "ItemsPath": "$.input_analytics.Payload.CrawlerNames",
+                  "Next": "Run Abt",
+                  "Type": "Map",
+                  "ResultPath": "$.MapResult",
                 },
-              "glue_run_abt":
+              "Run Abt":
                 {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
-                  "Parameters":
-                    {
-                      "JobName":
-                        !FindInMap [
-                          "GlueObjects",
-                          "ABTPartitionGenerator",
-                          "JobName",
-                        ],
-                    },
-                  "Catch":
+                  "Type": "Choice",
+                  "Choices":
                     [
                       {
-                        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
-                        "ResultPath": "$.Error",
-                        "Next": "Alert",
+                        "Variable": "$.abt.execute",
+                        "BooleanEquals": true,
+                        "Next": "glue_run_abt",
+                      },
+                      {
+                        "Variable": "$.abt.execute",
+                        "BooleanEquals": false,
+                        "Next": "Success",
                       },
                     ],
-                  "Next": "abt_inference",
                 },
+              "Success": { "Type": "Succeed" },
               "abt_inference":
                 {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
-                  "Parameters":
-                    {
-                      "JobName":
-                        !FindInMap ["GlueObjects", "ModelInference", "JobName"],
-                    },
-                  "Next": "daily_mape",
                   "Catch":
                     [
                       {
                         "ErrorEquals": ["States.Timeout", "States.TaskFailed"],
                         "Next": "Alert",
                         "ResultPath": "$.Error",
+                      },
+                    ],
+                  "Next": "Run Mape",
+                  "Parameters":
+                    {
+                      "JobName.$": "$.inference.job_name",
+                      "Arguments.$": "$.inference.arguments",
+                    },
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Type": "Task",
+                  "ResultPath": "$.Inference",
+                },
+              "Run Mape":
+                {
+                  "Type": "Choice",
+                  "Choices":
+                    [
+                      {
+                        "Variable": "$.mape.execute",
+                        "BooleanEquals": true,
+                        "Next": "daily_mape",
+                      },
+                      {
+                        "Variable": "$.mape.execute",
+                        "BooleanEquals": false,
+                        "Next": "Success",
                       },
                     ],
                 },
               "daily_mape":
                 {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
-                  "Parameters":
-                    {
-                      "JobName":
-                        !FindInMap [
-                          "GlueObjects",
-                          "DailyMapeProcess",
-                          "JobName",
-                        ],
-                    },
-                  "Next": "Success",
                   "Catch":
                     [
                       {
                         "ErrorEquals": ["States.Timeout", "States.TaskFailed"],
-                        "ResultPath": "$.Error",
                         "Next": "Alert",
+                        "ResultPath": "$.Error",
                       },
                     ],
+                  "Next": "Success",
+                  "Parameters":
+                    {
+                      "JobName.$": "$.mape.job_name",
+                      "Arguments.$": "$.mape.arguments",
+                    },
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Type": "Task",
+                  "ResultPath": "$.DailyMape",
                 },
-              "Success": { "Type": "Succeed" },
+              "glue_run_abt":
+                {
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+                        "Next": "Alert",
+                        "ResultPath": "$.Error",
+                      },
+                    ],
+                  "Next": "abt_inference",
+                  "Parameters":
+                    {
+                      "JobName.$": "$.abt.job_name",
+                      "Arguments.$": "$.abt.arguments",
+                    },
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Type": "Task",
+                  "ResultPath": "$.PartitionABT",
+                },
+              "glue_run_analytics_inputs":
+                {
+                  "Catch":
+                    [
+                      {
+                        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+                        "Next": "Alert",
+                        "ResultPath": "$.Error",
+                      },
+                    ],
+                  "Next": "sdlf_input_analytics",
+                  "Parameters":
+                    {
+                      "JobName.$": "$.sources.job_name",
+                      "Arguments.$": "$.sources.arguments",
+                    },
+                  "Resource": "arn:aws:states:::glue:startJobRun.sync",
+                  "Type": "Task",
+                  "ResultPath": "$.SourceResult",
+                },
+              "sdlf_input_analytics":
+                {
+                  "Next": "Map",
+                  "Parameters":
+                    {
+                      "Payload.$": "$",
+                      "FunctionName": !GetAtt VIALambdaInputMap.Arn,
+                    },
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Retry":
+                    [
+                      {
+                        "BackoffRate": 2,
+                        "ErrorEquals":
+                          [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException",
+                          ],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                      },
+                    ],
+                  "Type": "Task",
+                  "ResultPath": "$.input_analytics",
+                },
             },
         }
       RoleArn: !GetAtt VIAStateMachineAbtRole.Arn
@@ -816,8 +867,33 @@ Resources:
       Description: Executes ABT process daily.
       # TODO: change cron schedule expression to change time execution.
       ScheduleExpression: cron(0 10 * * ? *)
-      State: ENABLED
+      State: DISABLED
       Targets:
         - Arn: !Ref VIAStateMachineAbt
           Id: VIAStateMachineAbt
+          Input: '{
+            "sources":
+            {
+            "job_name": "sdlf_gj_abt_source_generator-v2",
+            "execute": true,
+            "arguments": {}
+            },
+            "abt":
+            {
+            "job_name": "sdlf_gj_abt_partition_generator-v2",
+            "execute": true,
+            "arguments": {}
+            },
+            "inference":
+            {
+            "job_name": "sdlf_gj_inference_predictions-v2",
+            "arguments": {}
+            },
+            "mape":
+            {
+            "job_name": "sdlf_gj_daily_mape-v2",
+            "execute": true,
+            "arguments": {}
+            }
+            }'
           RoleArn: !GetAtt VIAEventBridgeRuleRole.Arn
