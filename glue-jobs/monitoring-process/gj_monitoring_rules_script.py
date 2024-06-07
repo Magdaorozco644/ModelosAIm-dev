@@ -151,6 +151,8 @@ class MonitoringRules:
         else:
             try:
                 partition_dt = datetime.strptime(self.args["process_date"], "%Y-%m-%d")
+                # return as string
+                partition_dt = partition_dt.strftime("%Y-%m-%d")
             except ValueError:
                 self.logger.info("Invalid format date.")
                 raise InputVaribleRequired(
