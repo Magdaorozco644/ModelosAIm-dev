@@ -259,7 +259,7 @@ Resources:
     Properties:
       Name: !Ref ViaEventBridgeRuleValidateForecastSources
       Description: Ejecuta lambda para validar las fuentes de que se usan en el forecast
-      ScheduleExpression: rate(1 hour)
+      ScheduleExpression: cron(0 10 * * ? *)
       State: ENABLED
       Targets:
         - Arn: !GetAtt ViaLambdaValidator.Arn
