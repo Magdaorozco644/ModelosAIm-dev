@@ -1,0 +1,309 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ViaLambdaValidatorName:
+    Type: String
+    Default: lambda_sources_validator
+  ViaLambdaRoleName:
+    Type: String
+    Default: lambda_sources_validator_role
+
+  # SNS
+  VIASnsTopicName:
+    Type: String
+    Default: sdlf-alarm-sources-validator
+  VIASnsTopicEndpoint:
+    Type: String
+    Default: giovanni.posada@strata-analytics.us
+  VIASnsTopicProtocol:
+    Type: String
+    Default: EMAIL
+
+  ViaEventBridgeRuleValidateForecastSources:
+    Type: String
+    Default: rule_validate_forecast_sources
+
+
+Resources:
+  # Sns topic
+  VIASnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref VIASnsTopicEndpoint
+          Protocol: !Ref VIASnsTopicProtocol
+      TopicName: !Ref VIASnsTopicName
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+  
+  # Rol for lambda function
+  VIALambdaInputMapRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub sdlf_${ViaLambdaRoleName}
+      Description: "IAM role for lambda"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:*"
+                  - "sns:*"
+                  - "athena:*"
+                  - "s3:*"
+                  - "glue:*"
+                  - "lakeformation:*"
+                Resource:
+                  - "*"
+
+  # Lambda
+  ViaLambdaValidator:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: "python3.12"
+      Role: !GetAtt VIALambdaInputMapRole.Arn
+      FunctionName: !Sub sdlf_${ViaLambdaValidatorName}
+      Handler: index.lambda_handler
+      Timeout: 900
+      Layers:
+           - "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python312:8"
+      MemorySize: 2048
+      Code:
+        ZipFile: |
+          import boto3
+          import logging
+          import awswrangler as wr
+          from botocore.exceptions import ClientError
+
+
+          logger = logging.getLogger()
+          logger.setLevel("INFO")
+
+
+          def validate_table(
+              table_name: str, days_before: int, 
+              date_column: str, date_format: str, strategy: int):
+              
+              query = ""
+                  
+              if strategy == 1:
+                  # For strategy 1, tables must have data between a range of dates
+                  query = f"""
+                      select 
+                          cast(cast(date_parse(cast(max({date_column}) as varchar), '{date_format}') as date) as varchar) as {date_column}, 
+                          cast(date_add('day', -{days_before}, current_date) as varchar) as lower_range,
+                          cast(current_date as varchar) as upper_range,
+                          case
+                              when 
+                                  cast(date_parse(cast(max({date_column}) as varchar), '{date_format}') as date)
+                              between
+                                  date_add('day', -{days_before}, current_date)
+                              and 
+                                  current_date
+                              then
+                                  1
+                              else 
+                                  0
+                          end as up_to_date,
+                          {strategy} as strategy
+                      from {table_name}
+                  """
+              elif strategy == 2:
+                  # For strategy 2, tables must have data higher than current date
+                  query = f"""
+                      select 
+                          'no date column' as {date_column}, 
+                          'no range' as lower_range,
+                          'no range' as upper_range,
+                          count(*) as up_to_date,
+                          {strategy} as strategy
+                      from {table_name}
+                  """
+              
+              df = wr.athena.read_sql_query(
+                  sql = query,
+                  database = table_name.split('.')[0],
+                  ctas_approach = False,
+                  workgroup = 'primary'
+              ).iloc[0]
+              
+              logger.info(
+                  "The results for the table %s are: \n%s: %s \nlower_range: %s \nupper_range: %s \nup_to_date: %s \nstrategy: %s",
+                  table_name,
+                  date_column, 
+                  df[date_column],
+                  df['lower_range'],
+                  df['upper_range'],
+                  df['up_to_date'],
+                  df['strategy']
+              )
+              
+              return df.to_dict()
+
+
+          def send_alarm(message: str):
+              topic_arn = 'arn:aws:sns:us-east-1:283731589572:sdlf-alarm-sources-validator'
+
+              try:
+                  client = boto3.client('sns')
+                  response = client.publish(
+                      TopicArn=topic_arn,
+                      Message=message
+                  )
+                  logger.info(
+                      "Message to topic %s sent sucessfully",
+                      topic_arn.split(':')[-1],
+                  )
+              except ClientError as err:
+                  logger.error(
+                      "Couldn't send message to topic %s. Here's why: %s: %s",
+                      topic_arn.split(':')[-1],
+                      err.response['Error']['Code'],
+                      err.response['Error']['Message']     
+                  )   
+                  raise
+              except Exception as err:
+                  logger.error(
+                      "Something went wrong. Unexpected error: %s",
+                      err   
+                  )
+                  raise
+              else:
+                  return response    
+
+
+          def lambda_handler(event, context): 
+              sources = event['sources']
+              
+              tables_not_up_to_date = []
+              for key, value in sources.items():
+                  table_name = key
+                  days_before = value['days_before']
+                  date_column = value['date_column']
+                  date_format = value['date_format']
+                  strategy = value['strategy']
+                  
+                  result = validate_table(
+                      table_name, days_before, 
+                      date_column, date_format, strategy)
+                  
+                  # If up_to_date == 0, then add to the list of not updated tables
+                  if not result['up_to_date']:
+                      tables_not_up_to_date.append([table_name, date_column, result, strategy])
+              
+              if len(tables_not_up_to_date):
+                  message = ""
+                  
+                  for i in tables_not_up_to_date:
+                      table, name_date_column, table_info, strategy  = i
+                      
+                      if table_info['strategy'] == 1:
+                          
+                          tmp_message = f"""
+                              Warning, table {table} is not up to date.
+                              {table} has data for date {table_info[name_date_column]},
+                              but we are expecting it to be between {table_info['lower_range']} and {table_info['upper_range']}\n
+                          """
+                          
+                          message += tmp_message
+          
+                      elif table_info['strategy'] == 2:
+                          tmp_message = f"""
+                              Warning, table {table} has no data.\n
+                          """ 
+              
+                          message += tmp_message
+                      
+                      
+                  send_alarm(message=message)
+                  
+                  logger.error(
+                      message
+                  )
+                  
+                  return
+              
+                  
+              logger.info(
+                  'Tables are up to date %s.',
+                  list(sources.keys())
+              )
+                  
+              
+              return {
+                  'statusCode': 200,
+                  'executionArn': 'tables are updated.'
+              }
+      Description: Validate sources
+      TracingConfig:
+        Mode: Active
+      Tags:
+        - Key: "map-migrated"
+          Value: "mig42454"
+  
+  # Crea la regla de EventBridge
+  VIAEventRuleSourcesValidatorExecution:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref ViaEventBridgeRuleValidateForecastSources
+      Description: Ejecuta lambda para validar las fuentes de que se usan en el forecast
+      ScheduleExpression: cron(0 10 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt ViaLambdaValidator.Arn
+          Id: ViaLambdaValidator
+          Input: |
+            {
+              "sources": {
+                "viamericas.receiver": {
+                  "days_before": 0,
+                  "date_column": "date_receiver",
+                  "date_format": "%Y-%c-%d %H:%i:%s.%f",
+                  "strategy": 1
+                },
+                "viamericas.GROUP_BRANCH": {
+                  "days_before": 0,
+                  "date_column": "no_column",
+                  "date_format": "",
+                  "strategy": 2
+                },
+                "viamericas.COUNTRY": {
+                  "days_before": 0,
+                  "date_column": "no_column",
+                  "date_format": "",
+                  "strategy": 2
+                },
+                "viamericas.RECEIVER_GP_COMPONENTS": {
+                  "days_before": 0,
+                  "date_column": "date_receiver",
+                  "date_format": "%Y-%c-%d %H:%i:%s.%f",
+                  "strategy": 1
+                },
+                "viamericas.forex_feed_market": {
+                  "days_before": 0,
+                  "date_column": "feed_date",
+                  "date_format": "%Y-%c-%d %H:%i:%s.%f",
+                  "strategy": 1
+                }
+              }
+            }
+  
+  PermissionForEventSourcesValidatorToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Sub sdlf_${ViaLambdaValidatorName}
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt VIAEventRuleSourcesValidatorExecution.Arn
