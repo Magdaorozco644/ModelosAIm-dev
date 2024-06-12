@@ -156,31 +156,31 @@ def get_data(cursor=None):
     print(row is None)
     while row is not None:
         row_v = [row.ID_BRANCH, row.ID_RECEIVER, row.TRANSACTION_UNIQUE, row.RECEIVER_FRAUD, row.SENDER_FRAUD, 
-                  row.branch_minutes_since_last_transaction
-row.branch_trans_3m
-row.branch_has_fraud
-row.branch_trans_40min
-row.branch_trans_10min
-row.cash_pick_up_40min
-row.location_nro_fraud
-row.sender_trans_3m
-row.sender_nro_fraud
-row.01_isMexico
-row.01_sender_branch_state
-row.01_var_range_hist
-row.01_branch_fraud
-row.01_location_fraud
-row.01_isCashPick
-row.01_isBankDep
-row.sender_days_to_last_transaction_more7m
-row.receiver_transaction_count
-row.01_sender_sending_days
-row.branch_working_days
-row.01_net_amount_receiver
-row.sender_minutes_since_last_transaction_2days
-row.sender_days_to_last_transaction_365
-row.sender_days_to_last_transaction_7m
-row.01_hour_receiver]
+                    row.branch_minutes_since_last_transaction
+                    row.branch_trans_3m,
+                    row.branch_has_fraud,
+                    row.branch_trans_40min,
+                    row.branch_trans_10min,
+                    row.cash_pick_up_40min,
+                    row.location_nro_fraud,
+                    row.sender_trans_3m,
+                    row.sender_nro_fraud,
+                    row.01_isMexico,
+                    row.01_sender_branch_state,
+                    row.01_var_range_hist,
+                    row.01_branch_fraud,
+                    row.01_location_fraud,
+                    row.01_isCashPick,
+                    row.01_isBankDep,
+                    row.sender_days_to_last_transaction_more7m,
+                    row.receiver_transaction_count,
+                    row.01_sender_sending_days,
+                    row.branch_working_days,
+                    row.01_net_amount_receiver,
+                    row.sender_minutes_since_last_transaction_2days,
+                    row.sender_days_to_last_transaction_365,
+                    row.sender_days_to_last_transaction_7m,
+                    row.01_hour_receiver]
     
         # row_v = [i for i in row]
         # print(row_v)
