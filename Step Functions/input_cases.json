@@ -1,0 +1,85 @@
+-- Daily execution (INPUT EVENT RULE)
+{
+	"sources": {
+		"job_name": "sdlf_gj_abt_source_generator",
+		"execute": true,
+		"arguments": {}
+	},
+	"abt": {
+		"job_name": "sdlf_gj_abt_partition_generator",
+		"execute": true,
+		"arguments": {}
+	},
+	"inference": {
+		"job_name": "sdlf_gj_inference_predictions",
+		"arguments": {}
+	},
+	"mape": {
+		"job_name": "sdlf_gj_daily_mape",
+		"execute": true,
+		"arguments": {}
+	}
+}
+
+
+-- Input with parameters to reprocess.
+-- Example executes sources (date from 2024-01-01 to 2024-05-22), then abt, inference and mape, with reprocess_date 2024-05-22
+-- inference 2024-05-21 already exists
+{
+    "sources": {
+      "job_name": "sdlf_gj_abt_source_generator",
+      "execute": true,
+      "arguments": {
+        "--reprocess": "True",
+        "--date_from": "2024-01-01",
+        "--date_to": "2024-05-22"
+      }
+    },
+    "abt": {
+      "job_name": "sdlf_gj_abt_partition_generator",
+      "execute": true,
+      "arguments": {
+        "--upload_redshift": "True",
+        "--process_date": "2024-05-22",
+        "--end_date": "2024-05-22"
+      }
+    },
+    "inference": {
+      "job_name": "sdlf_gj_inference_predictions",
+      "arguments": {
+        "--process_date": "2024-05-22"
+      }
+    },
+    "mape": {
+      "job_name": "sdlf_gj_daily_mape",
+      "execute": true,
+      "arguments": {
+        "--process_date": "2024-05-22"
+      }
+    }
+  }
+
+
+
+-- Executes abt - inference  only
+{
+	"sources": {
+		"job_name": "sdlf_gj_abt_source_generator",
+		"execute": false,
+		"arguments": {}
+	},
+	"abt": {
+		"job_name": "sdlf_gj_abt_partition_generator",
+		"execute": true,
+		"arguments": {}
+	},
+	"inference": {
+		"job_name": "sdlf_gj_inference_predictions",
+		"arguments": {}
+	},
+	"mape": {
+		"job_name": "sdlf_gj_daily_mape",
+		"execute": false,
+		"arguments": {}
+	}
+}

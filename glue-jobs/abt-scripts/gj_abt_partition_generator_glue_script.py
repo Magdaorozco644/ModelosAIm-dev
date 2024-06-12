@@ -11,13 +11,22 @@ import pandas as pd
 from datetime import datetime, timedelta
 import logging
 import sys
+import json
 import holidays
+import boto3
+import time
+from io import StringIO
+from botocore.exceptions import ClientError
 from awsglue.utils import getResolvedOptions
 from awsglue.transforms import *
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
 from awsglue.dynamicframe import DynamicFrame
+
+# CREDENTIALS
+SECRET_NAME = "REDSHIFT-CREDENTIALS"
+REGION_NAME = "us-east-1"
 
 # UNIVERSE ARGS
 MIN_AGE_PAYER = 3
@@ -44,10 +53,30 @@ HOLIDAYS_TO_EXCLUDE = [
 ]
 
 # TABLE NAMES
-#TODO: change table name to prod.
-DAILY_CHECK_GP = '20240513_daily_check_gp' #daily_check_gp
-LAST_DAILY_FOREX = '20240513_last_daily_forex_country' #last_daily_forex_country
-DAILY_SALES_CANCELLED = '20240513daily_sales_count_cancelled' #daily_sales_count_cancelled_v2
+# TODO: change table name to prod.
+DAILY_CHECK_GP = "daily_check_gp"  # "20240513_daily_check_gp"  # daily_check_gp
+LAST_DAILY_FOREX = "last_daily_forex_country"  # "20240513_last_daily_forex_country"  # last_daily_forex_country
+DAILY_SALES_CANCELLED = "daily_sales_count_cancelled_v2"  # "20240513daily_sales_count_cancelled"  # daily_sales_count_cancelled_v2
+
+# Redshift DATA
+REDSHIFT_FIRST_DATE = "2022-01-01"
+REDSHIFT_UPDATE_DAYS = 90
+REDSHIFT_COLUMNS = [
+    "date",
+    "payer_country",
+    "payer",
+    "country",
+    "tx",
+    "amount",
+    "coupon_count",
+    "gp",
+    "margin",
+    "max_feed_price",
+    "ratio_coupon_tx",
+    "tx_cancelled",
+    "id_main_branch",
+    "id_country",
+]
 
 
 # check input variables
@@ -206,8 +235,9 @@ class ABT:
     def create_partition(self):
         # Create daily check dataframe
         self.logger.info("Create daily check")
-        df = self.create_daily_check()
+        df, data_table_eqs, aux = self.create_daily_check_and_equivalence()
         self.logger.info(f"Daily check shape: {df.shape}")
+
         # Read last daily forex
         self.logger.info("Create last daily forex")
         rates = self.create_last_daily_forex()
@@ -259,7 +289,7 @@ class ABT:
 
         # Second df
         self.logger.info("Create canceled transactions")
-        df2 = self.create_canceled_transactions()
+        df2 = self.create_canceled_transactions(aux=aux, data_table_eqs=data_table_eqs)
         self.logger.info(f"Df canceled transactions shape: {df2.shape}")
 
         # Merge df1 with df2
@@ -309,15 +339,130 @@ class ABT:
 
         return df_final
 
-    def create_daily_check(self):
+    def create_equivalence_df(self):
+        client = boto3.client("s3")
+        # Specify the CSV file key
+        csv_key = None
+        # List objects in the S3 path
+        response = client.list_objects(
+            Bucket=self.args["bucket_name"],
+            Prefix=self.args["prefix_equivalence_table"],
+        )
+        # Find the CSV file in the S3 path
+        for obj in response.get("Contents", []):
+            if obj["Key"].endswith(self.args["endswith_equivalence_table"]):
+                csv_key = obj["Key"]
+                break
+        # Check if CSV file is found
+        if csv_key is not None:
+            # Read CSV content from S3
+            csv_response = client.get_object(
+                Bucket=self.args["bucket_name"], Key=csv_key
+            )
+            csv_content = csv_response["Body"].read().decode("utf-8")
+
+            # Transform CSV content to DataFrame
+            data_table_eqs = pd.read_csv(StringIO(csv_content), sep=";")
+            data_table_eqs["DATE_FROM"] = pd.to_datetime(
+                data_table_eqs["DATE_FROM"]
+            ).dt.date
+            data_table_eqs["DATE_TO"] = pd.to_datetime(
+                data_table_eqs["DATE_TO"]
+            ).dt.date
+            self.logger.info("CSV file loaded")
+            return data_table_eqs
+        else:
+            self.logger.info("No CSV file found in the specified S3 path.")
+            return None
+
+    def apply_eq(self, row):
+        if (
+            row["_merge"] == "both"
+            and row["date"] >= row["DATE_FROM"]
+            and row["date"] <= row["DATE_TO"]
+            and row["FLAG_ACTIVE"] == 1
+        ):
+            row["id_main_branch"] = row["ID_MAIN_BRANCH_PARENT"]
+            row["id_country"] = row["ID_COUNTRY"]
+            row["payer"] = row["PARENT_PAYER"]
+            row["country"] = row["PARENT_COUNTRY"]
+        return row
+
+    def create_daily_check_and_equivalence(self):
         # Create Daily check dataframe
         database_name = "analytics"
         table_name = DAILY_CHECK_GP
         df = wr.athena.read_sql_table(table=table_name, database=database_name)
+        # Create aux for id_main_branch and id_country
+        aux = df.loc[:, ["payer", "country", "id_main_branch", "id_country"]]
+        aux = aux.drop_duplicates(subset=["id_country", "id_main_branch"], keep="last")
+        aux["payer_country"] = aux["payer"] + "_" + aux["country"]
+        aux = aux.loc[:, ["payer_country", "id_main_branch", "id_country"]]
+
+        # Create main id
+        df["ID_FULL"] = df["id_country"].str.strip() + df["id_main_branch"].str.strip()
+        df["date"] = pd.to_datetime(df["date"]).dt.date
+        df["day"] = pd.to_datetime(df["day"]).dt.date
+
+        # Create equivalence table
+        data_table_eqs = self.create_equivalence_df()
+        self.logger.info(f"Equivalence shape: {data_table_eqs.shape}")
+        # Create main id
+        data_table_eqs["ID_FULL"] = (
+            data_table_eqs["ID_COUNTRY"].str.strip()
+            + data_table_eqs["ID_MAIN_BRANCH_CHILD"].str.strip()
+        )
+        # Adding Parent data (Name & Country)
+        data_table_eqs = pd.merge(
+            data_table_eqs,
+            df[["payer", "country", "id_main_branch"]],
+            left_on="ID_MAIN_BRANCH_PARENT",
+            right_on="id_main_branch",
+            how="left",
+        ).drop_duplicates()
+        # Renaming
+        data_table_eqs = data_table_eqs.rename(
+            columns={"payer": "PARENT_PAYER", "country": "PARENT_COUNTRY"}
+        )
+        data_table_eqs.drop("id_main_branch", axis=1, inplace=True)
+        # Merge both
+        df = pd.merge(df, data_table_eqs, on="ID_FULL", how="left", indicator=True)
+
+        # Apply transform
+        df = df.apply(self.apply_eq, axis=1)
+
+        other_cols = ["payer", "country", "day"]
+        variables_to_sum = ["tx", "amount", "coupon_count", "gp"]
+
+        # Numeric columns
+        df["tx"] = df["tx"].astype(int)
+        df["coupon_count"] = df["coupon_count"].astype(int)
+        df["amount"] = df["amount"].astype(float)
+        df["gp"] = df["gp"].astype(float)
+
+        # Grouping columns
+        df_grouped = (
+            df.groupby(["date", "id_country", "id_main_branch"])[variables_to_sum]
+            .agg("sum")
+            .reset_index()
+        )
+
+        df_non_numeric = (
+            df.groupby(["date", "id_country", "id_main_branch"])[other_cols]
+            .first()
+            .reset_index()
+        )
+        eq_df = pd.merge(
+            df_grouped, df_non_numeric, on=["date", "id_main_branch", "id_country"]
+        )
+
+        df = eq_df.copy()
         # Convert the 'date' column to datetime format
+        df["date"] = pd.to_datetime(df["date"])
         df["day"] = pd.to_datetime(df["day"])
         # Grouping by 'payer' and 'country' concatenated for this level of granularity
         df["payer_country"] = df["payer"] + "_" + df["country"]
+        print(df.columns)
         # Margin (when tx !=0)
         df["margin"] = df.apply(
             lambda row: row["gp"] / row["tx"] if row["tx"] != 0 else 0, axis=1
@@ -337,92 +482,7 @@ class ABT:
         df_filled = self.fill_missing_dates_daily_check(
             df, self.args["start_date"], self.args["end_date"]
         )
-        return df_filled
-
-    def fill_missing_dates_daily_check_old_version(self, df, start_date, end_date):
-        """
-        Fill missing dates in the DataFrame with zero values and ensure all date ranges are covered.
-
-        Args:
-            df (pandas.DataFrame): Input DataFrame with columns 'date', 'amount', 'tx_cancelled', 'payer_country', etc.
-            start_date (str or datetime.date): Start date of the desired date range.
-            end_date (str or datetime.date): End date of the desired date range.
-
-        Returns:
-            pandas.DataFrame: DataFrame with missing dates filled and all date ranges covered.
-        """
-        # Convertir la columna 'date' a tipo datetime si aún no lo está
-        df["date"] = pd.to_datetime(df["date"])
-
-        # Definir el rango de fechas deseado
-        date_range = pd.date_range(start=start_date, end=end_date)
-
-        # Obtener el rango de fechas mínimo y máximo para cada 'payer_country'
-        #'payer_country','id_country','id_main_branch'
-
-        payer_country_ranges = (
-            df.groupby(["payer_country", "id_country", "id_main_branch"])["date"]
-            .agg(["min", "max"])
-            .reset_index()
-        )
-        payer_country_ranges["min"] = payer_country_ranges["min"].fillna(
-            pd.to_datetime(start_date)
-        )
-        payer_country_ranges["max"] = payer_country_ranges["max"].fillna(
-            pd.to_datetime(end_date)
-        )
-
-        # Combinar el DataFrame original con el DataFrame de todas las combinaciones de fechas
-        df_filled = pd.DataFrame()
-        for index, row in payer_country_ranges.iterrows():
-            payer_country = row["payer_country"]
-            start_payer = row["min"]
-            end_payer = row["max"]
-            payer_id_country = row["id_country"]
-            payer_id_main_branch = row["id_main_branch"]
-
-            # Filtrar el DataFrame original por 'payer_country'
-            df_payer = df[df["payer_country"] == payer_country]
-
-            # Rellenar valores faltantes en el rango de fechas del 'payer_country'
-            date_range_payer = pd.date_range(start=start_payer, end=end_payer)
-            date_combinations = pd.DataFrame(
-                {
-                    "date": date_range_payer,
-                    "payer_country": payer_country,
-                    "id_country": payer_id_country,
-                    "id_main_branch": payer_id_main_branch,
-                }
-            )
-            df_combined = pd.merge(
-                date_combinations, df_payer, on=["date", "payer_country"], how="left"
-            )
-            # Rellenar valores faltantes con cero
-            numeric_columns = ["amount", "coupon_count", "tx", "gp", "margin"]
-            df_combined[numeric_columns] = df_combined[numeric_columns].fillna(0)
-
-            # Rellenar valores faltantes en las columnas 'payer' y 'country' utilizando el método ffill
-            df_combined[["payer", "country", "id_country", "id_main_branch"]] = (
-                df_combined[
-                    ["payer", "country", "id_country_x", "id_main_branch_x"]
-                ].ffill()
-            )
-
-            # Rellenar valores faltantes en la columna 'day' con los valores de la columna 'date' cuando sea NaN
-            df_combined["day"] = df_combined["day"].fillna(df_combined["date"])
-
-            df_filled = pd.concat([df_filled, df_combined], ignore_index=True)
-
-        df_filled = df_filled.drop(
-            columns=[
-                "id_country_x",
-                "id_country_y",
-                "id_main_branch_x",
-                "id_main_branch_y",
-            ],
-            errors="ignore",
-        )
-        return df_filled
+        return df_filled, data_table_eqs, aux
 
     def fill_missing_dates_daily_check(self, df, start_date, end_date):
         """
@@ -479,10 +539,11 @@ class ABT:
             df_combined[numeric_columns] = df_combined[numeric_columns].fillna(0)
 
             # Rellenar valores faltantes en las columnas 'payer' y 'country' utilizando el método ffill
-            df_combined[["payer", "country"]] = df_combined[
-                ["payer", "country"]
-            ].ffill()
-
+            df_combined[["payer", "country", "id_country", "id_main_branch"]] = (
+                df_combined[
+                    ["payer", "country", "id_country", "id_main_branch"]
+                ].ffill()
+            )
             # Agrego una columna extra que mantenga el ultimo dia en que opero ese payer
             # APLICAR CAMBIO AL PIPELINE!!
             df_combined["max_day"] = df_combined.day.max()
@@ -524,7 +585,6 @@ class ABT:
             df.groupby("payer_country")
             .agg(
                 first_date=("day", "min"),
-                ## APLICAR CAMBIO AL PIPELINE!!
                 last_date=("max_day", "max"),
                 # last_date=('day', 'max'),
                 total_amount=("amount", "sum"),
@@ -652,7 +712,7 @@ class ABT:
 
         return df
 
-    def create_canceled_transactions(self):
+    def create_canceled_transactions(self, aux, data_table_eqs):
         ### EFFECT OF CANCELED TRANSACTIONS ###
         ##WE LOAD THE BASE WITH CANCELLATIONS
         database_name = "analytics"
@@ -668,14 +728,55 @@ class ABT:
             & (df2["date"] <= self.args["end_date"])
         ]
 
+        # Merge with aux
+        df_canc = pd.merge(df2, aux, on="payer_country", how="left")
+        df_canc["ID_FULL"] = (
+            df_canc["id_country"].str.strip() + df_canc["id_main_branch"].str.strip()
+        )
+        df_canc["date"] = pd.to_datetime(df_canc["date"]).dt.date
+        df_canc = pd.merge(
+            df_canc, data_table_eqs, on="ID_FULL", how="left", indicator=True
+        )
+
+        df_canc = df_canc.apply(self.apply_eq, axis=1)
+        other_cols_canc = ["payer", "country", "day"]
+        variables_to_sum_canc = ["tx_cancelled", "amount"]
+
+        df_canc['amount'] = df_canc['amount'].astype('float')
+        df_canc['tx_cancelled'] = df_canc['tx_cancelled'].astype('int')
+
+        # Grouping columns
+        df_grouped_canc = (
+            df_canc.groupby(["date", "id_country", "id_main_branch"])[
+                variables_to_sum_canc
+            ]
+            .agg("sum")
+            .reset_index()
+        )
+
+        df_non_numeric_canc = (
+            df_canc.groupby(["date", "id_main_branch", "id_country"])[other_cols_canc]
+            .first()
+            .reset_index()
+        )
+        eq_df_canc = pd.merge(
+            df_grouped_canc,
+            df_non_numeric_canc,
+            on=["date", "id_main_branch", "id_country"],
+        )
+
+        df_canc = eq_df_canc.copy()
+        df_canc["payer_country"] = df_canc["payer"] + "_" + df_canc["country"]
+
         # Call the function with the specified start_date and end_date
         df_full = self.fill_missing_dates(
-            df2, self.args["start_date"], self.args["end_date"]
+            df_canc, self.args["start_date"], self.args["end_date"]
         )
 
         # Call the function and assign the result back to df2
         df2 = self.generate_tx_lags_and_variation(df_full, TX_CANCELLED_LAGS)
         df2["day"] = pd.to_datetime(df2["day"])
+        df2["date"] = pd.to_datetime(df2["date"])
 
         return df2
 
@@ -1029,7 +1130,9 @@ class ABT:
             "payer",
             "country",
             "id_main_branch",
+            "id_main_branch_x",
             "id_country",
+            "id_country_x",
             "day_y",
             "day_x",
             "id_country_y",
@@ -1045,8 +1148,22 @@ class ABT:
         df = df.drop(columns=["id_country_y"], errors="ignore")
         ## Fill nan numeric values with 0
         df = self.fill_missing_with_zeros(df, exclude_convert)
-        for str_col in ['payer_country','payer','country','id_main_branch','id_country']:
-            df[str_col] = df[str_col].fillna(value='')
+        # Rename columns
+        df.rename(
+            columns={
+                "id_main_branch_x": "id_main_branch",
+                "id_country_x": "id_country",
+            },
+            inplace=True,
+        )
+        for str_col in [
+            "payer_country",
+            "payer",
+            "country",
+            "id_main_branch",
+            "id_country",
+        ]:
+            df[str_col] = df[str_col].fillna(value="")
         self.logger.info("fil missing to numeric")
         self.logger.info(df[df["max_feed_price"] != 0.0]["country"].unique())
         self.logger.info(df.info())
@@ -1059,62 +1176,73 @@ class ABT:
             mode="overwrite_partitions",
             compression="snappy",
         )
-
         return df
 
 
-##########################################
-##########################################
-##########################################
-#               RUN SCRIPT               #
-##########################################
-##########################################
-##########################################
+### UTILS
+def get_secret(secret_name, region_name):
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(service_name="secretsmanager", region_name=region_name)
+    try:
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+    # Decrypts secret using the associated KMS key.
+    secret = get_secret_value_response["SecretString"]
+    secret_ = json.loads(secret)
+    return secret_
 
 
-if __name__ == "__main__":
-    my_default_args = {
-        "JOB_NAME": "__required__",
-        "LOG_LEVEL": "INFO",
-        "bucket_name": "__required__",
-        "start_date": "__required__",
-        "end_date": "__required__",
-        "database": "__required__",
-        "schema": "__required__",
-        "table_name": "__required__",
-        "temp_s3_dir": "__required__",
-        "process_date": "None",
-        "date_lag": DATE_LAG,
-    }
-    sc = SparkContext()
-    glueContext = GlueContext(sc)
-    spark = glueContext.spark_session
-    job = Job(glueContext)
+def check_if_table_exist(args):
+    secret = get_secret(SECRET_NAME, REGION_NAME)
+    # SQLServer string connection
+    jdbc_viamericas = secret["connectionString"]
+    qryStr = f"""SELECT * FROM {args["database"]}.{args["schema"]}.{args["table_name"]} limit 10"""
+    table_exist = None
+    print(qryStr)
+    try:
+        jdbcDF = (
+            spark.read.format("jdbc")
+            .option("url", jdbc_viamericas)
+            .option("driver", "com.amazon.redshift.jdbc42.Driver")
+            .option("query", qryStr)
+            .option("user", secret["username"])
+            .option("password", secret["password"])
+            .option("fetchsize", 1000)
+            .load()
+        )
+        table_exist = True
+    except Exception as e:
+        print(e)
+        print("Retry because Remote cluster is initializing. Try again in 60 secs.")
+        time.sleep(60)
+        try:
+            jdbcDF = (
+                spark.read.format("jdbc")
+                .option("url", jdbc_viamericas)
+                .option("driver", "com.amazon.redshift.jdbc42.Driver")
+                .option("query", qryStr)
+                .option("user", secret["username"])
+                .option("password", secret["password"])
+                .option("fetchsize", 1000)
+                .load()
+            )
+            table_exist = True
+        except Exception as e:
+            # Handle the exception if the table does not exist
+            if "does not exist in the database." in str(e):
+                table_exist = False
+            print("Table does not exist.")
+            print(e)
 
-    parser = ArgsGet(my_default_args)
-    args = parser.loaded_args
-    args["date_lag"] = int(args["date_lag"])
-    # Object ABT
-    abt = ABT(args=args)
-    # Create abt partition (df)
-    abt_partition = abt.create_partition()
-    # Save partition
-    df = abt.save_partition(df=abt_partition)
-    print('Partition saved.')
-    #df = wr.s3.read_parquet('s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/abt_parquet/dt=2024-05-08/5830aff9a4c94cd6b88641d29d3ccd36.snappy.parquet')
-    # Create SparkDataframe
-    df_final = spark.createDataFrame(df)
-    # Detect numeric columns
-    numeric_cols = [
-        c[0] for c in df_final.dtypes if c[1] in ["bigint", "double", "float"]
-    ]
-    # Fill numeric values in spark dataframe
-    df_filled = df_final.fillna(0, subset=numeric_cols)
+    print(f"La tabla existe?? {table_exist}")
+    return table_exist
 
-    # Convert to Frame to upload to Redshift
-    df_final_frame = DynamicFrame.fromDF(df_filled, glueContext, "df_final")
-    # Redshift connection
-    rds_conn = "via-redshift-connection"
+
+def first_time_creation(args, glueContext, rds_conn, df_final_frame):
     # Create stage temp table with schema.
     pre_query = """
     begin;
@@ -1153,4 +1281,115 @@ if __name__ == "__main__":
         redshift_tmp_dir=args["temp_s3_dir"],
         transformation_ctx="upsert_to_redshift",
     )
-    job.commit()
+
+
+def insert_last_n_partitions(args, glueContext, rds_conn, df_final_frame):
+    query = """
+    begin;
+    delete from {database}.{schema}.{table_name} using public.stage_table_temporary_abt where public.stage_table_temporary_abt.date = {database}.{schema}.{table_name}.date;
+    insert into {database}.{schema}.{table_name} select * from public.stage_table_temporary_abt;
+    drop table public.stage_table_temporary_abt;
+    end;
+    """
+
+    post_query = query.format(
+        database=args["database"],
+        schema=args["schema"],
+        table_name=args["table_name"],
+    )
+    print(f"Post query : {post_query}")
+    # Send data to Redshift
+    glueContext.write_dynamic_frame.from_jdbc_conf(
+        frame=df_final_frame,
+        catalog_connection=rds_conn,
+        connection_options={
+            "database": args["database"],
+            "dbtable": f"public.stage_table_temporary_abt",
+            "postactions": post_query,
+        },
+        redshift_tmp_dir=args["temp_s3_dir"],
+        transformation_ctx="upsert_to_redshift",
+    )
+
+
+##########################################
+##########################################
+##########################################
+#               RUN SCRIPT               #
+##########################################
+##########################################
+##########################################
+
+
+if __name__ == "__main__":
+    my_default_args = {
+        "JOB_NAME": "__required__",
+        "LOG_LEVEL": "INFO",
+        "bucket_name": "__required__",
+        "start_date": "__required__",
+        "end_date": "__required__",
+        "database": "__required__",
+        "schema": "__required__",
+        "table_name": "__required__",
+        "temp_s3_dir": "__required__",
+        "upload_redshift": "__required__",
+        "prefix_equivalence_table": "__required__",
+        "endswith_equivalence_table": "__required__",
+        "process_date": "None",
+        "date_lag": DATE_LAG,
+    }
+    # prefix_equivalence_table -> PAYERS_EQUIVALENCE_TABLE
+    # endswith_equivalence_table -> PAYERS_EQUIVALENCE_TABLE.csv
+    sc = SparkContext()
+    glueContext = GlueContext(sc)
+    spark = glueContext.spark_session
+    job = Job(glueContext)
+
+    parser = ArgsGet(my_default_args)
+    args = parser.loaded_args
+    args["date_lag"] = int(args["date_lag"])
+    # Object ABT
+    abt = ABT(args=args)
+    # Create abt partition (df)
+    abt_partition = abt.create_partition()
+    # Save partition
+    df = abt.save_partition(df=abt_partition)
+    print("Partition saved.")
+    if args["upload_redshift"].upper() == "TRUE":
+        # Check if table exist
+        table_exist = check_if_table_exist(args=args)
+        # Chose selected columns
+        df = df[REDSHIFT_COLUMNS]
+        if not table_exist:
+            # Filter data historical
+            df = df[df["date"] > REDSHIFT_FIRST_DATE]
+        else:
+            # Send last n days
+            date_min = (datetime.now() - timedelta(days=REDSHIFT_UPDATE_DAYS)).strftime(
+                "%Y-%m-%d"
+            )
+            df = df[df["date"] > date_min]
+        # df = wr.s3.read_parquet('s3://viamericas-datalake-dev-us-east-1-283731589572-analytics/abt_parquet/dt=2024-05-08/5830aff9a4c94cd6b88641d29d3ccd36.snappy.parquet')
+        # Create SparkDataframe
+        df_final = spark.createDataFrame(df)
+        # Detect numeric columns
+        numeric_cols = [
+            c[0] for c in df_final.dtypes if c[1] in ["bigint", "double", "float"]
+        ]
+        # Fill numeric values in spark dataframe
+        df_filled = df_final.fillna(0, subset=numeric_cols)
+
+        # Convert to Frame to upload to Redshift
+        df_final_frame = DynamicFrame.fromDF(df_filled, glueContext, "df_final")
+        # Redshift connection
+        rds_conn = "via-redshift-connection"
+
+        # Check if table exist or not
+        if not table_exist:
+            # Create tale for first time
+            first_time_creation(args, glueContext, rds_conn, df_final_frame)
+        else:
+            # Only insert last 90 days
+            insert_last_n_partitions(args, glueContext, rds_conn, df_final_frame)
+
+        job.commit()
