@@ -1,6 +1,8 @@
 import pyodbc
 import joblib
 import numpy as np
+import pandas as pd
+import datetime as dt
 
 
 
@@ -43,16 +45,19 @@ def calificar(x_list:list)->dict:
     nombres = ['ID_BRANCH', 'ID_RECEIVER', 'TRANSACTION_UNIQUE', 
                   'date_receiver',
                   'RECEIVER_FRAUD','SENDER_FRAUD',
-                  'net_amount_receiver', 'branch_minutes_since_last_transaction',
-                  'branch_trans_3m', 'count_date_receiver_distinct', 'branch_has_fraud', 
-                  'receiver_has_fraud', 
-                  'branch_trans_40min', 'branch_trans_10min', 'cash_pick_up_40min', 
-                  'location_nro_fraud', 'sender_trans_3m', 
-                  'sender_nro_fraud',
-                  'id_country_receiver_claim','sender_state', 'id_state', 'range_hist',
-                  'receiver_has_fraud', 'branch_has_fraud', 'location_nro_fraud', 'sender_nro_fraud',
-                  'id_payout', 'sender_days_to_last_transaction', 'sender_minutes_since_last_transaction',
-                  'receiver_transaction_count', 'sender_sending_days', 'branch_working_days']
+                  'branch_minutes_since_last_transaction',
+                    'branch_trans_3m',  'branch_has_fraud',  
+                    'branch_trans_40min', 'branch_trans_10min', 'cash_pick_up_40min', 
+                    'location_nro_fraud', 'sender_trans_3m', 
+                    'sender_nro_fraud','id_country_receiver_claim', 
+                    'sender_state','id_state', 'net_amount_receiver', 'range_hist'
+                    'branch_has_fraud', 'location_nro_fraud',
+                    'id_payout', 
+                    'sender_days_to_last_transaction', 
+                    'receiver_transaction_count','01_sender_sending_days',
+                    'branch_working_days', '01_net_amount_receiver', 
+                    'sender_minutes_since_last_transaction',
+                    'hour_receiver']
 
     cols_modelo = ['ID_BRANCH', 'ID_RECEIVER', 'TRANSACTION_UNIQUE', 
                     'date_receiver',
@@ -73,12 +78,32 @@ def calificar(x_list:list)->dict:
                     'sender_days_to_last_transaction_7m', '01_hour_receiver']
 
     s = joblib.load('StrataModel.pkl')
+    Buckets = pd.read_csv('./BucketsStrataModel.csv')
+    pd.options.display.float_format = "{:,.15f}".format
 
     x = {}
     for num,i in enumerate(x_list):
         x[nombres[num]] = x_list[num]
         # print(nombresnum, i)
     # print(x)
+
+    #Recode some variables
+    x['01_isMexico'] = (x['id_country_receiver_claim'].str.strip() =='MEX')
+    x['01_sender_branch_state'] = (x['sender_state'].str.strip() == x['id_state'].str.strip())
+    x['01_var_range_hist'] =  (x['net_amount_receiver'].astype(float) / x['range_hist'])
+    x['01_branch_fraud'] =  (x['branch_has_fraud']>0)
+    x['01_location_fraud'] =  (x['location_nro_fraud']>0)
+    
+    cash_payout = ['M','P','S'] #id_payout for Cash Pick-up
+    bankdp_payout =['C','N','X','T'] #id_payout for Bank Deposit
+    x['01_isCashPick'] = x.id_payout.isin(cash_payout)
+    x['01_isBankDep'] = x.id_payout.isin(bankdp_payout)
+    
+    x['sender_days_to_last_transaction_more7m'] = (x['sender_days_to_last_transaction']> 7*30)
+    x['sender_days_to_last_transaction_7m'] = x.loc[x['sender_days_to_last_transaction']< 7*30, 'sender_days_to_last_transaction']
+    x['sender_days_to_last_transaction_365'] = x.loc[x['sender_days_to_last_transaction']< 365, 'sender_days_to_last_transaction']
+    x['sender_minutes_since_last_transaction_2days'] = x.loc[x['sender_minutes_since_last_transaction']> 2*24*60,'sender_minutes_since_last_transaction']
+    
     
     if (x['RECEIVER_FRAUD'] == 1) or (x['SENDER_FRAUD'] == 1):
         x['WAS_FRAUD'] = 1
@@ -90,14 +115,25 @@ def calificar(x_list:list)->dict:
     print('vector a calificar:{}'.format(giro_a_calificar))
     resultado = s.predict_proba(giro_a_calificar)
     print(resultado)
+    
+    #Recode score to standarize
+    Buckets['min'] = pd.to_numeric(Buckets['min'])
+    Buckets['max'] = pd.to_numeric(Buckets['max'])
+
+    #bins = np.sort(np.append(Buckets['min'], Buckets['max'].iloc[-1]))
+    bins = np.sort(np.append(Buckets['min'], np.inf))  
+
+    labels = np.sort(Buckets['final_score'])
+    
     # resultado_def = s.predict(giro_a_calificar)[0]
-    umbral = 0.5
-    if resultado[0][0] >= umbral:
-        x['WAS_FRAUD'] = 0
-        x['PROBABILIDAD'] = resultado[0][0]
-    else:
+    umbral = 0.9
+    x['PROBABILIDAD'] = resultado[0][1]
+    # Recode scores using pd.cut()
+    x['PROBABILIDAD'] = pd.cut(x['PROBABILIDAD'], bins=bins, labels=labels)
+    if resultado[0][1] >= umbral:
         x['WAS_FRAUD'] = 1
-        x['PROBABILIDAD'] = resultado[0][1]
+    else:
+        x['WAS_FRAUD'] = 0
     return x
     
 
@@ -120,21 +156,31 @@ def get_data(cursor=None):
     print(row is None)
     while row is not None:
         row_v = [row.ID_BRANCH, row.ID_RECEIVER, row.TRANSACTION_UNIQUE, row.RECEIVER_FRAUD, row.SENDER_FRAUD, 
-                  row.01_branch_working_days, row.branch_minutes_since_last_transaction,
-                  row.branch_trans_3m, row.count_date_receiver_distinct, row.branch_has_fraud, 
-                  row.receiver_has_fraud, 
-                  row.branch_trans_40min, row.branch_trans_10min, row.cash_pick_up_40min, 
-                  row.location_nro_fraud, row.sender_trans_3m, 
-                  row.sender_nro_fraud, row.01_isMexico, 
-                  row.01_sender_branch_state, row.01_var_range_hist, row.01_receiver_fraud, 
-                  row.01_branch_fraud, row.01_location_fraud, row.01_sender_fraud, 
-                  row.01_isCashPick, row.01_isBankDep, 
-                  row.sender_days_to_last_transaction_more7m, 
-                  row.01_receiver_transaction_count, row.01_sender_sending_days,
-                  row.01_branch_working_days, row.01_net_amount_receiver, 
-                  row.01_sender_minutes_since_last_transaction_2days, 
-                  row.01_sender_days_to_last_transaction_365, 
-                  row.01_sender_days_to_last_transaction_7m, row.01_hour_receiver]
+                  row.branch_minutes_since_last_transaction
+row.branch_trans_3m
+row.branch_has_fraud
+row.branch_trans_40min
+row.branch_trans_10min
+row.cash_pick_up_40min
+row.location_nro_fraud
+row.sender_trans_3m
+row.sender_nro_fraud
+row.01_isMexico
+row.01_sender_branch_state
+row.01_var_range_hist
+row.01_branch_fraud
+row.01_location_fraud
+row.01_isCashPick
+row.01_isBankDep
+row.sender_days_to_last_transaction_more7m
+row.receiver_transaction_count
+row.01_sender_sending_days
+row.branch_working_days
+row.01_net_amount_receiver
+row.sender_minutes_since_last_transaction_2days
+row.sender_days_to_last_transaction_365
+row.sender_days_to_last_transaction_7m
+row.01_hour_receiver]
     
         # row_v = [i for i in row]
         # print(row_v)
