@@ -274,9 +274,9 @@ Resources:
     Properties:
       Name: !Ref ViaEventBridgeMonitoringName
       Description: Executes Monitoring Rule SM.
-      # TODO: change cron schedule expression to change time execution. Now run all the thursday at 10 AM.
-      ScheduleExpression: cron(0 10 ? * 5 *)
-      State: DISABLED
+      # TODO: change cron schedule expression to change time execution. Now run on Monday at 10 AM.
+      ScheduleExpression: cron(0 10 ? * 2 *)
+      State: ENABLED
       Targets:
         - Arn: !Ref VIAStateMachineMonitoring
           Id: VIAStateMachineMonitoring
