@@ -24,6 +24,8 @@ from awsglue.job import Job
 from awsglue.dynamicframe import DynamicFrame
 
 
+DAILY_CHECK_GP = 'daily_check_gp' #20240513_daily_check_gp
+
 # check input variables
 class InputVaribleRequired(Exception):
     pass
@@ -160,28 +162,54 @@ class MonitoringRules:
                 )
         return partition_dt
 
+    def read_daily_check_gp(self):
+        self.logger.info("Reading from daily_check_gp...")
+        # DB Setting
+        database_name = "analytics"
+        table_name = DAILY_CHECK_GP
+        df = wr.athena.read_sql_table(
+            table=table_name,
+            database=database_name,
+        )
+        aux=df.loc[:,['payer','country','id_main_branch', 'id_country']]
+        aux = aux.drop_duplicates(subset=['id_country', 'id_main_branch'], keep='last')
+        aux['payer_country'] = aux['payer'] +'_'+ aux['country']
+        aux=aux.loc[:,['payer_country','id_main_branch', 'id_country']]
+        self.logger.info(f"Aux check: {aux.shape}")
+        return aux
+
     def recommended_actions(self):
         self.logger.info(f'Recommended actions process...')
+        # Generate monitoring df
         df_monitoring = self.generate_conditions()
-        df_monitoring['RECOMMENDED_ACTIONS'] = df_monitoring.apply(self.actions_recommended, axis=1)
+        df_monitoring['desc_recommended_actions'] = df_monitoring.apply(self.actions_recommended, axis=1)
+        # Generate aux df
+        aux = self.read_daily_check_gp()
+        # Merge with aux
+        df_monitoring = pd.merge(df_monitoring, aux, left_on=['folder_name'],right_on=['payer_country'], how='inner')
+        df_monitoring[['payer', 'country']] = df_monitoring['payer_country'].str.split('_', expand=True)
+        # Normalize
+        df_monitoring = df_monitoring.rename(columns={'payer': 'des_payer', 'country': 'des_country', 'id_main_branch': 'id_payer'})
+        cols_to_eliminate = ['payer_country', 'folder_name']
+        df_monitoring = df_monitoring.drop(columns=cols_to_eliminate)
         # Define date
-        df_monitoring['last_check_date'] = df_monitoring['last_check_date'].dt.strftime('%Y%m%d')
+        df_monitoring['date_last_check'] = df_monitoring['date_last_check'].dt.strftime('%Y%m%d')
         # Date
-        date = df_monitoring['last_check_date'].iloc[0]
+        date = df_monitoring['date_last_check'].iloc[0]
         # Define file_name
-        file_name = f"day={date[:4]}-{date[4:6]}-{date[6:]}/"
+        file_name = f"day={date[:4]}-{date[4:6]}-{date[6:]}"
         # Save dataframe
         self.save_df(df=df_monitoring, name=file_name)
 
         return df_monitoring
 
     def actions_recommended(self, row):
-        if  row['CONDITION1'] == True and row['CONDITION2']==True and row['CONDITION3']==False:
-            return 'REQUIRES CALIBRATION'
-        elif row['CONDITION1'] == True and row['CONDITION3']==True:
-            return 'REQUIRES RE-TRAINING'
+        if  row['flag_increasing_moving_averages'] == True and row['flag_activate_calibration']==True and row['flag_activate_retraining']==False:
+            return 'requires calibration'
+        elif row['flag_increasing_moving_averages'] == True and row['flag_activate_retraining']==True:
+            return 'requires re-training'
         else:
-            return 'KEEP CURRENT MODEL'
+            return 'keep current model'
 
     def generate_conditions(self):
         self.logger.info('Consolidate dataframe using xlsx files from the top15 payers.')
@@ -192,33 +220,38 @@ class MonitoringRules:
         self.logger.info('Executing condition 1...')
         result_one = self.condition_one(df=df)
         self.logger.info(f'Result 1 shape: {result_one.shape}')
+        self.logger.info(f'DF one: \n {result_one}')
         # Condition 2
         self.logger.info('Executing condition 2...')
         result_two = self.condition_two(df=df)
         self.logger.info(f'Result 2 shape: {result_two.shape}')
+        self.logger.info(f'DF two: \n {result_two}')
         # Combine
         ###WE ADD THE MAXIMUM OF THE 7-DAY MOVING AVERAGE OF THE MAPEs IN THE TEST PERIOD
         df_monitoring=pd.merge(result_one, result_two, on='folder_name', how='outer')
+        self.logger.info(f'DF merge: \n {df_monitoring}')
         # Rename columns
-        df_monitoring.rename(columns={'mape_7_days_avg': 'mape_7_days_avg_mobile_max'}, inplace=True)
+        df_monitoring.rename(columns={'mape_7_days_avg': 'val_mape_max_mobile_7_days'}, inplace=True)
         # Generate condition 2 and 3.
-        df_monitoring['CONDITION2'] = df_monitoring.apply(self.generate_condition2, axis=1)
-        df_monitoring['CONDITION3'] = df_monitoring.apply(self.generate_condition3, axis=1)
+        # Aplicar la función a lo largo de las filas del DataFrame
+        df_monitoring['flag_activate_calibration'] = df_monitoring.apply(self.generate_condition2, axis=1)
+        df_monitoring['flag_activate_retraining'] = df_monitoring.apply(self.generate_condition3, axis=1)
 
         self.logger.info(f'Monitoring shape final: {df_monitoring.shape}')
+        self.logger.info(f'Monitoring final: {df_monitoring}')
 
         return df_monitoring
 
     ###GENERATE CONDITION 2
     def generate_condition2(self, row):
-        if  row['mape_last_monday']  > row['mape_7_days_avg_mobile_max'] * 1.05:
+        if  row['val_mape_1_week']  > row['val_mape_max_mobile_7_days'] * 1.05:
             return True
         else:
             return False
 
     ###GENERATE CONDITION 3
     def generate_condition3(self, row):
-        if  row['mape_last_monday']  >  row['mape_7_days_avg_mobile_max'] * 1.10:
+        if  row['val_mape_1_week']  >  row['val_mape_max_mobile_7_days'] * 1.10:
             return True
         else:
             return False
@@ -255,30 +288,30 @@ class MonitoringRules:
         ###DETECT THE LAST MONDAY IN THE SERIES
         last_monday = group[group['date'].dt.dayofweek == 0].max()['date']
         ### EXTRAMING THE MAPEs MOBILE AVERAGE FOR THE 7 DAYS PRIOR TO THAT MONDAY
-        mape_last_monday = group[group['date'] == last_monday]['mape_7_days_avg'].iloc[0]
+        val_mape_1_week = group[group['date'] == last_monday]['mape_7_days_avg'].iloc[0]
         ###DETECT THE PREVIOUS MONDAY
         previous_monday = last_monday - pd.DateOffset(7)
         ###OBTAINING THE MOVING AVERAGE OF MAPS FOR THE PREVIOUS SEVEN DAYS
-        mape_previous_monday = group[group['date'] == previous_monday]['mape_7_days_avg'].iloc[0]
+        val_mape_2_week = group[group['date'] == previous_monday]['mape_7_days_avg'].iloc[0]
         ###DETECT THE MONDAY BEFORE THE SECOND MONDAY
         previous_previous_monday = previous_monday - pd.DateOffset(7)
         ###OBTAINING THE MOVING AVERAGE OF MAPES FOR THE PREVIOUS SEVEN DAYS
-        mape_previous_previous_monday = group[group['date'] == previous_previous_monday]['mape_7_days_avg'].iloc[0]
+        val_mape_3_week = group[group['date'] == previous_previous_monday]['mape_7_days_avg'].iloc[0]
 
         # CREATE A DATAFRAME WITH ADDITIONAL COLUMNS
         result = pd.DataFrame({
-            'last_check_date': [last_monday],
+            'date_last_check': [last_monday],
             'folder_name': [group['folder_name'].iloc[0]], # El nombre del folder_name es el mismo para todos los registros del grupo
-            'mape_last_monday': [mape_last_monday],
-            'mape_previous_monday': [mape_previous_monday],
-            'mape_previous_previous_monday': [mape_previous_previous_monday]
+            'val_mape_1_week': [val_mape_1_week],
+            'val_mape_2_week': [val_mape_2_week],
+            'val_mape_3_week': [val_mape_3_week]
         })
 
         # ADD CONDITION 1 COLUMN
-        if mape_last_monday > mape_previous_monday and mape_previous_monday > mape_previous_previous_monday:
-            result['CONDITION1'] = True
+        if val_mape_1_week > val_mape_2_week and val_mape_2_week > val_mape_3_week:
+            result['flag_increasing_moving_averages'] = True
         else:
-            result['CONDITION1'] = False
+            result['flag_increasing_moving_averages'] = False
 
         return result
 
@@ -291,8 +324,8 @@ class MonitoringRules:
             + "/"
             + name
         )
-        # last_check_date to datetime
-        df["last_check_date"] = pd.to_datetime(df["last_check_date"])
+        # date_last_check to datetime
+        df["date_last_check"] = pd.to_datetime(df["date_last_check"])
         self.logger.info(f"Save inference in: {path_s3}")
         # Guarda el DataFrame en formato Parquet en S3
         response = wr.s3.to_parquet(df, path=path_s3, dataset=True, index=False,mode="overwrite_partitions",compression="snappy",)
@@ -302,7 +335,7 @@ class MonitoringRules:
         # I call function to read xlsx and consolidate into one DF
         df_top15 = self.read_files(bucket_name=self.args['bucket_name'], prefix=self.args['prefix_name_xlsx'])
         ##DATE OF ANALYSIS
-        date = datetime.today().strftime('%Y-%m-%d')
+        date = self.process_date # datetime.today().strftime('%Y-%m-%d')
         df_top15=df_top15.loc[df_top15.date<date]
         # Cast to date
         df_top15['date'] = pd.to_datetime(df_top15['date'])
@@ -318,6 +351,7 @@ class MonitoringRules:
         dfs = []
         self.logger.info(f'Bucket: {bucket_name}')
         self.logger.info(f'Prefix: {prefix}')
+        # Get all payers folders top-15
         folders_v3 = self.get_all_files(bucket_name=bucket_name,prefix=prefix)
         self.logger.info(f'Folder: {folders_v3}')
         # Iterar sobre cada carpeta
@@ -332,7 +366,7 @@ class MonitoringRules:
                 self.logger.info(excel_objects)
                 # Leer el primer archivo xlsx encontrado
                 obj = self.s3_client.get_object(Bucket=bucket_name, Key=excel_objects[0]['Key'])
-                excel_data = obj['Body'].read() # No se puede leer con pandas directo de S3
+                excel_data = obj['Body'].read()
 
                 df = pd.read_excel(BytesIO(excel_data))
                 # Agrego columna con el nombre de la carpeta
@@ -427,21 +461,25 @@ if __name__ == "__main__":
         # Create stage temp table with schema.
         pre_query = """
         CREATE TABLE if not exists {database}.{schema}.{table_name} (
-            last_check_date date ENCODE az64,
-            folder_name character varying(100) ENCODE lzo,
-            mape_last_monday double precision ENCODE raw,
-            mape_previous_monday double precision ENCODE raw,
-            mape_previous_previous_monday double precision ENCODE raw,
-            condition1 boolean ENCODE raw,
-            mape_7_days_avg_mobile_max	double precision ENCODE raw,
-            condition2	boolean ENCODE raw,
-            condition3	boolean ENCODE raw,
-            recommended_actions character varying(100) ENCODE lzo
+            date_last_check date ENCODE az64,
+            val_mape_1_week double precision ENCODE raw,
+            val_mape_2_week double precision ENCODE raw,
+            val_mape_3_week double precision ENCODE raw,
+            flag_increasing_moving_averages boolean ENCODE raw,
+            val_mape_max_mobile_7_days double precision ENCODE raw,
+            flag_activate_calibration boolean ENCODE raw,
+            flag_activate_retraining boolean ENCODE raw,
+            desc_recommended_actions character varying(100) ENCODE lzo,
+            id_payer character varying(100) ENCODE lzo,
+            id_country character varying(100) ENCODE lzo,
+            des_payer character varying(100) ENCODE lzo,
+            des_country character varying(100) ENCODE lzo
             );
         """
+
         post_query = """
         begin;
-        delete from {database}.{schema}.{table_name} using public.stage_table_monitoring_rules_temp where public.stage_table_monitoring_rules_temp.last_check_date = {database}.{schema}.{table_name}.last_check_date;
+        delete from {database}.{schema}.{table_name} using public.stage_table_monitoring_rules_temp where public.stage_table_monitoring_rules_temp.date_last_check = {database}.{schema}.{table_name}.date_last_check;
         insert into {database}.{schema}.{table_name} select * from public.stage_table_monitoring_rules_temp;
         drop table public.stage_table_monitoring_rules_temp;
         end;
