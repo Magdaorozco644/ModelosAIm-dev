@@ -284,16 +284,16 @@ jdbcDF.write.parquet(s3_output_path, mode="overwrite")
     
 def main():
     # Leer el archivo Excel
-    excel_file = 's3://viamericas-datalake-dev-us-east-1-283731589572-raw/Datadictionarytotal.csv'
+    excel_file = 's3://viamericas-datalake-dev-us-east-1-283731589572-raw/DataDictionaryTotal.csv'
 
     df = wr.s3.read_csv(excel_file)  # Read dataset
-    df = df[df['USE?'].isnull()]  # Filter by columns that won't be used
+    # df = df[df['USE?'].isnull()]  # Filter by columns that won't be used
 
     # Generating files just for all database except EnvioDW.
     #df = df[df['Database'] != 'EnvioDW']
     
     
-    df = df[df["AGREGAR"]=='SI']
+    # df = df[df["AGREGAR"]=='SI']
     #print(df[["Database","Schema","Table"]].head())
     
     # Ignore sysname, tAppName, and tSessionId because they are duplicates of other columns
@@ -307,7 +307,7 @@ def main():
     df = df[df['Table'] != 'SENDER']
 
     df['Column'] = df.apply(
-        lambda row: f"rtrim([{row['Column']}]) as {row['Column']}"
+        lambda row: f"rtrim([{row['Column']}]) as [{row['Column']}]"
         if
         row['Data_Type'] == 'nchar'
         or row['Data_Type'] == 'nvarchar'
@@ -338,6 +338,8 @@ def main():
 
         # Crear un directorio para guardar los scripts si no existe
         output_directory = '/tmp'
+        #if not os.path.exists(output_directory):
+        #    os.makedirs(output_directory)
 
         # Escribir el script en un archivo
         output_file = f"{output_directory}/{database}_{schema}_{table}_glue_script.py"
@@ -347,6 +349,13 @@ def main():
         # Subir script a aws
         upload_file(glue_script, database, schema, table)
 
+    print(jobs_str)
+    # Escribir el listado de trabajos en un archivo JSON
+    #with open('jobs.json', 'w') as json_file:
+    #    jobs_json = json.dumps(jobs, indent=4)
+    #    json_file.write(jobs_json)
+
+    #print("Archivo jobs.json generado exitosamente.")
     print("Scripts de Glue generados exitosamente.")
 
 
