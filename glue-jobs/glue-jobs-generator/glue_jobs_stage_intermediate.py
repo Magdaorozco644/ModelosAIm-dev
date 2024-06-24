@@ -281,6 +281,7 @@ def main():
             f.write(glue_script)
 
         # Subir script a aws
+        
         upload_file(glue_script, table)
 
 
