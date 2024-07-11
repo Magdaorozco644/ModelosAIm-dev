@@ -88,9 +88,8 @@ def calificar(x_list:list)->dict:
     # print(x)
     
     #Standarize
-    P1 = 0
-    P99 = 710
-    x['01_sender_sending_days'] = x['sender_sending_days']
+    x['01_sender_sending_days'] = x['sender_sending_days'] /710
+    x['01_net_amount_receiver'] = x['net_amount_receiver'] /2200
 
     #Recode some variables
     x['01_isMexico'] = (x['id_country_receiver_claim'].str.strip() =='MEX')
