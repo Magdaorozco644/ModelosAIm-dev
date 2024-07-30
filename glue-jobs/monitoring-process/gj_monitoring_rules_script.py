@@ -449,17 +449,25 @@ if __name__ == "__main__":
         # Pandas DataFrame to Spark DataFrame
         df_final_2d_spark = spark.createDataFrame(df)
 
-        print(df_final_2d_spark.printSchema())
-        print(df_final_2d_spark.show())
+        # Detect numeric columns
+        numeric_cols = [
+            c[0] for c in df_final_2d_spark.dtypes if c[1] in ["bigint", "double", "float"]
+        ]
+        # Fill numeric values in spark dataframe
+        df_filled = df_final_2d_spark.fillna(0, subset=numeric_cols)
+
+        print(df_filled.printSchema())
+        print(df_filled.show())
 
         # Converto to Frame to upload to Redshift
         df_final_2d_frame = DynamicFrame.fromDF(
-            df_final_2d_spark, glueContext, "df_final"
+            df_filled, glueContext, "df_final"
         )
         # Redshift connection
         rds_conn = "via-redshift-connection"
         # Create stage temp table with schema.
         pre_query = """
+        begin;
         CREATE TABLE if not exists {database}.{schema}.{table_name} (
             date_last_check date ENCODE az64,
             val_mape_1_week double precision ENCODE raw,
@@ -475,6 +483,7 @@ if __name__ == "__main__":
             des_payer character varying(100) ENCODE lzo,
             des_country character varying(100) ENCODE lzo
             );
+        end;
         """
 
         post_query = """
